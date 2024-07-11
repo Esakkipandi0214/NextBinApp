@@ -33,16 +33,17 @@ const Component: React.FC<ComponentProps> = () => {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
                 <Link href="#" passHref>
-                  <a className="text-sm font-medium text-primary hover:underline">Forgot password?</a>
+                  <p className="text-sm font-medium text-primary hover:underline">Forgot password?</p>
                 </Link>
               </div>
               <Input id="password" type="password" placeholder="Enter your password" />
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full">
+          <Link href='/Dashboard'> 
+            <Button type="submit" className="w-full mx-20">
               Login
-            </Button>
+            </Button></Link>
           </CardFooter>
         </Card>
       </div>
