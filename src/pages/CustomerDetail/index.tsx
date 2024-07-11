@@ -3,6 +3,9 @@ import Layout from '@/components/layout';
 import Link from 'next/link';
 import { db } from "../../firebase"; // Assuming you've exported db from your Firebase initialization file
 import { collection, getDocs } from "firebase/firestore"; 
+import { IoCallOutline } from "react-icons/io5";
+import { BsChat } from "react-icons/bs";
+import { MdOutlineEmail } from "react-icons/md";
 
 interface CustomerProps {
   name: string;
@@ -60,10 +63,19 @@ const Component: React.FC = () => {
     }
   };
 
+  // Function to calculate days since last order
+  const calculateDaysSinceLastOrder = (lastOrderDate: string) => {
+    const lastOrder = new Date(lastOrderDate);
+    const currentDate = new Date();
+    const differenceInTime = currentDate.getTime() - lastOrder.getTime();
+    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+    return differenceInDays;
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 md:px-6 py-8">
-        <div className="grid  gap-8">
+        <div className="grid gap-8">
           <div className="grid gap-8">
             <div className="grid gap-4">
               <h2 className="text-xl font-semibold">Customer List</h2>
@@ -75,10 +87,10 @@ const Component: React.FC = () => {
                 onChange={handleSearchChange}
               />
               {searchQuery.length === 0 && (
-                <CustomerList customers={customers} onCustomerSelect={handleCustomerSelect} />
+                <CustomerList customers={customers} onCustomerSelect={handleCustomerSelect} calculateDaysSinceLastOrder={calculateDaysSinceLastOrder} />
               )}
               {searchQuery.length > 0 && (
-                <CustomerList customers={filteredCustomers} onCustomerSelect={handleCustomerSelect} />
+                <CustomerList customers={filteredCustomers} onCustomerSelect={handleCustomerSelect} calculateDaysSinceLastOrder={calculateDaysSinceLastOrder} />
               )}
             </div>
           </div>
@@ -112,6 +124,11 @@ const Component: React.FC = () => {
                     <ContactDetail label="Email" value={<Link href="#" className="text-blue-600 underline" prefetch={false}>{selectedCustomer.email}</Link>} />
                     <ContactDetail label="Phone" value={<Link href="#" className="text-blue-600 underline" prefetch={false}>{selectedCustomer.phone}</Link>} />
                     <ContactDetail label="Address" value={selectedCustomer.address} />
+                    <div className='flex  gap-2'>
+                      <button><IoCallOutline className='border-2 border-zinc-500 w-8 h-5 '/></button>
+                      <button><BsChat className='border-2 border-zinc-500 w-8 h-5'/></button>
+                      <button><MdOutlineEmail className='border-2 border-zinc-500 w-8 h-5'/></button>
+                    </div>
                   </div>
                 </div>
               </>
@@ -124,17 +141,34 @@ const Component: React.FC = () => {
 };
 
 // CustomerList component to display list of customers
-const CustomerList: React.FC<{ customers: CustomerProps[]; onCustomerSelect: (customer: CustomerProps) => void }> = ({ customers, onCustomerSelect }) => {
-  return (
-    <div className="grid gap-4">
-      {customers.map((customer, index) => (
-        <div key={index} className="cursor-pointer" onClick={() => onCustomerSelect(customer)}>
-          <span className="text-lg font-medium">{customer.name}</span>
+const CustomerList: React.FC<{ customers: CustomerProps[]; onCustomerSelect: (customer: CustomerProps) => void; calculateDaysSinceLastOrder: (lastOrderDate: string) => number }> = ({ customers, onCustomerSelect, calculateDaysSinceLastOrder }) => (
+  <div className="grid gap-4">
+    {customers.map((customer, index) => {
+      const daysSinceLastOrder = calculateDaysSinceLastOrder(customer.lastOrderDate);
+      let highlightClass = '';
+
+      // Determine highlight class based on frequency days
+      if (daysSinceLastOrder >= 20) {
+        highlightClass = 'bg-red-100'; // Red background for 20 days or more
+      } else if (daysSinceLastOrder >= 15) {
+        highlightClass = 'bg-yellow-100'; // Yellow background for 10-15 days
+      }
+
+      return (
+        <div
+          key={index}
+          className={`cursor-pointer border border-gray-200 p-2 rounded-md w-1/2 ${highlightClass}`}
+          onClick={() => onCustomerSelect(customer)}
+        >
+          <h3 className="text-lg font-medium">{customer.name}</h3>
+          <p className="text-sm text-gray-500">
+            Last order: {daysSinceLastOrder} days ago
+          </p>
         </div>
-      ))}
-    </div>
-  );
-};
+      );
+    })}
+  </div>
+);
 
 // Separator component
 const Separator = () => <hr className="border-gray-300 my-4" />;
@@ -204,8 +238,6 @@ const Badge: React.FC<{ variant: 'outline' | 'secondary'; children: React.ReactN
 );
 
 export default Component;
-
-
 
 
 // Import necessary modules and components
