@@ -1,4 +1,3 @@
-// Import necessary modules and components
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { db } from "@/firebase";
@@ -14,7 +13,6 @@ interface Props {
   onClose: () => void;
 }
 
-// Main component definition
 const Component: React.FC<Props> = ({ customer, onClose }) => {
   const [customerData, setCustomerData] = useState<any[]>([]);
   const [editingCustomer, setEditingCustomer] = useState<any>(null);
@@ -80,14 +78,14 @@ const Component: React.FC<Props> = ({ customer, onClose }) => {
 
   return (
     <Layout>
-      <div className="max-4xl mx-auto md:p-10">
+      <div className="max-w-7xl mx-auto md:p-10 p-4">
         <div className="flex justify-end mb-4">
           <Button onClick={() => setShowCreateModal(true)}>Add Customer</Button>
         </div>
 
         {showCreateModal && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white rounded-lg p-6 w-1/2">
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-lg">
               <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
@@ -125,7 +123,7 @@ const Component: React.FC<Props> = ({ customer, onClose }) => {
           </div>
         )}
 
-        <div className="">
+        <div className="overflow-x-auto">
           {customerData.length > 0 ? (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -146,7 +144,7 @@ const Component: React.FC<Props> = ({ customer, onClose }) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link href="#">
                         <p
-                          className="text-blue-500 hover:text-blue-700"
+                          className="text-blue-500 hover:text-blue-700 cursor-pointer"
                           onClick={() => {
                             setSelectedCustomer(customer);
                             setShowCustomerDetail(true);
@@ -176,38 +174,38 @@ const Component: React.FC<Props> = ({ customer, onClose }) => {
         </div>
 
         {showEditModal && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white rounded-lg p-6 w-96">
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-lg">
               <h2 className="text-2xl font-bold mb-4">Edit Customer</h2>
               <form onSubmit={handleEditSubmit}>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="edit-name">Name</Label>
-                      <Input id="edit-name" name="name" type="text" defaultValue={editingCustomer?.name} required />
+                      <Label htmlFor="name">Name</Label>
+                      <Input id="name" name="name" type="text" placeholder="Enter customer name" defaultValue={editingCustomer.name} required />
                     </div>
                     <div>
-                      <Label htmlFor="edit-email">Email</Label>
-                      <Input id="edit-email" name="email" type="email" defaultValue={editingCustomer?.email} required />
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" name="email" type="email" placeholder="Enter customer email" defaultValue={editingCustomer.email} required />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="edit-phone">Phone</Label>
-                    <Input id="edit-phone" name="phone" type="tel" defaultValue={editingCustomer?.phone} required />
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input id="phone" name="phone" type="tel" placeholder="Enter customer phone number" defaultValue={editingCustomer.phone} required />
                   </div>
                   <div>
-                    <Label htmlFor="edit-website">Website</Label>
-                    <Input id="edit-website" name="website" type="text" defaultValue={editingCustomer?.website} required />
+                    <Label htmlFor="website">Website</Label>
+                    <Input id="website" name="website" type="text" placeholder="Enter customer website" defaultValue={editingCustomer.website} required />
                   </div>
                   <div>
-                    <Label htmlFor="edit-address">Address</Label>
-                    <Input id="edit-address" name="address" type="text" defaultValue={editingCustomer?.address} required />
+                    <Label htmlFor="address">Address</Label>
+                    <Input id="address" name="address" type="text" placeholder="Enter customer address" defaultValue={editingCustomer.address} required />
                   </div>
                   <div>
-                    <Label htmlFor="edit-frequency">Frequency</Label>
-                    <Input id="edit-frequency" name="frequency" type="text" defaultValue={editingCustomer?.frequency} required />
+                    <Label htmlFor="frequency">Frequency</Label>
+                    <Input id="frequency" name="frequency" type="text" placeholder="Enter customer frequency" defaultValue={editingCustomer.frequency} required />
                   </div>
-                  <Button type="submit" className="w-full">Update Customer</Button>
+                  <Button type="submit" className="w-full">Save Changes</Button>
                 </div>
               </form>
               <Button onClick={() => setShowEditModal(false)} className="mt-4 w-full">Cancel</Button>
@@ -215,13 +213,7 @@ const Component: React.FC<Props> = ({ customer, onClose }) => {
           </div>
         )}
 
-        {showCustomerDetail && (
-           <div>
-           {/* Example usage */}
-           <p>Customer Name: {customer.name}</p>
-           <button onClick={onClose}>Close</button>
-         </div>
-        )}
+       
       </div>
     </Layout>
   );

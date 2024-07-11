@@ -6,6 +6,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { IoCallOutline } from "react-icons/io5";
 import { BsChat } from "react-icons/bs";
 import { MdOutlineEmail } from "react-icons/md";
+import Image from '../../../public/boy (1).png'
 
 interface CustomerProps {
   name: string;
@@ -99,7 +100,7 @@ const Component: React.FC = () => {
               <>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
-                    <img src="/placeholder-user.jpg" alt="Profile" className="object-cover w-full h-full" />
+                    <img src="/boy (1).png" alt="Profile" className="object-cover w-full h-full" />
                   </div>
                   <div className="grid gap-1">
                     <h1 className="text-2xl font-bold">{selectedCustomer.name}</h1>
