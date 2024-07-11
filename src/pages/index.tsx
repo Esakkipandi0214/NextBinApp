@@ -71,7 +71,7 @@ const Component: React.FC<ComponentProps> = () => {
             <p className="text-center text-sm text-muted">
               {isLogin ? (
                 <>
-                  Don't have an account?{" "}
+                  Don&apos;t have an account?{" "}
                   <span
                     onClick={() => setIsLogin(false)}
                     className="text-primary cursor-pointer hover:underline"
