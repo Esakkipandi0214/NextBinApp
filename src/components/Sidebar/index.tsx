@@ -21,8 +21,8 @@ const Sidebar: React.FC = () => {
     <div className={`fixed inset-y-0 left-0 z-10 w-44 sm:w-25 flex flex-col border-r bg-white shadow-lg ${isCollapsed ? 'hidden sm:flex' : 'flex'}`}>
       <div className="flex h-16 items-center justify-between border-b px-4 bg-gray-200">
         <Link href="/" passHref>
-          <p className="flex items-center gap-2 font-semibold text-primary">
-            <Image src="/images.png" alt="Logo" width={20} height={20} />
+          <p className="flex items-center ml-2 gap-2 font-semibold text-primary">
+            {/* <Image src="/images.png" alt="Logo" width={20} height={20} /> */}
             <span className={`${isCollapsed ? 'hidden' : 'block'}`}>BinApp</span>
           </p>
         </Link>

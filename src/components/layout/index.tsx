@@ -1,6 +1,6 @@
 // components/Layout.js
 import React, { ReactNode } from 'react';
-import Sidebar from '../Side2';
+import Sidebar from '../Sidebar';
 import { useRouter } from 'next/router';
 
 interface LayoutProps {
