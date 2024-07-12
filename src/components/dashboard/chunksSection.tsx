@@ -14,44 +14,41 @@ const ChunkStatistics: React.FC<ChunkStatisticsProps> = ({
   reservedChunks,
 }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <Card>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <Card className="bg-blue-50 border-blue-200">
         <CardHeader className="flex items-center justify-between">
-          <CardTitle>Total Chunks</CardTitle>
-          {/* Replace with your actual icon component */}
-          <CuboidIcon className="w-6 h-6 text-muted-foreground" />
+          <CardTitle className="text-blue-700">Total Chunks</CardTitle>
+          <CuboidIcon className="w-6 h-6 text-blue-700" />
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold">{totalChunks}</div>
-          <p className="text-muted-foreground">
+          <div className="text-4xl font-bold text-blue-700">{totalChunks}</div>
+          <p className="text-blue-600">
             <span className="font-medium">+5.2%</span> from last month
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-green-50 border-green-200">
         <CardHeader className="flex items-center justify-between">
-          <CardTitle>Available Chunks</CardTitle>
-          {/* Replace with your actual icon component */}
-          <CuboidIcon className="w-6 h-6 text-muted-foreground" />
+          <CardTitle className="text-green-700">Available Chunks</CardTitle>
+          <CuboidIcon className="w-6 h-6 text-green-700" />
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold">{availableChunks}</div>
-          <p className="text-muted-foreground">
+          <div className="text-4xl font-bold text-green-700">{availableChunks}</div>
+          <p className="text-green-600">
             <span className="font-medium">+3.1%</span> from last month
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-red-50 border-red-200">
         <CardHeader className="flex items-center justify-between">
-          <CardTitle>Reserved Chunks</CardTitle>
-          {/* Replace with your actual icon component */}
-          <CuboidIcon className="w-6 h-6 text-muted-foreground" />
+          <CardTitle className="text-red-700">Reserved Chunks</CardTitle>
+          <CuboidIcon className="w-6 h-6 text-red-700" />
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold">{reservedChunks}</div>
-          <p className="text-muted-foreground">
+          <div className="text-4xl font-bold text-red-700">{reservedChunks}</div>
+          <p className="text-red-600">
             <span className="font-medium">+2.7%</span> from last month
           </p>
         </CardContent>
