@@ -3,9 +3,6 @@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-// import { BoxIcon } from "@/components/ui/icons"; // Importing BoxIcon as an example
 
 const orders = [
   { 
@@ -34,30 +31,30 @@ const orders = [
 
 export default function RecentOrders() {
   return (
-    <Card>
+    <Card style={{ backgroundColor: "#2C4E80" }}>
       <CardHeader>
-        <CardTitle></CardTitle>
-        <CardDescription>A table showing the most recent orders.</CardDescription>
+        <CardTitle style={{ color: "white" }}>Recent Orders</CardTitle>
+        <CardDescription style={{ color: "white" }}>A table showing the most recent orders.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Materials</TableHead>
+              <TableHead style={{ color: "white" }}>Order ID</TableHead>
+              <TableHead style={{ color: "white" }}>Date</TableHead>
+              <TableHead style={{ color: "white" }}>Customer</TableHead>
+              <TableHead style={{ color: "white" }}>Total</TableHead>
+              <TableHead style={{ color: "white" }}>Status</TableHead>
+              <TableHead style={{ color: "white" }}>Materials</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orders.map((order) => (
               <TableRow key={order.id}>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.date}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>{order.total}</TableCell>
+                <TableCell style={{ color: "white" }}>{order.id}</TableCell>
+                <TableCell style={{ color: "white" }}>{order.date}</TableCell>
+                <TableCell style={{ color: "white" }}>{order.customer}</TableCell>
+                <TableCell style={{ color: "white" }}>{order.total}</TableCell>
                 <TableCell>
                   <Badge color={order.status === "Shipped" ? "success" : "warning"}>
                     {order.status}
@@ -66,7 +63,7 @@ export default function RecentOrders() {
                 <TableCell>
                   <ul>
                     {order.materials.map((material) => (
-                      <li key={material.id}>
+                      <li key={material.id} style={{ color: "white" }}>
                         {material.name} (Qty: {material.quantity})
                       </li>
                     ))}

@@ -65,28 +65,28 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 lg:grid-cols-3" style={{ backgroundColor: "#00215E" }}>
       {/* Chunks Section */}
       <div className="col-span-full">
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Chunks</h2>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Chunks</h2>
           <Chunks totalChunks={0} availableChunks={0} reservedChunks={0} />
         </div>
       </div>
 
       {/* Statistics Section */}
       <div className="col-span-full">
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Statistics</h2>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Statistics</h2>
           <Statistics />
         </div>
       </div>
 
-       {/* High Priority Products Card */}
-       <Card className="col-span-1 lg:col-span-2">
+      {/* High Priority Products Card */}
+      <Card className="col-span-1 lg:col-span-2" style={{ backgroundColor: "#2C4E80" }}>
         <CardHeader>
-          <CardTitle>High Priority Products</CardTitle>
-          <CardDescription>A section highlighting high priority products.</CardDescription>
+          <CardTitle style={{ color: "white" }}>High Priority Products</CardTitle>
+          <CardDescription style={{ color: "white" }}>A section highlighting high priority products.</CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="grid gap-4">
@@ -113,37 +113,37 @@ const Dashboard: React.FC = () => {
 
       {/* Recent Orders Section */}
       <div className="col-span-full">
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Recent Orders</h2>
           <RecentOrders />
         </div>
       </div>
 
       {/* Daily Product In/Out Card */}
-      <Card className="col-span-1 md:col-span-2 lg:col-span-3">
+      <Card className="col-span-1 md:col-span-2 lg:col-span-3" style={{ backgroundColor: "#2C4E80" }}>
         <CardHeader>
-          <CardTitle>Daily Product In/Out</CardTitle>
-          <CardDescription>A table showing the daily inflow and outflow of products.</CardDescription>
+          <CardTitle style={{ color: "white" }}>Daily Product In/Out</CardTitle>
+          <CardDescription style={{ color: "white" }}>A table showing the daily inflow and outflow of products.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Material Name</TableHead>
-                <TableHead>Material Weight</TableHead>
-                <TableHead>Price</TableHead>
+                <TableHead style={{ color: "white" }}>Date</TableHead>
+                <TableHead style={{ color: "white" }}>Customer</TableHead>
+                <TableHead style={{ color: "white" }}>Material Name</TableHead>
+                <TableHead style={{ color: "white" }}>Material Weight</TableHead>
+                <TableHead style={{ color: "white" }}>Price</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {dailyProductData.map((data, index) => (
                 <TableRow key={index}>
-                  <TableCell>{data.date}</TableCell>
-                  <TableCell>{data.customer}</TableCell>
-                  <TableCell>{data.materialName}</TableCell>
-                  <TableCell>{data.materialWeight}</TableCell>
-                  <TableCell>{data.price}</TableCell>
+                  <TableCell style={{ color: "white" }}>{data.date}</TableCell>
+                  <TableCell style={{ color: "white" }}>{data.customer}</TableCell>
+                  <TableCell style={{ color: "white" }}>{data.materialName}</TableCell>
+                  <TableCell style={{ color: "white" }}>{data.materialWeight}</TableCell>
+                  <TableCell style={{ color: "white" }}>{data.price}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -152,10 +152,10 @@ const Dashboard: React.FC = () => {
       </Card>
 
       {/* Monthly Total Product In/Out Card */}
-      {/* <Card className="col-span-1 md:col-span-2 lg:col-span-2">
+      <Card className="col-span-1 md:col-span-2 lg:col-span-2" style={{ backgroundColor: "#2C4E80" }}>
         <CardHeader>
-          <CardTitle>Monthly Total Product In/Out</CardTitle>
-          <CardDescription>A chart displaying the monthly total product inflow and outflow.</CardDescription>
+          <CardTitle style={{ color: "white" }}>Monthly Total Product In/Out</CardTitle>
+          <CardDescription style={{ color: "white" }}>A chart displaying the monthly total product inflow and outflow.</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart className="aspect-[4/3]" data={monthlyProductData}>
@@ -166,14 +166,13 @@ const Dashboard: React.FC = () => {
               tickMargin={10}
               axisLine={false}
               tickFormatter={(value) => value.slice(0, 3)}
+              style={{ color: "white" }}
             />
-            <Bar dataKey="in" fill="#8884d8" />
-            <Bar dataKey="out" fill="#82ca9d" />
+            <Bar dataKey="in" fill="#344C64" />
+            <Bar dataKey="out" fill="#57A6A1" />
           </BarChart>
         </CardContent>
-      </Card> */}
-
-     
+      </Card>
     </div>
   );
 };
