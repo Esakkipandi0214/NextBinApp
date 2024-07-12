@@ -17,16 +17,16 @@ const Sidebar: React.FC = () => {
   ];
 
   return (
-    <div className={`h-screen bg-gray-50 transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-56'}`}>
+    <div className={`h-screen bg-[#2C4E80] text-white transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-56'}`}>
       <div className="flex flex-col items-center h-full">
-        <div className="flex h-16 items-center justify-center w-full px-4 border-b">
+        <div className="flex h-16 items-center justify-center w-full px-4 border-b border-gray-700">
           <Link href="/" passHref>
-            <p className="flex items-center justify-center gap-2 font-semibold text-primary cursor-pointer">
+            <p className="flex items-center justify-center gap-2 font-semibold text-white cursor-pointer">
               <span className={`text-3xl ml-4 ${isCollapsed ? 'hidden' : 'block'}`}>BinApp</span>
             </p>
           </Link>
           <Button size="icon" variant="outline" className="sm:hidden" onClick={() => setIsCollapsed(!isCollapsed)}>
-            <MenuIcon className="h-5 w-5" />
+            <MenuIcon className="h-5 w-5 text-white" />
             <span className="sr-only">Open Sidebar</span>
           </Button>
         </div>
@@ -34,8 +34,8 @@ const Sidebar: React.FC = () => {
           <div className="grid gap-4 text-sm font-medium">
             {menuItems.map(item => (
               <Link key={item.href} href={item.href} passHref>
-                <p className={`flex items-center gap-2 rounded-md px-3 py-2 text-primary transition-colors hover:bg-gray-300 cursor-pointer ${
-                  router.pathname === item.href ? 'bg-gray-300' : ''
+                <p className={`flex items-center gap-2 rounded-md px-3 py-2 text-white transition-colors hover:bg-[#00215E] cursor-pointer ${
+                  router.pathname === item.href ? 'bg-[#00215E]' : ''
                 }`}>
                   {item.icon}
                   {!isCollapsed && <span>{item.label}</span>}
@@ -50,26 +50,26 @@ const Sidebar: React.FC = () => {
       <Sheet>
         <SheetTrigger asChild>
           <Button size="icon" variant="outline" className="fixed bottom-4 right-4 sm:hidden">
-            <MenuIcon className="h-5 w-5" />
+            <MenuIcon className="h-5 w-5 text-white" />
             <span className="sr-only">Open Sidebar</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="sm:hidden">
-          <div className="flex h-16 items-center justify-between px-4 bg-gray-200 border-b">
+        <SheetContent side="left" className="sm:hidden bg-[#2C4E80] text-white">
+          <div className="flex h-16 items-center justify-between px-4 border-b border-gray-700">
             <Link href="/" passHref>
-              <p className="flex items-center gap-2 font-semibold text-primary cursor-pointer">
+              <p className="flex items-center gap-2 font-semibold text-white cursor-pointer">
                 <span>BinApp</span>
               </p>
             </Link>
             <Button size="icon" variant="outline" onClick={() => setIsCollapsed(true)}>
-              <XIcon className="h-5 w-5" />
+              <XIcon className="h-5 w-5 text-white" />
               <span className="sr-only">Close Sidebar</span>
             </Button>
           </div>
           <nav className="grid gap-4 px-4 py-6 text-sm font-medium">
             {menuItems.map(item => (
               <Link key={item.href} href={item.href} passHref>
-                <p className={`flex items-center gap-2 rounded-md px-3 py-2 text-primary transition-colors hover:bg-gray-300 cursor-pointer`}>
+                <p className={`flex items-center gap-2 rounded-md px-3 py-2 text-white transition-colors hover:bg-[#00215E] cursor-pointer`}>
                   {item.icon}
                   <span>{item.label}</span>
                 </p>

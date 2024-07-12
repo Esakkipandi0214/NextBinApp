@@ -79,16 +79,19 @@ const Component: React.FC<Props> = ({ customer, onClose }) => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto md:p-10 p-4">
-        <div className="flex justify-end mb-4">
-          <Button onClick={() => setShowCreateModal(true)}>Add Customer</Button>
-        </div>
+      <div className="flex justify-end mb-4">
+  <Button onClick={() => setShowCreateModal(true)} style={{ backgroundColor: "#00215E", color: "white" }}>
+    Add Customer
+  </Button>
+</div>
+
 
         {showCreateModal && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4 ">
             <div className="bg-white rounded-lg p-6 w-full max-w-lg">
               <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
               <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
+                <div className="space-y-4" style={{ backgroundColor: "#00215E", color: "white" }}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="name">Name</Label>
