@@ -22,9 +22,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  // Effect to retrieve notification count from local storage on mount
-  useEffect(() => {
-    fetchNotificationCount();
+   // Effect to retrieve notification count from local storage on mount
+   useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchNotificationCount();
+      console.log("Notification fetched");
+    }, 10000); // Interval of 1 second (1000 milliseconds)
+
+    // Cleanup function to clear the interval if the component unmounts
+    return () => clearInterval(intervalId);
   }, []);
 
   // Effect to update notification count whenever route changes
