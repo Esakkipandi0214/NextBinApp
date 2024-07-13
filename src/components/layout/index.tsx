@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import Sidebar from '../Sidebar';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -9,13 +9,36 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [notificationCount, setNotificationCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState<number>(0);
   const router = useRouter();
 
-  // Example function to simulate receiving a notification
-  const receiveNotification = () => {
-    setNotificationCount(prevCount => prevCount + 1); // Increment count for demonstration
+  // Function to fetch and update notification count
+  const fetchNotificationCount = () => {
+    const storedNotificationCount = localStorage.getItem('notificationCount');
+    if (storedNotificationCount) {
+      setNotificationCount(parseInt(storedNotificationCount, 10));
+    } else {
+      setNotificationCount(0);
+    }
   };
+
+  // Effect to retrieve notification count from local storage on mount
+  useEffect(() => {
+    fetchNotificationCount();
+  }, []);
+
+  // Effect to update notification count whenever route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      fetchNotificationCount();
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-green-50">
@@ -37,11 +60,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className='flex items-center'>
             {/* Notification Icon with Count */}
             <div className='flex items-center relative mr-4'>
-            <Link href={"/Notification"}>
-              <BellIcon className="h-6 w-6 text-white cursor-pointer" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
-                {notificationCount > 0 ? notificationCount : "0"}
-              </span>
+              <Link href={"/Notification"}>
+                <BellIcon className="h-6 w-6 text-white cursor-pointer" />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
+                  {notificationCount > 0 ? notificationCount : "0"}
+                </span>
               </Link>
             </div>
             {/* Profile Image */}

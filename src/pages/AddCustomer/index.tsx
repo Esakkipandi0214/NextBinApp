@@ -91,7 +91,7 @@ const Component: React.FC<Props> = ({ customer, onClose }) => {
             <div className="bg-white rounded-lg p-6 w-full max-w-lg">
               <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
               <form onSubmit={handleSubmit}>
-                <div className="space-y-4" style={{ backgroundColor: "#00215E", color: "white" }}>
+                <div className="space-y-4" >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="name">Name</Label>

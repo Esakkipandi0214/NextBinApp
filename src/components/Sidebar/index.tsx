@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
             </p>
           </Link>
           <Button size="icon" variant="outline" className="sm:hidden" onClick={() => setIsCollapsed(!isCollapsed)}>
-            <MenuIcon className="h-5 w-5 text-white" />
+            <MenuIcon className="h-5 w-5 text-black" />
             <span className="sr-only">Open Sidebar</span>
           </Button>
         </div>
@@ -47,7 +47,7 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* Mobile Sidebar */}
-      <Sheet>
+      {/* <Sheet>
         <SheetTrigger asChild>
           <Button size="icon" variant="outline" className="fixed bottom-4 right-4 sm:hidden">
             <MenuIcon className="h-5 w-5 text-white" />
@@ -77,7 +77,7 @@ const Sidebar: React.FC = () => {
             ))}
           </nav>
         </SheetContent>
-      </Sheet>
+      </Sheet> */}
     </div>
   );
 };

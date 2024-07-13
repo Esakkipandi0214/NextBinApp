@@ -74,17 +74,47 @@ const Component: React.FC = () => {
     fetchData(); // Ensure fetchData is defined and implemented
   };
   
-  // Fetch customers from Firebase Firestore
+  // Fetch customers and their orders from Firebase Firestore
   useEffect(() => {
     const fetchCustomers = async () => {
       const customersCollection = collection(db, 'customers'); // Replace 'customers' with your collection name
       const querySnapshot = await getDocs(customersCollection);
-      const customerData = querySnapshot.docs.map(doc => {
+      
+      const customerDataPromises = querySnapshot.docs.map(async doc => {
         const data = doc.data() as CustomerProps;
+        const customerId = doc.id; // Assuming customer ID is the document ID
         data.orders = []; // Initialize orders array
+
+        // Fetch orders for this customer
+        const ordersCollection = collection(db, 'orders');
+        const ordersQuery = query(ordersCollection, where('customerId', '==', customerId));
+        const ordersSnapshot = await getDocs(ordersQuery);
+
+        const ordersData = ordersSnapshot.docs.map(orderDoc => {
+          const orderData = orderDoc.data() as OrderProps;
+          return orderData;
+        });
+
+        // Add orders data to the customer
+        data.orders = ordersData;
+
+        // Calculate last order date if there are orders
+        if (ordersData.length > 0) {
+          const lastOrder = ordersData.reduce((latest, order) => {
+            const orderDate = new Date(order.orderDate);
+            return orderDate > new Date(latest.orderDate) ? order : latest;
+          });
+          data.lastOrderDate = lastOrder.orderDate;
+        } else {
+          data.lastOrderDate = '';
+        }
+
         return data;
       });
+
+      const customerData = await Promise.all(customerDataPromises);
       setCustomers(customerData);
+      console.log("Customer Data:",customerData);
     };
 
     fetchCustomers();
@@ -122,15 +152,23 @@ const Component: React.FC = () => {
     }
   };
 
-  // Function to calculate days since last order
-  const calculateDaysSinceLastOrder = (lastOrderDate: string) => {
-    const lastOrder = new Date(lastOrderDate);
-    const currentDate = new Date();
-    const differenceInTime = currentDate.getTime() - lastOrder.getTime();
-    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-    return differenceInDays;
-  };
-
+  // const calculateDaysSinceLastOrder = (lastOrderDate: string): number => {
+  //   if (!lastOrderDate) {
+  //     console.log("not passed");
+  //     return NaN; // Return NaN if lastOrderDate is not provided
+  //   }
+  //   const lastOrder = new Date(lastOrderDate);
+  //   if (isNaN(lastOrder.getTime())) {
+  //     console.log("not nan ");
+  //     return NaN; // Return NaN if the date is invalid
+  //   }
+  //   const currentDate = new Date();
+  //   const differenceInTime = currentDate.getTime() - lastOrder.getTime();
+  //   const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+  //   return differenceInDays;
+  // };
+  
+  
   return (
     <Layout>
       <div className="container mx-auto px-4 md:px-6 py-8">
@@ -146,10 +184,10 @@ const Component: React.FC = () => {
                 onChange={handleSearchChange}
               />
               {searchQuery.length === 0 && (
-                <CustomerList customers={customers} onCustomerSelect={handleCustomerSelect} calculateDaysSinceLastOrder={calculateDaysSinceLastOrder} />
+                <CustomerList customers={customers} onCustomerSelect={handleCustomerSelect}  />
               )}
               {searchQuery.length > 0 && (
-                <CustomerList customers={filteredCustomers} onCustomerSelect={handleCustomerSelect} calculateDaysSinceLastOrder={calculateDaysSinceLastOrder} />
+                <CustomerList customers={filteredCustomers} onCustomerSelect={handleCustomerSelect}  />
               )}
             </div>
           </div>
@@ -233,35 +271,64 @@ const Component: React.FC = () => {
   );
 };
 
+// Assuming CustomerProps and the function calculateDaysSinceLastOrder are already defined
+
 // CustomerList component to display list of customers
-const CustomerList: React.FC<{ customers: CustomerProps[]; onCustomerSelect: (customer: CustomerProps) => void; calculateDaysSinceLastOrder: (lastOrderDate: string) => number }> = ({ customers, onCustomerSelect, calculateDaysSinceLastOrder }) => (
-  <div className="grid gap-4">
-    {customers.map((customer, index) => {
-      const daysSinceLastOrder = calculateDaysSinceLastOrder(customer.lastOrderDate);
-      let highlightClass = '';
+const CustomerList: React.FC<{
+  customers: CustomerProps[];
+  onCustomerSelect: (customer: CustomerProps) => void;
+}> = ({ customers, onCustomerSelect }) => {
+  // Function to calculate days since last order
+  const calculateDaysSinceLastOrder = (lastOrderDate: string): number => {
+    if (!lastOrderDate) {
+      console.log("Last order date not passed");
+      return NaN; // Return NaN if lastOrderDate is not provided
+    }
+    const lastOrder = new Date(lastOrderDate);
+    if (isNaN(lastOrder.getTime())) {
+      console.log("Invalid last order date");
+      return NaN; // Return NaN if the date is invalid
+    }
+    const currentDate = new Date();
+    const differenceInTime = currentDate.getTime() - lastOrder.getTime();
+    const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
+    return differenceInDays;
+  };
 
-      // Determine highlight class based on frequency days
-      if (daysSinceLastOrder >= 10) {
-        highlightClass = 'bg-red-100'; // Red background for 20 days or more
-      } else if (daysSinceLastOrder >= 5) {
-        highlightClass = 'bg-yellow-100'; // Yellow background for 10-15 days
-      }
+  return (
+    <div className="grid gap-4">
+      {customers.map((customer, index) => {
+        const daysSinceLastOrder = calculateDaysSinceLastOrder(customer.lastOrderDate);
+        console.log("LastOrderdDate:", customer);
+        let highlightClass = '';
 
-      return (
-        <div
-          key={index}
-          className={`cursor-pointer border border-gray-200 p-2 rounded-md w-1/2 ${highlightClass}`}
-          onClick={() => onCustomerSelect(customer)}
-        >
-          <h3 className="text-lg font-medium">{customer.name}</h3>
-          <p className="text-sm text-gray-500">
-            Last order: {daysSinceLastOrder} days ago
-          </p>
-        </div>
-      );
-    })}
-  </div>
-);
+        // Determine highlight class based on frequency days
+        if (!isNaN(daysSinceLastOrder)) {
+          if (daysSinceLastOrder >= 10) {
+            highlightClass = 'bg-red-100'; // Red background for 10 days or more
+          } else if (daysSinceLastOrder >= 5) {
+            highlightClass = 'bg-yellow-100'; // Yellow background for 5-9 days
+          }
+        }
+
+        return (
+          <div
+            key={index}
+            className={`cursor-pointer border border-gray-200 p-2 rounded-md w-1/2 ${highlightClass}`}
+            onClick={() => onCustomerSelect(customer)}
+          >
+            <h3 className="text-lg font-medium">{customer.name}</h3>
+            <p className="text-sm text-gray-500">
+              Last order: {!isNaN(daysSinceLastOrder) ? daysSinceLastOrder.toString() : "Not available"} days ago
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+
 
 // Separator component
 const Separator = () => <hr className="border-gray-300 my-4" />;
