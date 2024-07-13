@@ -1,12 +1,12 @@
 import React, { ReactNode, useState, useEffect } from 'react';
-import Sidebar from '../Sidebar';
+import Sidebar from '../Sites/sidebar';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { BellIcon } from 'lucide-react';
-import Dashboard from '../../components/dashboard/dash'; // Import your components
-import Orders from '../../components/Sites/orders';
-import AddCustomer from '../../components/Sites/addcustomer';
-import CustomerDetail from '../../components/Sites/customerDetails';
+import Dashboard from '../dashboard/dash'; // Import your components
+import Orders from './orders';
+import AddCustomer from './addcustomer';
+import CustomerDetail from './customerDetails';
 
 interface LayoutProps {
   children: ReactNode;

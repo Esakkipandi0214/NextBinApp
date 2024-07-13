@@ -1,10 +1,9 @@
+// Sidebar.tsx
 import React from 'react';
 import Link from 'next/link';
-import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { XIcon, LayoutDashboardIcon, ShoppingCartIcon, UserIcon, SettingsIcon, MenuIcon } from 'lucide-react';
-import { useRouter } from 'next/router';
-import { useState } from 'react';
 
 interface SidebarProps {
   onSelectComponent: (componentId: string) => void; // Define onSelectComponent prop
@@ -12,7 +11,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onSelectComponent }) => {
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   const menuItems = [
     { id: 'dashboard', href: '/Dashboard', icon: <LayoutDashboardIcon className="h-5 w-5" />, label: 'Dashboard' },

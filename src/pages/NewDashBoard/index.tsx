@@ -1,6 +1,6 @@
 // index.tsx
 import React from 'react';
-import Layout from '../../components/Sites/struct'; // Adjust path based on your actual file structure
+import Layout from '../../components/Sites/layout'; // Adjust path based on your actual file structure
 
 const IndexPage: React.FC = () => {
   return (
