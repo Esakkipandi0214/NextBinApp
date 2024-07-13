@@ -3,6 +3,10 @@ import Sidebar from '../Sidebar';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { BellIcon } from 'lucide-react';
+import Dashboard from '../../components/dashboard/dash'; // Import your components
+import Orders from '../../components/Sites/orders';
+import AddCustomer from '../../components/Sites/addcustomer';
+import CustomerDetail from '../../components/Sites/customerDetails';
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,6 +15,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [notificationCount, setNotificationCount] = useState<number>(0);
   const router = useRouter();
+  const [currentComponent, setCurrentComponent] = useState<string>('dashboard'); // Default component
 
   // Function to fetch and update notification count
   const fetchNotificationCount = () => {
@@ -40,10 +45,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, [router.events]);
 
+  // Function to handle component selection from sidebar
+  const handleSelectComponent = (componentId: string) => {
+    setCurrentComponent(componentId);
+  };
+
+  // Render component based on currentComponent state
+  const renderComponent = () => {
+    switch (currentComponent) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'orders':
+        return <Orders />;
+      case 'addCustomer':
+        return <AddCustomer customer={undefined} onClose={function (): void {
+            throw new Error('Function not implemented.');
+        } } />;
+      case 'customerDetail':
+        return <CustomerDetail />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-green-50">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar onSelectComponent={handleSelectComponent} />
 
       {/* Main Content */}
       <div className="flex-1">
@@ -76,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
         <main className="h-full overflow-y-scroll">
-          {children}
+          {renderComponent()}
         </main>
       </div>
     </div>

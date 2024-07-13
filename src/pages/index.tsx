@@ -17,7 +17,7 @@ const Component: React.FC<ComponentProps> = () => {
     console.log("Perform login action");
 
     // Redirect to Dashboard page
-    router.push("/Dashboard");
+    router.push("/NewDashBoard");
   };
 
   return (
@@ -59,7 +59,7 @@ const Component: React.FC<ComponentProps> = () => {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            <Link href="/Dashboard">
+            <Link href="/NewDashBoard">
               <Button
                 type="button"
                 className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
