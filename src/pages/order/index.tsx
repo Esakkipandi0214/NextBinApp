@@ -20,25 +20,29 @@ interface Customer {
 }
 
 interface FormData {
+ 
   customerId: string;
   customerName: string;
   orderType: string;
   orderDate: string;
   orderTime: string;
   orderWeight: string;
-  orderPayment:string;
+  orderPayment: string;
+  status: string;
 }
 
 export default function Component() {
   const [customerNames, setCustomerNames] = useState<Customer[]>([]);
   const [formData, setFormData] = useState<FormData>({
+  
     customerId: "",
     customerName: "",
     orderType: "",
     orderDate: "",
     orderTime: "",
     orderWeight: "",
-    orderPayment:"",
+    orderPayment: "",
+    status: "",
   });
 
   useEffect(() => {
@@ -60,21 +64,33 @@ export default function Component() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+  
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0];
+    const formattedTime = currentDate.toTimeString().split(' ')[0];
+  
+    const updatedFormData = {
+      ...formData,
+      orderDate: formattedDate,
+      orderTime: formattedTime,
+    };
+  
     try {
-      const docRef = await addDoc(collection(db, "orders"), formData);
+      const docRef = await addDoc(collection(db, "orders"), updatedFormData);
       console.log("Document written with ID: ", docRef.id);
-
+  
       setFormData({
+      
         customerId: "",
         customerName: "",
         orderType: "",
         orderDate: "",
         orderTime: "",
         orderWeight: "",
-        orderPayment:"",
+        orderPayment: "",
+        status: "",
       });
-
+  
       // Optionally, show a success message or redirect to another page
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -96,6 +112,13 @@ export default function Component() {
     setFormData(prevState => ({
       ...prevState,
       orderType: value,
+    }));
+  };
+
+  const handleOrderStatusChange = (value: string) => {
+    setFormData(prevState => ({
+      ...prevState,
+      status: value,
     }));
   };
 
@@ -146,38 +169,26 @@ export default function Component() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="orderDate">Order Date</Label>
-                <Input id="orderDate" type="date" onChange={handleInputChange} value={formData.orderDate} />
+                <Label htmlFor="orderWeight">Order Weight</Label>
+                <Input id="orderWeight" type="number" placeholder="Enter order weight" onChange={handleInputChange} value={formData.orderWeight} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="orderTime">Order Time</Label>
-                <Input id="orderTime" type="time" onChange={handleInputChange} value={formData.orderTime} />
+                <Label htmlFor="orderPayment">Order Payment</Label>
+                <Input id="orderPayment" type="number" placeholder="Enter order payment" onChange={handleInputChange} value={formData.orderPayment} />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="orderWeight">Order Weight</Label>
-              <Input id="orderWeight" type="number" placeholder="Enter order weight" onChange={handleInputChange} value={formData.orderWeight} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="orderPayment">Order Payment</Label>
-              <Input id="orderPayment" type="number" placeholder="Enter order payment" onChange={handleInputChange} value={formData.orderPayment} />
-            </div>
-            <div className="space-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="orderStatus">Order Status</Label>
-                <Select onValueChange={handleOrderTypeChange} value={formData.orderType}>
+                <Select onValueChange={handleOrderStatusChange} value={formData.status}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select order Status" />
+                    <SelectValue placeholder="Select order status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Aluminium">Pending</SelectItem>
-                    <SelectItem value="Iron">Success</SelectItem>
-                   
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="success">Success</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-             
-              </div>
+            </div>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
@@ -187,5 +198,5 @@ export default function Component() {
         </Card>
       </form>
     </Layout>
-  );
+  );
 }
