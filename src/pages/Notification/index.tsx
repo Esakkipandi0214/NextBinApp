@@ -31,7 +31,7 @@ interface OrderProps {
 
 export default function CustomerList() {
   const [customers, setCustomers] = useState<CustomerProps[]>([]);
-  const [notificationCount, setNotificationCount] = useState<number>(0); // State for notification count
+  const [notificationCount, setNotificationCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -77,18 +77,9 @@ export default function CustomerList() {
 
         const newNotificationCount = filteredCustomers.length;
 
-        // Update notification count based on filtered customers length
         setNotificationCount(newNotificationCount);
 
-        // Store notification count in local storage if greater than 0
-        if (newNotificationCount > 0) {
-          localStorage.setItem('notificationCount', String(newNotificationCount));
-        } else {
-          localStorage.removeItem('notificationCount');
-        }
-
         setCustomers(filteredCustomers);
-        console.log("Customer Data:", filteredCustomers);
       } catch (error) {
         console.error('Error fetching customers:', error);
       }
@@ -96,8 +87,6 @@ export default function CustomerList() {
 
     fetchCustomers();
   }, []);
-
-  console.log("Notification count:", notificationCount);
 
   return (
     <Layout>
