@@ -33,69 +33,76 @@ export default function CustomerList() {
   const [customers, setCustomers] = useState<CustomerProps[]>([]);
   const [notificationCount, setNotificationCount] = useState<number>(0); // State for notification count
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const customersCollection = collection(db, 'customers');
-        const querySnapshot = await getDocs(customersCollection);
+  
+  const fetchCustomers = async () => {
+    try {
+      const customersCollection = collection(db, 'customers');
+      const querySnapshot = await getDocs(customersCollection);
 
-        const customerDataPromises = querySnapshot.docs.map(async doc => {
-          const data = doc.data() as CustomerProps;
-          const customerId = doc.id;
-          data.orders = [];
+      const customerDataPromises = querySnapshot.docs.map(async doc => {
+        const data = doc.data() as CustomerProps;
+        const customerId = doc.id;
+        data.orders = [];
 
-          const ordersCollection = collection(db, 'orders');
-          const ordersQuery = query(ordersCollection, where('customerId', '==', customerId));
-          const ordersSnapshot = await getDocs(ordersQuery);
+        const ordersCollection = collection(db, 'orders');
+        const ordersQuery = query(ordersCollection, where('customerId', '==', customerId));
+        const ordersSnapshot = await getDocs(ordersQuery);
 
-          const ordersData = ordersSnapshot.docs.map(orderDoc => {
-            const orderData = orderDoc.data() as OrderProps;
-            return orderData;
+        const ordersData = ordersSnapshot.docs.map(orderDoc => {
+          const orderData = orderDoc.data() as OrderProps;
+          return orderData;
+        });
+
+        data.orders = ordersData;
+
+        if (ordersData.length > 0) {
+          const lastOrder = ordersData.reduce((latest, order) => {
+            const orderDate = new Date(order.orderDate);
+            return orderDate > new Date(latest.orderDate) ? order : latest;
           });
-
-          data.orders = ordersData;
-
-          if (ordersData.length > 0) {
-            const lastOrder = ordersData.reduce((latest, order) => {
-              const orderDate = new Date(order.orderDate);
-              return orderDate > new Date(latest.orderDate) ? order : latest;
-            });
-            data.lastOrderDate = lastOrder.orderDate;
-          } else {
-            data.lastOrderDate = '';
-          }
-
-          return data;
-        });
-
-        const customerData = await Promise.all(customerDataPromises);
-
-        const filteredCustomers = customerData.filter(customer => {
-          const daysSinceLastOrdered = calculateDaysSinceLastOrder(customer.lastOrderDate);
-          return daysSinceLastOrdered >= 5;
-        });
-
-        const newNotificationCount = filteredCustomers.length;
-
-        // Update notification count based on filtered customers length
-        setNotificationCount(newNotificationCount);
-
-        // Store notification count in local storage if greater than 0
-        if (newNotificationCount > 0) {
-          localStorage.setItem('notificationCount', String(newNotificationCount));
+          data.lastOrderDate = lastOrder.orderDate;
         } else {
-          localStorage.removeItem('notificationCount');
+          data.lastOrderDate = '';
         }
 
-        setCustomers(filteredCustomers);
-        console.log("Customer Data:", filteredCustomers);
-      } catch (error) {
-        console.error('Error fetching customers:', error);
-      }
-    };
+        return data;
+      });
 
-    fetchCustomers();
+      const customerData = await Promise.all(customerDataPromises);
+
+      const filteredCustomers = customerData.filter(customer => {
+        const daysSinceLastOrdered = calculateDaysSinceLastOrder(customer.lastOrderDate);
+        return daysSinceLastOrdered >= 5;
+      });
+
+      const newNotificationCount = filteredCustomers.length;
+
+      // Update notification count based on filtered customers length
+      setNotificationCount(newNotificationCount);
+
+      // Store notification count in local storage if greater than 0
+      if (newNotificationCount > 0) {
+        localStorage.setItem('notificationCount', String(newNotificationCount));
+      } else {
+        localStorage.removeItem('notificationCount');
+      }
+
+      setCustomers(filteredCustomers);
+      console.log('Customer Data:', filteredCustomers);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    }
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchCustomers();
+    }, 10000); // Fetch customers every 10 seconds
+
+    // Cleanup function to clear the interval if the component unmounts
+    return () => clearInterval(intervalId);
   }, []);
+
 
   console.log("Notification count:", notificationCount);
 
