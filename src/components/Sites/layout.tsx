@@ -7,6 +7,7 @@ import Dashboard from '../dashboard/dash'; // Import your components
 import Orders from './orders';
 import AddCustomer from './addcustomer';
 import CustomerDetail from './customerDetails';
+import Notification from '../Sites/notification';
 
 interface LayoutProps {
   children: ReactNode;
@@ -45,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, [router.events]);
 
-  // Function to handle component selection from sidebar
+  // Function to handle component selection from sidebar or notification icon
   const handleSelectComponent = (componentId: string) => {
     setCurrentComponent(componentId);
   };
@@ -58,11 +59,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       case 'orders':
         return <Orders />;
       case 'addCustomer':
-        return <AddCustomer customer={undefined} onClose={function (): void {
-            throw new Error('Function not implemented.');
-        } } />;
+        return <AddCustomer customer={undefined} onClose={() => setCurrentComponent('dashboard')} />;
       case 'customerDetail':
         return <CustomerDetail />;
+      case 'notification':
+        return <Notification/>;
       default:
         return null;
     }
@@ -87,13 +88,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Notification and Profile Section */}
           <div className='flex items-center'>
             {/* Notification Icon with Count */}
-            <div className='flex items-center relative mr-4'>
-              <Link href={"/Notification"}>
-                <BellIcon className="h-6 w-6 text-white cursor-pointer" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
-                  {notificationCount > 0 ? notificationCount : "0"}
-                </span>
-              </Link>
+            <div className='flex items-center relative mr-4' onClick={() => setCurrentComponent('notification')}>
+              <BellIcon className="h-6 w-6 text-white cursor-pointer" />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
+                {notificationCount > 0 ? notificationCount : "0"}
+              </span>
             </div>
             {/* Profile Image */}
             <img
