@@ -9,7 +9,7 @@ dotenv.config();
 
 // Initialize CORS middleware
 const corsMiddleware = cors({
-  origin: 'http://your-client-domain.com', // Replace with your client's domain
+  origin: 'https://next-bin-app.vercel.app', // Replace with your client's domain
   methods: ['POST'], // Specify allowed methods
   allowedHeaders: ['Content-Type'], // Specify allowed headers
   credentials: true, // Allow cookies and credentials to be sent cross-origin
