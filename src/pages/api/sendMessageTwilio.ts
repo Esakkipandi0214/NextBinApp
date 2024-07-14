@@ -1,24 +1,19 @@
-// Import necessary modules
+// pages/api/sendWhatsAppMessage.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import cors from 'cors';
+import NextCors from 'nextjs-cors';
 import { sendWhatsAppMessage } from '../../../twilio'; // Assuming this imports your Twilio WhatsApp function
+import dotenv from 'dotenv';
 
-// Initialize the CORS middleware
-const corsMiddleware = cors({
-  origin: 'https://next-bin-app.vercel.app', // Replace with your client's domain
-  methods: ['POST'], // Specify allowed methods
-  allowedHeaders: ['Content-Type'], // Specify allowed headers
-  credentials: true, // Allow cookies and credentials to be sent cross-origin
-});
+// Load environment variables
+dotenv.config();
 
-// Handler function for the API route
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Apply the CORS middleware to handle preflight requests and CORS headers
-  await new Promise<void>((resolve, reject) => {
-    corsMiddleware(req, res, (err) => {
-      if (err) return reject(err);
-      resolve();
-    });
+  // Initialize CORS middleware
+  await NextCors(req, res, {
+    origin: 'https://next-bin-app.vercel.app', // Replace with your client's domain
+    methods: ['POST'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true,
   });
 
   if (req.method !== 'POST') {
@@ -27,11 +22,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { to, message } = req.body; // Assuming 'to' and 'message' are required for WhatsApp
 
+  if (!to || !message) {
+    return res.status(400).json({ error: 'Bad Request', message: 'Missing required parameters: to, message' });
+  }
+
   try {
     const result = await sendWhatsAppMessage(to, message, true); // Use client2 for WhatsApp
     return res.status(200).json(result);
   } catch (error: any) {
     console.error('Error sending WhatsApp message:', error);
-    return res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    let errorMessage = 'Failed to send WhatsApp message. Please try again.';
+
+    if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return res.status(500).json({ error: 'Internal Server Error', message: errorMessage });
   }
 }
