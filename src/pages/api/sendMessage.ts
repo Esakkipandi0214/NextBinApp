@@ -1,8 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sendMessage } from '../../../twilio';
+require('dotenv').config();
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { to, body } = req.body;
+  
   
   try {
     // Send the SMS message using Twilio
