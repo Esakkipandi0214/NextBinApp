@@ -139,7 +139,6 @@ const CustomerList: React.FC = () => {
       console.error(`Failed to initiate call: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
-  
 
   const handleSendWhatsAppMessage = async (customer: CustomerProps) => {
     console.log("Sending WhatsApp message to", customer.name, "at phone number", customer.phone);
