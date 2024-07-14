@@ -1,18 +1,26 @@
+// Example usage in an API route
 import { NextApiRequest, NextApiResponse } from 'next';
-import { client2, sendWhatsAppMessage } from '../../../twilio';
+import { sendMessage, sendWhatsAppMessage } from '../../../twilio';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed', message: 'Only POST requests are allowed' });
   }
 
-  const { to, message } = req.body;
+  const { type, to, message } = req.body;
 
-  const { success, response, error } = await sendWhatsAppMessage(client2, to, message);
-
-  if (success) {
-    res.status(200).json({ success: true, response });
-  } else {
-    res.status(500).json({ success: false, error });
+  try {
+    if (type === 'sms') {
+      const result = await sendMessage(to, message);
+      return res.status(200).json(result);
+    } else if (type === 'whatsapp') {
+      const result = await sendWhatsAppMessage(to, message, true); // Use client2 for WhatsApp
+      return res.status(200).json(result);
+    } else {
+      return res.status(400).json({ error: 'Bad Request', message: 'Invalid message type' });
+    }
+  } catch (error: any) { // Explicitly type 'error' to 'any' or 'Error'
+    console.error('Error sending message:', error);
+    return res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 }
