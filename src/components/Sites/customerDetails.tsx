@@ -38,6 +38,7 @@ interface OrderProps {
   orderDate: string;
   orderPayment: number;
   status: string;
+  id:string;
   
 }
 type handleEditFunction = (props:OrderProps ) =>void
@@ -61,18 +62,32 @@ const Component: React.FC = () => {
     setEditingOrder(order);
     setShowEditModal(true);
   };
-  
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+  
+    // Check if editingOrder is defined and has an id
+    if (!editingOrder || !editingOrder.id) {
+      console.error('Editing order ID is undefined or null.');
+      return;
+    }
+  
     const orderId = editingOrder.id;
-    await updateDoc(doc(db, "order", orderId), {
-      orderPayment: (event.currentTarget.elements.namedItem("orderPayment") as HTMLInputElement).value,
-      status: (event.currentTarget.elements.namedItem("status") as HTMLInputElement).value,
-    });
-    alert("Order updated successfully!");
-    setShowEditModal(false);
-    fetchData(); // Ensure fetchData is defined and implemented
+    const orderPayment = (event.currentTarget.elements.namedItem("orderPayment") as HTMLInputElement).value;
+    const status = (event.currentTarget.elements.namedItem("status") as HTMLInputElement).value;
+  
+    try {
+      await updateDoc(doc(db, "orders", orderId), {
+        orderPayment: orderPayment,
+        status: status,
+      });
+      alert("Order updated successfully!");
+      setShowEditModal(false);
+      fetchData(); // Ensure fetchData is defined and implemented
+    } catch (error) {
+      console.error("Error updating order:", error);
+    }
   };
+  
   
   // Fetch customers and their orders from Firebase Firestore
   useEffect(() => {
@@ -130,11 +145,17 @@ const Component: React.FC = () => {
     const ordersCollection = collection(db, 'orders'); // Replace 'orders' with your collection name
     const q = query(ordersCollection, where('customerName', '==', customer.name));
     const querySnapshot = await getDocs(q);
-    const orderData = querySnapshot.docs.map(doc => doc.data() as OrderProps);
+    const orderData = querySnapshot.docs.map(doc => ({
+      id:doc.id,
+      ...doc.data()
+    })) as OrderProps[];
+    
     setSelectedCustomer(prevCustomer => ({
       ...prevCustomer!,
-      orders: orderData
+      orders: orderData,
     }));
+    console.log("OdersSelected:",orderData);
+    
   };
 
   // Function to handle search input change
@@ -392,7 +413,7 @@ const OrderHistoryTable: React.FC<{ orders: OrderProps[] , handleEditClick:handl
     <tbody className="bg-white divide-y divide-gray-200">
       {orders.map((order, index) => (
         <tr key={index} className="bg-white">
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerId}</td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.orderDate}</td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.orderPayment}</td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.status}</td>
