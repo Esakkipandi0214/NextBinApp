@@ -10,7 +10,7 @@ dotenv.config();
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Initialize CORS middleware
   await NextCors(req, res, {
-    origin: ['https://next-bin-app.vercel.app','https://next-bin-fesi1gn2d-esakkipandis-projects.vercel.app'], // Replace with your client's domain
+    origin:'https://next-bin-iy3c59moo-esakkipandis-projects.vercel.app', // Replace with your client's domain
     methods: ['POST'], // Specify allowed methods
     allowedHeaders: ['Content-Type'], // Specify allowed headers
     credentials: true, // Allow cookies and credentials to be sent cross-origin
