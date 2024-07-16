@@ -3,6 +3,9 @@ import Sidebar from '../Sidebar';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { BellIcon } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/firebase';
+import { destroyCookie } from 'nookies';
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,6 +43,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, [router.events]);
 
+  // Function to handle logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      destroyCookie(null, 'token');
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error: ", error);
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-green-50">
       {/* Sidebar */}
@@ -67,12 +81,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </span>
               </Link>
             </div>
+            <button
+              onClick={handleLogout}
+              className="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
+            >
+              Logout
+            </button>
             {/* Profile Image */}
             <img
               src="https://randomuser.me/api/portraits/men/32.jpg" // Random image for demonstration
               alt="Profile"
               className="h-8 w-8 rounded-full ml-2" // Added margin-left for spacing
             />
+            {/* Logout Button */}
+           
           </div>
         </div>
         <main className="h-full overflow-y-scroll">

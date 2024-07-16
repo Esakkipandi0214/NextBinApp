@@ -9,6 +9,9 @@ import AddCustomer from './addcustomer';
 import CustomerDetail from './customerDetails';
 import Notification from '../Sites/notification';
 import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc, addDoc, setDoc, DocumentReference, where } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
+import { destroyCookie } from 'nookies';
+import { auth } from '@/firebase';
 
 interface LayoutProps {
   children: ReactNode;
@@ -26,6 +29,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       setNotificationCount(parseInt(storedNotificationCount, 10));
     } else {
       setNotificationCount(0);
+    }
+  };
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      destroyCookie(null, 'token');
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error: ", error);
     }
   };
 
@@ -202,6 +214,13 @@ const addOrdersToCustomerPriority = async () => {
               alt="Profile"
               className="h-8 w-8 rounded-full ml-2" // Added margin-left for spacing
             />
+             <button
+              onClick={handleLogout}
+              className="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
+            >
+              Logout
+            </button>
+            
           </div>
         </div>
 
