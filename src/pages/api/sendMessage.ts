@@ -6,7 +6,7 @@ import NextCors from 'nextjs-cors';
 // Initialize CORS middleware
 const corsMiddleware = async (req: NextApiRequest, res: NextApiResponse) => {
   await NextCors(req, res, {
-    origin: 'https://next-bin-app.vercel.app', // Replace with your client's domain
+    origin: "https://next-bin-iy3c59moo-esakkipandis-projects.vercel.app", // Replace with your client's domain
     methods: ['POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true,

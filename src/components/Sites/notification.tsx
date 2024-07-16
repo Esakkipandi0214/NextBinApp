@@ -5,6 +5,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { FaPhone, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
+import axios from 'axios'; // Import Axios
+import API_BASE_URL from './../../../apiConfig'
 
 interface CustomerProps {
   name: string;
@@ -101,19 +103,16 @@ const CustomerList: React.FC = () => {
     console.log("Sending message to", customer.name, "at phone number", customer.phone);
     const body = `Hello ${customer.name}, this is a reminder from our store.`;
     try {
-      const response = await fetch('/api/sendMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: customer.phone, body }),
-      });
+      const response = await axios.post(`${API_BASE_URL}/api/sendMessage`, { to: customer.phone, body });
 
-      if (response.ok) {
+      if (response.status === 200) {
         alert('Message sent successfully!');
       } else {
-        const errorData = await response.json();
-        alert(`Failed to send message: ${errorData.error}`);
+        console.error('Failed to send message:', response.data.error);
+        alert(`Failed to send message: ${response.data.error}`);
       }
     } catch (error: any) {
+      console.error('Failed to send message:', error);
       alert(`Failed to send message: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
@@ -122,40 +121,34 @@ const CustomerList: React.FC = () => {
     const phoneNumber = customer.phone;
   
     try {
-      const response = await fetch('/api/makeCall', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: phoneNumber }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data.message); // Log success message or handle as needed
+      const response = await axios.post(`${API_BASE_URL}/api/makeCall`, { to: phoneNumber });
+
+      if (response.status === 200) {
+        console.log(response.data.message); // Log success message or handle as needed
       } else {
-        const errorData = await response.json();
-        console.error(`Failed to initiate call: ${errorData.error}`);
+        console.error('Failed to initiate call:', response.data.error);
       }
     } catch (error: any) {
-      console.error(`Failed to initiate call: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('Failed to initiate call:', error);
     }
   };
 
   const handleSendWhatsAppMessage = async (customer: CustomerProps) => {
     console.log("Sending WhatsApp message to", customer.name, "at phone number", customer.phone);
     try {
-      const response = await fetch('/api/sendMessageTwilio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: customer.phone, message: `Hello ${customer.name}, this is a WhatsApp message from our store.` }),
+      const response = await axios.post(`${API_BASE_URL}/api/sendMessageTwilio`, {
+        to: customer.phone,
+        message: `Hello ${customer.name}, this is a WhatsApp message from our store.`,
       });
 
-      if (response.ok) {
+      if (response.status === 200) {
         alert('WhatsApp message sent successfully!');
       } else {
-        const errorData = await response.json();
-        alert(`Failed to send WhatsApp message: ${errorData.error}`);
+        console.error('Failed to send WhatsApp message:', response.data.error);
+        alert(`Failed to send WhatsApp message: ${response.data.error}`);
       }
     } catch (error: any) {
+      console.error('Failed to send WhatsApp message:', error);
       alert(`Failed to send WhatsApp message: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
