@@ -21,9 +21,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { to } = req.body;
 
     try {
-      const accountSid = process.env.TWILIO_ACCOUNT_SID;
-      const authToken = process.env.TWILIO_AUTH_TOKEN;
-      const sender = process.env.TWILIO_PHONE_NUMBER;
+      const accountSid = process.env.TWILIO_ACCOUNT_SID_MY;
+      const authToken = process.env.TWILIO_AUTH_TOKEN_MY;
+      const sender = process.env.TWILIO_PHONE_NUMBER_MY;
 
       if (!accountSid || !authToken || !sender) {
         throw new Error('Twilio credentials or phone number not configured');
