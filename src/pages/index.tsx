@@ -23,7 +23,7 @@ const Component: React.FC<ComponentProps> = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        router.push("/NewDashBoard");
+        router.push("/Dashboard");
       }
     });
 
@@ -38,7 +38,7 @@ const Component: React.FC<ComponentProps> = () => {
         maxAge: 30 * 24 * 60 * 60,
         path: '/',
       });
-      router.push("/NewDashBoard");
+      router.push("/Dashboard");
     } catch (error) {
       console.error("Login error: ", error);
     }
@@ -52,7 +52,7 @@ const Component: React.FC<ComponentProps> = () => {
         maxAge: 30 * 24 * 60 * 60,
         path: '/',
       });
-      router.push("/NewDashBoard");
+      router.push("/Dashboard");
     } catch (error) {
       console.error("Sign Up error: ", error);
     }

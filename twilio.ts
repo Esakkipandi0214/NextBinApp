@@ -22,9 +22,39 @@ const sendMessage = (to: string, body: string,useClient2: boolean = false) => {
     to,
   });
 };
+const sendGroupMessages = async (recipients: string[], body: string, useClient2: boolean = false) => {
+  const selectedClient = client2;// Choose the client based on useClient2 flag
+
+  try {
+    // Send messages to all recipients
+    const results = await Promise.all(
+      recipients.map(async (to) => {
+        try {
+          const response = await selectedClient.messages.create({
+            body,
+            from: twilioPhoneNumber!,
+            to,
+          });
+          return { success: true, to, response };
+        } catch (error: any) {
+          console.error(`Error sending message to ${to}:`, error);
+          return { success: false, to, error: error.message || 'Failed to send message' };
+        }
+      })
+    );
+
+    // Return results with successful and failed messages
+    return results;
+  } catch (error: any) {
+    console.error('Error sending messages:', error);
+    throw new Error('Failed to send messages. Please try again.');
+  }
+};
+
 
 const sendWhatsAppMessage = async (to: string, message: string, useClient2: boolean = false) => {
   const selectedClient = client2;
+ 
 
   try {
     const response = await selectedClient.messages.create({
@@ -39,5 +69,34 @@ const sendWhatsAppMessage = async (to: string, message: string, useClient2: bool
   }
 };
 
-export { sendMessage, sendWhatsAppMessage };
+const sendGroupWhatsAppMessage = async (recipients: string[], message: string, useClient2: boolean = false) => {
+  const selectedClient = client2;
+
+  try {
+    // Send message to each recipient
+    const results = await Promise.all(
+      recipients.map(async (to) => {
+        try {
+          const response = await selectedClient.messages.create({
+            body: message,
+            from: `whatsapp:${twilioWattsappNumber}`,
+            to: `whatsapp:${to}`,
+          });
+          return { success: true, to, response };
+        } catch (error: any) {
+          console.error(`Error sending WhatsApp message to ${to}:`, error);
+          return { success: false, to, error: error.message };
+        }
+      })
+    );
+
+    return results;
+  } catch (error: any) {
+    console.error('Error sending WhatsApp messages:', error);
+    return [{ success: false, error: error.message }];
+  }
+};
+
+
+export { sendMessage,sendGroupMessages, sendWhatsAppMessage,sendGroupWhatsAppMessage };
 

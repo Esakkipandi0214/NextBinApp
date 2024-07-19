@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { BellIcon } from 'lucide-react';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/firebase';
+import { auth, db } from '@/firebase'; // Make sure db is imported from your Firebase config
+import { collection, getDocs } from 'firebase/firestore';
 import { destroyCookie } from 'nookies';
 
 interface LayoutProps {
@@ -16,12 +17,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
 
   // Function to fetch and update notification count
-  const fetchNotificationCount = () => {
-    const storedNotificationCount = localStorage.getItem('notificationCount');
-    if (storedNotificationCount) {
-      setNotificationCount(parseInt(storedNotificationCount, 10));
-    } else {
-      setNotificationCount(0);
+  const fetchNotificationCount = async () => {
+    try {
+      const customerPriorityCollection = collection(db, 'customerPriority');
+      const querySnapshot = await getDocs(customerPriorityCollection);
+      const count = querySnapshot.size;
+      setNotificationCount(count);
+      localStorage.setItem('notificationCount', count.toString());
+    } catch (error) {
+      console.error("Error fetching notification count: ", error);
     }
   };
 
@@ -93,11 +97,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               alt="Profile"
               className="h-8 w-8 rounded-full ml-2" // Added margin-left for spacing
             />
-            {/* Logout Button */}
-           
           </div>
         </div>
-        <main className="h-full overflow-y-scroll">
+        <main className="h-full overflow-y-scroll pb-16">
           {children}
         </main>
       </div>

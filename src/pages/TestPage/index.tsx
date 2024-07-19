@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
-import { db } from '@/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { FaPhone, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
-import axios from 'axios'; // Import Axios
-import API_BASE_URL from './../../../apiConfig'
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Layout from '@/components/layout';
+import { db } from '../../firebase'; // Assuming you've exported db from your Firebase initialization file
+import { collection, getDocs, query, where, setDoc, doc, deleteDoc, getFirestore } from 'firebase/firestore';
+import { Input } from '@/components/ui/input';
 
 interface CustomerProps {
+  id: string;
   name: string;
   joinDate: string;
   email: string;
@@ -20,35 +18,42 @@ interface CustomerProps {
   lastLogin: string;
   lastOrderDate: string;
   lifetimeOrders: number;
+  frequency: string; // Change type to string to accommodate "20Days"
   orders: OrderProps[];
 }
 
 interface OrderProps {
-  customerId: string;
+  orderType: string;
   orderDate: string;
+  orderTime: number;
+  orderWeight: string;
+  customerId: string;
   orderPayment: number;
   status: string;
+  id: string;
 }
 
 const CustomerList: React.FC = () => {
   const [customers, setCustomers] = useState<CustomerProps[]>([]);
-  const [notificationCount, setNotificationCount] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filteredCustomers, setFilteredCustomers] = useState<CustomerProps[]>([]);
 
-  const fetchCustomers = async () => {
-    try {
+  useEffect(() => {
+    const fetchCustomers = async () => {
       const customersCollection = collection(db, 'customers');
       const querySnapshot = await getDocs(customersCollection);
 
-      const customerDataPromises = querySnapshot.docs.map(async (doc) => {
+      const customerDataPromises = querySnapshot.docs.map(async doc => {
         const data = doc.data() as CustomerProps;
         const customerId = doc.id;
+        data.id = customerId;
         data.orders = [];
 
         const ordersCollection = collection(db, 'orders');
         const ordersQuery = query(ordersCollection, where('customerId', '==', customerId));
         const ordersSnapshot = await getDocs(ordersQuery);
 
-        const ordersData = ordersSnapshot.docs.map((orderDoc) => {
+        const ordersData = ordersSnapshot.docs.map(orderDoc => {
           const orderData = orderDoc.data() as OrderProps;
           return orderData;
         });
@@ -69,191 +74,178 @@ const CustomerList: React.FC = () => {
       });
 
       const customerData = await Promise.all(customerDataPromises);
+      setCustomers(customerData);
+      setFilteredCustomers(customerData);
 
-      const filteredCustomers = customerData.filter((customer) => {
-        const daysSinceLastOrdered = calculateDaysSinceLastOrder(customer.lastOrderDate);
-        return daysSinceLastOrdered >= 5;
-      });
+      // Call function to store customers in customerPriority collection
+      storeCustomerInPriority(customerData);
+    };
 
-      const newNotificationCount = filteredCustomers.length;
-
-      setNotificationCount(newNotificationCount);
-
-      if (newNotificationCount > 0) {
-        localStorage.setItem('notificationCount', String(newNotificationCount));
-      } else {
-        localStorage.removeItem('notificationCount');
-      }
-
-      setCustomers(filteredCustomers);
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-    }
-  };
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      fetchCustomers();
-    }, 10000); // Fetch customers every 10 seconds
-
-    return () => clearInterval(intervalId);
+    fetchCustomers();
   }, []);
 
-  const handleSendMessage = async (customer: CustomerProps) => {
-    console.log("Sending message to", customer.name, "at phone number", customer.phone);
-    const body = `Hello ${customer.name}, this is a reminder from our store.`;
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/sendMessage`, { to: customer.phone, body });
+  const router = useRouter();
 
-      if (response.status === 200) {
-        alert('Message sent successfully!');
-      } else {
-        console.error('Failed to send message:', response.data.error);
-        alert(`Failed to send message: ${response.data.error}`);
-      }
-    } catch (error: any) {
-      console.error('Failed to send message:', error);
-      alert(`Failed to send message: ${error instanceof Error ? error.message : String(error)}`);
+  const handleCustomerSelect = (customerId: string) => {
+    router.push(`/CustomerDetail/${customerId}`);
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (query.trim() === '') {
+      setFilteredCustomers(customers);
+    } else {
+      const filtered = customers.filter(customer =>
+        customer.name.toLowerCase().includes(query)
+      );
+      setFilteredCustomers(filtered);
     }
   };
 
-  const handleCallCustomer = async (customer: CustomerProps) => {
-    const phoneNumber = customer.phone;
-  
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/makeCall`, { to: phoneNumber });
-
-      if (response.status === 200) {
-        console.log(response.data.message); // Log success message or handle as needed
-      } else {
-        console.error('Failed to initiate call:', response.data.error);
-      }
-    } catch (error: any) {
-      console.error('Failed to initiate call:', error);
+  const calculateDaysSinceLastOrder = (lastOrderDate: string): number => {
+    if (!lastOrderDate) {
+      return NaN;
     }
+    const lastOrder = new Date(lastOrderDate);
+    if (isNaN(lastOrder.getTime())) {
+      return NaN;
+    }
+    const currentDate = new Date();
+    const differenceInTime = currentDate.getTime() - lastOrder.getTime();
+    return Math.floor(differenceInTime / (1000 * 3600 * 24));
   };
 
-  const handleSendWhatsAppMessage = async (customer: CustomerProps) => {
-    console.log("Sending WhatsApp message to", customer.name, "at phone number", customer.phone);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/sendMessageTwilio`, {
-        to: customer.phone,
-        message: `Hello ${customer.name}, this is a WhatsApp message from our store.`,
-      });
+  const extractFrequency = (frequency: string): number => {
+    const match = frequency.match(/(\d+)/);
+    return match ? parseInt(match[0], 10) : 0;
+  };
 
-      if (response.status === 200) {
-        alert('WhatsApp message sent successfully!');
-      } else {
-        console.error('Failed to send WhatsApp message:', response.data.error);
-        alert(`Failed to send WhatsApp message: ${response.data.error}`);
+  const storeCustomerInPriority = async (customers: CustomerProps[]) => {
+    try {
+      const db = getFirestore();
+      const customerPriorityRef = collection(db, 'customerPriority');
+
+      // Fetch all documents from the customerPriority collection
+      const priorityQuerySnapshot = await getDocs(customerPriorityRef);
+      const existingPriorityCustomers = priorityQuerySnapshot.docs.map(doc => doc.id);
+
+      const updatedPriorityCustomers = new Set<string>();
+
+      for (const customer of customers) {
+        const daysSinceLastOrder = calculateDaysSinceLastOrder(customer.lastOrderDate);
+        let highlightClass = '';
+
+        if (!isNaN(daysSinceLastOrder) && customer.frequency) {
+          const frequencyDays = extractFrequency(customer.frequency);
+          const daysDifference = daysSinceLastOrder - frequencyDays;
+          const PriorityOne = frequencyDays + 15;
+          const PriorityTwo = frequencyDays + 10;
+          const PriorityThree = frequencyDays + 5;
+          console.log("Name:", customer.name, "Calculated Priority:", PriorityOne, PriorityTwo, PriorityThree, "of:", daysDifference, "Day Since last order:", daysSinceLastOrder, "His Frequency:", frequencyDays);
+
+          if (daysSinceLastOrder >= PriorityOne) {
+            highlightClass = 'bg-red-100';
+          } else if (daysSinceLastOrder >= PriorityTwo) {
+            highlightClass = 'bg-yellow-100';
+          } else if (daysSinceLastOrder >= PriorityThree) {
+            highlightClass = 'bg-green-100';
+          }
+
+          // Check if customer should be added to or updated in the customerPriority collection
+          if (daysSinceLastOrder >= frequencyDays) {
+            // Add or update customer in priority collection
+            const customerDocRef = doc(db, 'customerPriority', customer.id);
+            await setDoc(customerDocRef, {
+              customerId: customer.id,
+              name: customer.name,
+              email: customer.email,
+              phone: customer.phone,
+              lastOrderDate: customer.lastOrderDate,
+              daysSinceLastOrder: daysSinceLastOrder,
+              frequencyDays: frequencyDays,
+              priorityClass: highlightClass
+            }, { merge: true }); // Use merge to update if exists
+            console.log(`Customer ${customer.name} added or updated in customerPriority collection.`);
+            updatedPriorityCustomers.add(customer.id);
+          }
+        }
       }
-    } catch (error: any) {
-      console.error('Failed to send WhatsApp message:', error);
-      alert(`Failed to send WhatsApp message: ${error instanceof Error ? error.message : String(error)}`);
+
+      // Remove customers from the priority collection if they don't meet the criteria anymore
+      for (const docId of existingPriorityCustomers) {
+        if (!updatedPriorityCustomers.has(docId)) {
+          const customerDocRef = doc(db, 'customerPriority', docId);
+          await deleteDoc(customerDocRef);
+          console.log(`Customer with ID ${docId} removed from customerPriority collection.`);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error storing customers in customerPriority:", error);
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold mb-6">Customer List</h1>
-      <div className="grid gap-6">
-        {customers.map((customer) => (
-          <CustomerCard
-            key={customer.email}
-            customer={customer}
-            handleSendMessage={handleSendMessage}
-            handleCallCustomer={handleCallCustomer}
-            handleSendWhatsAppMessage={handleSendWhatsAppMessage}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
+    <Layout>
+      <div className="container mx-auto px-4 md:px-6 py-8">
+        <h1 className="text-2xl font-bold mb-4">Customer List</h1>
+        <Input
+          type="text"
+          className="border border-gray-300 rounded w-full md:w-1/2 py-2 mb-4 px-4"
+          placeholder="Search customers by name"
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCustomers.map(customer => {
+            const daysSinceLastOrder = calculateDaysSinceLastOrder(customer.lastOrderDate);
+            let highlightClass = '';
+            if (!isNaN(daysSinceLastOrder) && customer.frequency) {
+              const frequencyDays = extractFrequency(customer.frequency);
+              const daysDifference = daysSinceLastOrder - frequencyDays;
+              const PriorityOne = frequencyDays + 15;
+              const PriorityTwo = frequencyDays + 10;
+              const PriorityThree = frequencyDays + 5;
+              console.log("Name:", customer.name, "Calculated Priority:", PriorityOne, PriorityTwo, PriorityThree, "of:", daysDifference, "Day Since last order:", daysSinceLastOrder, "His Frequency:", frequencyDays);
+              if (daysSinceLastOrder >= PriorityOne) {
+                highlightClass = 'bg-red-100';
+              } else if (daysSinceLastOrder >= PriorityTwo) {
+                highlightClass = 'bg-yellow-100';
+              } else if (daysSinceLastOrder >= PriorityThree) {
+                highlightClass = 'bg-green-100';
+              }
+            }
 
-interface CustomerCardProps {
-  customer: CustomerProps;
-  handleSendMessage: (customer: CustomerProps) => void;
-  handleCallCustomer: (customer: CustomerProps) => void;
-  handleSendWhatsAppMessage: (customer: CustomerProps) => void;
-}
-
-const CustomerCard: React.FC<CustomerCardProps> = ({ customer, handleSendMessage, handleCallCustomer, handleSendWhatsAppMessage }) => {
-  const { name, email, lastOrderDate, phone } = customer;
-  const daysSinceLastOrdered = calculateDaysSinceLastOrder(lastOrderDate);
-  let highlightClass = '';
-
-  if (!isNaN(daysSinceLastOrdered)) {
-    if (daysSinceLastOrdered >= 10) {
-      highlightClass = 'bg-red-100';
-    } else if (daysSinceLastOrdered >= 5) {
-      highlightClass = 'bg-yellow-100';
-    }
-  }
-
-  const handleSendMessageClick = () => {
-    handleSendMessage(customer);
-  };
-
-  const handleCallCustomerClick = () => {
-    handleCallCustomer(customer);
-  };
-
-  const handleWhatsAppClick = () => {
-    handleSendWhatsAppMessage(customer);
-  };
-
-  return (
-    <div className={`bg-background rounded-lg shadow p-6 ${highlightClass}`}>
-      <div className="flex items-start gap-4">
-        <Avatar className="w-12 h-12">
-          <AvatarImage src="/placeholder-user.jpg" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <div className="grid gap-1">
-              <div className="font-semibold">
-                {name} ({daysSinceLastOrdered} days ago)
+            return (
+              <div
+                key={customer.id}
+                className={`cursor-pointer border border-gray-200 p-6 rounded-lg shadow-md ${highlightClass} hover:shadow-lg transition-shadow duration-300`}
+                onClick={() => handleCustomerSelect(customer.id)}
+              >
+                <h3 className="text-lg font-medium mb-2">{customer.name}</h3>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p><strong>Email:</strong> {customer.email}</p>
+                  <p><strong>Phone:</strong> {customer.phone}</p>
+                  {/* <p><strong>Total Orders:</strong> {customer.totalOrders}</p>
+                  <p>
+                    <strong>Total Spent:</strong> {customer.totalSpent.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Avg Order Value:</strong> {customer.avgOrderValue.toFixed(2)}
+                  </p>
+                  <p><strong>Last Login:</strong> {customer.lastLogin}</p>
+                  <p><strong>Lifetime Orders:</strong> {customer.lifetimeOrders}</p>
+                  <p><strong>Frequency:</strong> {customer.frequency}</p> */}
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">{email}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={handleCallCustomerClick}>
-                <FaPhone className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleSendMessageClick}>
-                <FaEnvelope className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleWhatsAppClick}>
-                <FaWhatsapp className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-          <Separator className="my-4" />
-          <div className="grid gap-4">
-            {/* Additional customer information display */}
-          </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
-
-function calculateDaysSinceLastOrder(lastOrderDate: string): number {
-  if (!lastOrderDate) {
-    console.log("Last order date not passed");
-    return NaN;
-  }
-  const lastOrder = new Date(lastOrderDate);
-  if (isNaN(lastOrder.getTime())) {
-    console.log("Invalid last order date");
-    return NaN;
-  }
-  const currentDate = new Date();
-  const differenceInTime = currentDate.getTime() - lastOrder.getTime();
-  const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-  return differenceInDays;
-}
 
 export default CustomerList;
