@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/components/layout';
-import { db } from '../../firebase'; // Assuming you've exported db from your Firebase initialization file
+import { db } from '../../firebase'; // Ensure this import is correct
 import { collection, getDocs, query, where, setDoc, doc, deleteDoc, getFirestore } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 
@@ -18,7 +18,7 @@ interface CustomerProps {
   lastLogin: string;
   lastOrderDate: string;
   lifetimeOrders: number;
-  frequency: string; // Change type to string to accommodate "20Days"
+  frequency: string; // Assuming frequency is a string like "20Days"
   orders: OrderProps[];
 }
 
@@ -40,45 +40,46 @@ const CustomerList: React.FC = () => {
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const customersCollection = collection(db, 'customers');
-      const querySnapshot = await getDocs(customersCollection);
+      try {
+        const customersCollection = collection(db, 'customers');
+        const querySnapshot = await getDocs(customersCollection);
 
-      const customerDataPromises = querySnapshot.docs.map(async doc => {
-        const data = doc.data() as CustomerProps;
-        const customerId = doc.id;
-        data.id = customerId;
-        data.orders = [];
+        const customerDataPromises = querySnapshot.docs.map(async doc => {
+          const data = doc.data() as CustomerProps;
+          const customerId = doc.id;
+          data.id = customerId;
+          data.orders = [];
 
-        const ordersCollection = collection(db, 'orders');
-        const ordersQuery = query(ordersCollection, where('customerId', '==', customerId));
-        const ordersSnapshot = await getDocs(ordersQuery);
+          const ordersCollection = collection(db, 'orders');
+          const ordersQuery = query(ordersCollection, where('customerId', '==', customerId));
+          const ordersSnapshot = await getDocs(ordersQuery);
 
-        const ordersData = ordersSnapshot.docs.map(orderDoc => {
-          const orderData = orderDoc.data() as OrderProps;
-          return orderData;
+          const ordersData = ordersSnapshot.docs.map(orderDoc => {
+            const orderData = orderDoc.data() as OrderProps;
+            return orderData;
+          });
+
+          data.orders = ordersData;
+
+         // Pass only the 0 index order
+      if (ordersData.length > 0) {
+        data.lastOrderDate = ordersData[0].orderDate;
+      } else {
+        data.lastOrderDate = '';
+      }
+
+          return data;
         });
 
-        data.orders = ordersData;
+        const customerData = await Promise.all(customerDataPromises);
+        setCustomers(customerData);
+        setFilteredCustomers(customerData);
 
-        if (ordersData.length > 0) {
-          const lastOrder = ordersData.reduce((latest, order) => {
-            const orderDate = new Date(order.orderDate);
-            return orderDate > new Date(latest.orderDate) ? order : latest;
-          });
-          data.lastOrderDate = lastOrder.orderDate;
-        } else {
-          data.lastOrderDate = '';
-        }
-
-        return data;
-      });
-
-      const customerData = await Promise.all(customerDataPromises);
-      setCustomers(customerData);
-      setFilteredCustomers(customerData);
-
-      // Call function to store customers in customerPriority collection
-      storeCustomerInPriority(customerData);
+        // Call function to store customers in customerPriority collection
+        storeCustomerInPriority(customerData);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
     };
 
     fetchCustomers();
@@ -187,6 +188,8 @@ const CustomerList: React.FC = () => {
     }
   };
 
+  console.log("Filtered Customers:", filteredCustomers);
+
   return (
     <Layout>
       <div className="container mx-auto px-4 md:px-6 py-8">
@@ -228,16 +231,6 @@ const CustomerList: React.FC = () => {
                 <div className="text-sm text-gray-600 space-y-1">
                   <p><strong>Email:</strong> {customer.email}</p>
                   <p><strong>Phone:</strong> {customer.phone}</p>
-                  {/* <p><strong>Total Orders:</strong> {customer.totalOrders}</p>
-                  <p>
-                    <strong>Total Spent:</strong> {customer.totalSpent.toFixed(2)}
-                  </p>
-                  <p>
-                    <strong>Avg Order Value:</strong> {customer.avgOrderValue.toFixed(2)}
-                  </p>
-                  <p><strong>Last Login:</strong> {customer.lastLogin}</p>
-                  <p><strong>Lifetime Orders:</strong> {customer.lifetimeOrders}</p>
-                  <p><strong>Frequency:</strong> {customer.frequency}</p> */}
                 </div>
               </div>
             );
