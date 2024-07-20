@@ -78,7 +78,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className='flex items-center'>
             {/* Notification Icon with Count */}
             <div className='flex items-center relative mr-4'>
-              <Link href={"/Notification"}>
+              <Link href={"/TestNotification"}>
                 <BellIcon className="h-6 w-6 text-white cursor-pointer" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
                   {notificationCount > 0 ? notificationCount : "0"}
@@ -92,11 +92,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               Logout
             </button>
             {/* Profile Image */}
-            <img
+            {/* <img
               src="https://randomuser.me/api/portraits/men/32.jpg" // Random image for demonstration
               alt="Profile"
               className="h-8 w-8 rounded-full ml-2" // Added margin-left for spacing
-            />
+            /> */}
           </div>
         </div>
         <main className="h-full overflow-y-scroll pb-16">
