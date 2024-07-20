@@ -27,16 +27,22 @@ interface CustomerProps {
   lifetimeOrders: number;
   orders: OrderProps[];
 }
-
+interface OrderItem {
+  category: string;
+  subCategory: string;
+  
+}
 interface OrderProps {
   customerId: string;
   orderDate: string;
   orderPayment: number;
   status: string;
   id: string;
-  orderType?: string;
+  orderItems:OrderItem[];
+  category?: string;
   orderTime?: number;
-  orderWeight?: string;
+  totalWeight?: string;
+  subCategory?: string;
 }
 
 type handleEditFunction = (props: OrderProps) => void;
@@ -92,11 +98,23 @@ const Component: React.FC = () => {
       const ordersQuery = query(ordersCollection, where('customerId', '==', customerId));
       const ordersSnapshot = await getDocs(ordersQuery);
 
-      const ordersData = ordersSnapshot.docs.map(orderDoc => {
+      const ordersData = await Promise.all(ordersSnapshot.docs.map(async (orderDoc) => {
         const orderData = orderDoc.data() as OrderProps;
         orderData.id = orderDoc.id;
+        
+        // Fetch the subcategory detail
+        if (orderData.category) {
+          const subCategoryDocRef = doc(db, 'orders', orderData.category);
+          const subCategoryDoc = await getDoc(subCategoryDocRef);
+          if (subCategoryDoc.exists()) {
+            orderData.subCategory = subCategoryDoc.data()?.name || 'N/A';
+          } else {
+            orderData.subCategory = 'N/A';
+          }
+        }
+        
         return orderData;
-      });
+      }));
 
       customerData.orders = ordersData;
 
@@ -195,15 +213,21 @@ const Component: React.FC = () => {
 
 // OrderDetails component
 const OrderDetails: React.FC<{ order: OrderProps }> = ({ order }) => {
+  console.log("orderdetails",order)
   return (
     <div className="grid gap-2 text-sm">
       <p><span className="font-semibold">Order ID:</span> {order.id}</p>
       <p><span className="font-semibold">Date:</span> {order.orderDate}</p>
       <p><span className="font-semibold">Payment:</span> {order.orderPayment}</p>
       <p><span className="font-semibold">Status:</span> {order.status}</p>
-      <p><span className="font-semibold">Type:</span> {order.orderType || 'N/A'}</p>
+      {order.orderItems.map((item, index) => (
+        <div key={index}>
+          <p><span className="font-semibold">Category:</span> {item.category || 'N/A'}</p>
+          <p><span className="font-semibold">SubCategory:</span> {item.subCategory || 'N/A'}</p>
+        </div>
+      ))}
       <p><span className="font-semibold">Time:</span> {order.orderTime || 'N/A'}</p>
-      <p><span className="font-semibold">Weight:</span> {order.orderWeight || 'N/A'}</p>
+      <p><span className="font-semibold">Weight:</span> {order.totalWeight || 'N/A'}</p>
     </div>
   );
 };
@@ -218,7 +242,8 @@ const OrderDetailsTable: React.FC<{ orders: OrderProps[] }> = ({ orders }) => {
           <th className="border border-gray-300 px-4 py-2">Date</th>
           <th className="border border-gray-300 px-4 py-2">Payment</th>
           <th className="border border-gray-300 px-4 py-2">Status</th>
-          <th className="border border-gray-300 px-4 py-2">Type</th>
+          <th className="border border-gray-300 px-4 py-2">Categories</th>
+          <th className="border border-gray-300 px-4 py-2">SubCategories</th>
           <th className="border border-gray-300 px-4 py-2">Time</th>
           <th className="border border-gray-300 px-4 py-2">Weight</th>
         </tr>
@@ -230,9 +255,18 @@ const OrderDetailsTable: React.FC<{ orders: OrderProps[] }> = ({ orders }) => {
             <td className="border border-gray-300 px-4 py-2">{order.orderDate}</td>
             <td className="border border-gray-300 px-4 py-2">{order.orderPayment}</td>
             <td className="border border-gray-300 px-4 py-2">{order.status}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.orderType || 'N/A'}</td>
+            <td className="border border-gray-300 px-4 py-2">
+              {order.orderItems.map((item, index) => (
+                <p key={index}>{item.category || 'N/A'}</p>
+              ))}
+            </td>
+            <td className="border border-gray-300 px-4 py-2">
+              {order.orderItems.map((item, index) => (
+                <p key={index}>{item.subCategory || 'N/A'}</p>
+              ))}
+            </td>
             <td className="border border-gray-300 px-4 py-2">{order.orderTime || 'N/A'}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.orderWeight || 'N/A'}</td>
+            <td className="border border-gray-300 px-4 py-2">{order.totalWeight || 'N/A'}</td>
           </tr>
         ))}
       </tbody>
