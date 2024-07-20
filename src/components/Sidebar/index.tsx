@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { XIcon, LayoutDashboardIcon, ShoppingCartIcon, UserIcon, SettingsIcon, MenuIcon,InboxIcon } from 'lucide-react';
+import { XIcon, LayoutDashboardIcon, ShoppingCartIcon, UserIcon, SettingsIcon, MenuIcon,InboxIcon,HistoryIcon } from 'lucide-react';
 import { useRouter } from 'next/router';
 
 const Sidebar: React.FC = () => {
@@ -14,8 +14,10 @@ const Sidebar: React.FC = () => {
     { href: '/Testorders', icon: <ShoppingCartIcon className="h-5 w-5" />, label: 'Orders' },
     { href: '/TestAddCustomer', icon: <UserIcon className="h-5 w-5" />, label: 'Add Customers' },
     { href: '/TestPage', icon: <SettingsIcon className="h-5 w-5" />, label: 'Customer Detail' },
-    { href: '/TestGroupMessage', icon: <InboxIcon className="h-5 w-5" />, label: 'MessageQueue' }
+    { href: '/TestGroupMessage', icon: <InboxIcon className="h-5 w-5" />, label: 'MessageQueue' },
+    { href: '/TestOderManagement', icon: <HistoryIcon className="h-5 w-5" />, label: 'Orders History' }
   ];
+  
 
   return (
     <div className={`h-screen bg-[#2C4E80] text-white transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-56'}`}>
