@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { XIcon, LayoutDashboardIcon, ShoppingCartIcon, UserIcon, SettingsIcon, MenuIcon } from 'lucide-react';
+import { XIcon, LayoutDashboardIcon, ShoppingCartIcon, UserIcon, SettingsIcon, MenuIcon,InboxIcon } from 'lucide-react';
 import { useRouter } from 'next/router';
 
 const Sidebar: React.FC = () => {
@@ -11,9 +11,10 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     { href: '/Dashboard', icon: <LayoutDashboardIcon className="h-5 w-5" />, label: 'Dashboard' },
-    { href: '/order', icon: <ShoppingCartIcon className="h-5 w-5" />, label: 'Orders' },
-    { href: '/AddCustomer', icon: <UserIcon className="h-5 w-5" />, label: 'Add Customers' },
-    { href: '/CustomerDetail', icon: <SettingsIcon className="h-5 w-5" />, label: 'Customer Detail' },
+    { href: '/Testorders', icon: <ShoppingCartIcon className="h-5 w-5" />, label: 'Orders' },
+    { href: '/TestAddCustomer', icon: <UserIcon className="h-5 w-5" />, label: 'Add Customers' },
+    { href: '/TestPage', icon: <SettingsIcon className="h-5 w-5" />, label: 'Customer Detail' },
+    { href: '/TestGroupMessage', icon: <InboxIcon className="h-5 w-5" />, label: 'MessageQueue' }
   ];
 
   return (
