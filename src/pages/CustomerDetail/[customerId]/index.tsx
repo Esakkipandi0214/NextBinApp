@@ -30,7 +30,6 @@ interface CustomerProps {
 interface OrderItem {
   category: string;
   subCategory: string;
-  
 }
 interface OrderProps {
   customerId: string;
@@ -38,7 +37,7 @@ interface OrderProps {
   orderPayment: number;
   status: string;
   id: string;
-  orderItems:OrderItem[];
+  orderItems: OrderItem[];
   category?: string;
   orderTime?: number;
   totalWeight?: string;
@@ -101,7 +100,7 @@ const Component: React.FC = () => {
       const ordersData = await Promise.all(ordersSnapshot.docs.map(async (orderDoc) => {
         const orderData = orderDoc.data() as OrderProps;
         orderData.id = orderDoc.id;
-        
+
         // Fetch the subcategory detail
         if (orderData.category) {
           const subCategoryDocRef = doc(db, 'orders', orderData.category);
@@ -112,18 +111,14 @@ const Component: React.FC = () => {
             orderData.subCategory = 'N/A';
           }
         }
-        
+
         return orderData;
       }));
 
-      customerData.orders = ordersData;
+      customerData.orders = ordersData.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
 
       if (ordersData.length > 0) {
-        const lastOrder = ordersData.reduce((latest, order) => {
-          const orderDate = new Date(order.orderDate);
-          return orderDate > new Date(latest.orderDate) ? order : latest;
-        }, ordersData[0]);
-        customerData.lastOrderDate = lastOrder.orderDate;
+        customerData.lastOrderDate = ordersData[0].orderDate;
       } else {
         customerData.lastOrderDate = '';
       }
@@ -186,7 +181,7 @@ const Component: React.FC = () => {
       </div>
       {showEditModal && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
-          <div className="bg-white rounded-lg p-6 w-1/2 max-w-sm">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4">Edit Order Details</h2>
             <form onSubmit={handleEditSubmit}>
               <div className="space-y-4">
@@ -213,7 +208,6 @@ const Component: React.FC = () => {
 
 // OrderDetails component
 const OrderDetails: React.FC<{ order: OrderProps }> = ({ order }) => {
-  console.log("orderdetails",order)
   return (
     <div className="grid gap-2 text-sm">
       <p><span className="font-semibold">Order ID:</span> {order.id}</p>
@@ -235,72 +229,76 @@ const OrderDetails: React.FC<{ order: OrderProps }> = ({ order }) => {
 // OrderDetailsTable component
 const OrderDetailsTable: React.FC<{ orders: OrderProps[] }> = ({ orders }) => {
   return (
-    <table className="min-w-full border-collapse border border-gray-300">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 px-4 py-2">Order ID</th>
-          <th className="border border-gray-300 px-4 py-2">Date</th>
-          <th className="border border-gray-300 px-4 py-2">Payment</th>
-          <th className="border border-gray-300 px-4 py-2">Status</th>
-          <th className="border border-gray-300 px-4 py-2">Categories</th>
-          <th className="border border-gray-300 px-4 py-2">SubCategories</th>
-          <th className="border border-gray-300 px-4 py-2">Time</th>
-          <th className="border border-gray-300 px-4 py-2">Weight</th>
-        </tr>
-      </thead>
-      <tbody>
-        {orders.map(order => (
-          <tr key={order.id}>
-            <td className="border border-gray-300 px-4 py-2">{order.id}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.orderDate}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.orderPayment}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.status}</td>
-            <td className="border border-gray-300 px-4 py-2">
-              {order.orderItems.map((item, index) => (
-                <p key={index}>{item.category || 'N/A'}</p>
-              ))}
-            </td>
-            <td className="border border-gray-300 px-4 py-2">
-              {order.orderItems.map((item, index) => (
-                <p key={index}>{item.subCategory || 'N/A'}</p>
-              ))}
-            </td>
-            <td className="border border-gray-300 px-4 py-2">{order.orderTime || 'N/A'}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.totalWeight || 'N/A'}</td>
+    <div className="overflow-x-auto">
+      <table className="min-w-full border border-gray-300">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 px-4 py-2 text-left">Order ID</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Payment</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Status</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Categories</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">SubCategories</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Time</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Weight</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {orders.map((order,index) => (
+            <tr key={index}>
+              <td className="border border-gray-300 px-4 py-2">{index+1}</td>
+              <td className="border border-gray-300 px-4 py-2">{order.orderDate}</td>
+              <td className="border border-gray-300 px-4 py-2">{order.orderPayment}</td>
+              <td className="border border-gray-300 px-4 py-2">{order.status}</td>
+              <td className="border border-gray-300 px-4 py-2">
+                {order.orderItems.map((item, index) => (
+                  <p key={index}>{item.category || 'N/A'}</p>
+                ))}
+              </td>
+              <td className="border border-gray-300 px-4 py-2">
+                {order.orderItems.map((item, index) => (
+                  <p key={index}>{item.subCategory || 'N/A'}</p>
+                ))}
+              </td>
+              <td className="border border-gray-300 px-4 py-2">{order.orderTime || 'N/A'}</td>
+              <td className="border border-gray-300 px-4 py-2">{order.totalWeight || 'N/A'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
 // OrderHistoryTable component
 const OrderHistoryTable: React.FC<{ orders: OrderProps[], handleEditClick: handleEditFunction }> = ({ orders, handleEditClick }) => {
   return (
-    <table className="min-w-full border-collapse border border-gray-300">
-      <thead>
-        <tr>
-          <th className="border border-gray-300 px-4 py-2">Order ID</th>
-          <th className="border border-gray-300 px-4 py-2">Date</th>
-          <th className="border border-gray-300 px-4 py-2">Payment</th>
-          <th className="border border-gray-300 px-4 py-2">Status</th>
-          <th className="border border-gray-300 px-4 py-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {orders.map(order => (
-          <tr key={order.id}>
-            <td className="border border-gray-300 px-4 py-2">{order.id}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.orderDate}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.orderPayment}</td>
-            <td className="border border-gray-300 px-4 py-2">{order.status}</td>
-            <td className="border border-gray-300 px-4 py-2">
-              <button onClick={() => handleEditClick(order)} className="text-blue-600 hover:underline">Edit</button>
-            </td>
+    <div className="overflow-x-auto">
+      <table className="min-w-full border border-gray-300">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 px-4 py-2 text-left">Order ID</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Payment</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Status</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {orders.map((order,index) => (
+            <tr key={index}>
+              <td className="border border-gray-300 px-4 py-2">{index+1}</td>
+              <td className="border border-gray-300 px-4 py-2">{order.orderDate}</td>
+              <td className="border border-gray-300 px-4 py-2">{order.orderPayment}</td>
+              <td className="border border-gray-300 px-4 py-2">{order.status}</td>
+              <td className="border border-gray-300 px-4 py-2">
+                <button onClick={() => handleEditClick(order)} className="text-blue-600 hover:underline">Edit</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
