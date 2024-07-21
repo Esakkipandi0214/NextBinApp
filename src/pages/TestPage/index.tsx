@@ -6,10 +6,11 @@ import { collection, getDocs, query, where, setDoc, doc, deleteDoc, getFirestore
 import { Input } from '@/components/ui/input';
 
 interface CustomerProps {
-  id: string;
-  name: string;
-  joinDate: string;
   email: string;
+  id: string;
+  firstName: string;
+  lastName: string;
+  joinDate: string;
   phone: string;
   address: string;
   totalOrders: number;
@@ -20,6 +21,8 @@ interface CustomerProps {
   lifetimeOrders: number;
   frequency: string; // Assuming frequency is a string like "20Days"
   orders: OrderProps[];
+  license: string;
+  postcode: string;
 }
 
 interface OrderProps {
@@ -61,12 +64,12 @@ const CustomerList: React.FC = () => {
 
           data.orders = ordersData;
 
-         // Pass only the 0 index order
-      if (ordersData.length > 0) {
-        data.lastOrderDate = ordersData[0].orderDate;
-      } else {
-        data.lastOrderDate = '';
-      }
+          // Pass only the 0 index order
+          if (ordersData.length > 0) {
+            data.lastOrderDate = ordersData[0].orderDate;
+          } else {
+            data.lastOrderDate = '';
+          }
 
           return data;
         });
@@ -99,7 +102,7 @@ const CustomerList: React.FC = () => {
       setFilteredCustomers(customers);
     } else {
       const filtered = customers.filter(customer =>
-        customer.name.toLowerCase().includes(query)
+        `${customer.firstName.toLowerCase()} ${customer.lastName.toLowerCase()}`.includes(query)
       );
       setFilteredCustomers(filtered);
     }
@@ -144,7 +147,6 @@ const CustomerList: React.FC = () => {
           const PriorityOne = frequencyDays + 15;
           const PriorityTwo = frequencyDays + 10;
           const PriorityThree = frequencyDays + 5;
-          console.log("Name:", customer.name, "Calculated Priority:", PriorityOne, PriorityTwo, PriorityThree, "of:", daysDifference, "Day Since last order:", daysSinceLastOrder, "His Frequency:", frequencyDays);
 
           if (daysSinceLastOrder >= PriorityOne) {
             highlightClass = 'bg-red-100';
@@ -160,15 +162,14 @@ const CustomerList: React.FC = () => {
             const customerDocRef = doc(db, 'customerPriority', customer.id);
             await setDoc(customerDocRef, {
               customerId: customer.id,
-              name: customer.name,
-              email: customer.email,
+              firstName: customer.firstName,
+              lastName: customer.lastName,
               phone: customer.phone,
               lastOrderDate: customer.lastOrderDate,
               daysSinceLastOrder: daysSinceLastOrder,
               frequencyDays: frequencyDays,
               priorityClass: highlightClass
             }, { merge: true }); // Use merge to update if exists
-            console.log(`Customer ${customer.name} added or updated in customerPriority collection.`);
             updatedPriorityCustomers.add(customer.id);
           }
         }
@@ -179,7 +180,6 @@ const CustomerList: React.FC = () => {
         if (!updatedPriorityCustomers.has(docId)) {
           const customerDocRef = doc(db, 'customerPriority', docId);
           await deleteDoc(customerDocRef);
-          console.log(`Customer with ID ${docId} removed from customerPriority collection.`);
         }
       }
 
@@ -187,8 +187,6 @@ const CustomerList: React.FC = () => {
       console.error("Error storing customers in customerPriority:", error);
     }
   };
-
-  console.log("Filtered Customers:", filteredCustomers);
 
   return (
     <Layout>
@@ -211,7 +209,7 @@ const CustomerList: React.FC = () => {
               const PriorityOne = frequencyDays + 15;
               const PriorityTwo = frequencyDays + 10;
               const PriorityThree = frequencyDays + 5;
-              console.log("Name:", customer.name, "Calculated Priority:", PriorityOne, PriorityTwo, PriorityThree, "of:", daysDifference, "Day Since last order:", daysSinceLastOrder, "His Frequency:", frequencyDays);
+
               if (daysSinceLastOrder >= PriorityOne) {
                 highlightClass = 'bg-red-100';
               } else if (daysSinceLastOrder >= PriorityTwo) {
@@ -227,9 +225,9 @@ const CustomerList: React.FC = () => {
                 className={`cursor-pointer border border-gray-200 p-6 rounded-lg shadow-md ${highlightClass} hover:shadow-lg transition-shadow duration-300`}
                 onClick={() => handleCustomerSelect(customer.id)}
               >
-                <h3 className="text-lg font-medium mb-2">{customer.name}</h3>
+                <h3 className="text-lg font-medium mb-2">{`${customer.firstName} ${customer.lastName}`}</h3>
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p><strong>Email:</strong> {customer.email}</p>
+                <p><strong>Email:</strong> {customer.email}</p>
                   <p><strong>Phone:</strong> {customer.phone}</p>
                 </div>
               </div>
