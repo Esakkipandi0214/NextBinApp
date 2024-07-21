@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { db } from "@/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { Label } from "@/components/ui/label";
@@ -9,12 +8,16 @@ import Layout from "@/components/layout";
 
 interface Customer {
   id: string;
-  name: string;
-  email: string;
+  firstName: string;
+  lastName: string;
   phone: string;
-  website: string;
+  license: string;
+  dob: string;
+  email: string;
   address: string;
+  postcode: string;
   frequency: string;
+  registration: string;
   created: string;
 }
 
@@ -29,31 +32,23 @@ const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer, onClose }) =>
       <div className="bg-white rounded-lg p-6 w-full max-w-lg">
         <h2 className="text-2xl font-bold mb-4">Customer Detail</h2>
         <div className="space-y-4">
-          <div>
-            <p><strong>Name:</strong> {customer.name}</p>
-          </div>
-          <div>
-            <p><strong>Email:</strong> {customer.email}</p>
-          </div>
-          <div>
-            <p><strong>Phone:</strong> {customer.phone}</p>
-          </div>
-          <div>
-            <p><strong>Website:</strong> {customer.website}</p>
-          </div>
-          <div>
-            <p><strong>Address:</strong> {customer.address}</p>
-          </div>
-          <div>
-            <p><strong>Frequency:</strong> {customer.frequency}</p>
-          </div>
-          <div>
-            <p><strong>Created:</strong> {customer.created}</p>
-          </div>
+          <div><p><strong>First Name:</strong> {customer.firstName}</p></div>
+          <div><p><strong>Last Name:</strong> {customer.lastName}</p></div>
+          <div><p><strong>Phone:</strong> {customer.phone}</p></div>
+          <div><p><strong>Email:</strong> {customer.email}</p></div>
+          <div><p><strong>License:</strong> {customer.license}</p></div>
+          <div><p><strong>Date of Birth:</strong> {customer.dob}</p></div>
+          <div><p><strong>Address:</strong> {customer.address}</p></div>
+          <div><p><strong>Postcode:</strong> {customer.postcode}</p></div>
+          <div><p><strong>Frequency:</strong> {customer.frequency}</p></div>
+          <div><p><strong>Registration:</strong> {customer.registration}</p></div>
+          <div><p><strong>Created:</strong> {new Date(customer.created).toLocaleDateString()}</p></div>
         </div>
-        <Button onClick={onClose} className="mt-4 w-full">
-          Close
-        </Button>
+        <div className="flex justify-end mt-4">
+          <Button onClick={onClose} className="w-full" style={{ backgroundColor: "#00215E", color: "white" }}>
+            Close
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -74,24 +69,36 @@ const Component: React.FC = () => {
   const fetchData = async () => {
     const querySnapshot = await getDocs(collection(db, "customers"));
     const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Customer[];
-    setCustomerData(data);
+    
+    // Sort the customer data by registration number in ascending order
+    const sortedData = data.sort((a, b) => parseInt(a.registration) - parseInt(b.registration));
+    
+    setCustomerData(sortedData);
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await addDoc(collection(db, "customers"), {
-      name: (event.currentTarget.elements.namedItem("name") as HTMLInputElement).value,
-      email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value,
-      phone: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("phone") as HTMLInputElement).value}`,
-      website: (event.currentTarget.elements.namedItem("website") as HTMLInputElement).value,
-      address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
-      frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
-      created: new Date().toISOString(),
-    });
-    alert("Customer created successfully!");
-    fetchData();
-    setShowCreateModal(false);
-  };
+  
+
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  const registrationNumber = `${customerData.length + 1}`;
+
+  await addDoc(collection(db, "customers"), {
+    firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
+    lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
+    phone: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("phone") as HTMLInputElement).value}`,
+    license: (event.currentTarget.elements.namedItem("license") as HTMLInputElement).value,
+    dob: (event.currentTarget.elements.namedItem("dob") as HTMLInputElement).value,
+    address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
+    postcode: (event.currentTarget.elements.namedItem("postcode") as HTMLInputElement).value,
+    frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
+    registration: registrationNumber,
+    created: new Date().toISOString(),
+    email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value, // Add this line
+  });
+  alert("Customer created successfully!");
+  fetchData();
+  setShowCreateModal(false);
+};
 
   const handleEditClick = (customer: Customer) => {
     setEditingCustomer(customer);
@@ -109,18 +116,41 @@ const Component: React.FC = () => {
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!editingCustomer) return;
+  
+    // Collect updated values
+    const updatedData: Partial<Customer> = {
+      firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement)?.value || '',
+      lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement)?.value || '',
+      phone: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement)?.value || ''} ${(event.currentTarget.elements.namedItem("phone") as HTMLInputElement)?.value || ''}`,
+      license: (event.currentTarget.elements.namedItem("license") as HTMLInputElement)?.value || '',
+      dob: (event.currentTarget.elements.namedItem("dob") as HTMLInputElement)?.value || '',
+      address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement)?.value || '',
+      postcode: (event.currentTarget.elements.namedItem("postcode") as HTMLInputElement)?.value || '',
+      frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement)?.value || '',
+      email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement)?.value || '', // Add this line
+      registration: editingCustomer.registration,
+    };
+  
+    try {
+      await updateDoc(doc(db, "customers", editingCustomer.id), updatedData);
+      alert("Customer updated successfully!");
+      setShowEditModal(false);
+      fetchData();
+    } catch (error) {
+      console.error("Error updating customer:", error);
+      alert("Failed to update customer.");
+    }
+  };
+  
+  
 
-    await updateDoc(doc(db, "customers", editingCustomer.id), {
-      name: (event.currentTarget.elements.namedItem("name") as HTMLInputElement).value,
-      email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value,
-      phone: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("phone") as HTMLInputElement).value}`,
-      website: (event.currentTarget.elements.namedItem("website") as HTMLInputElement).value,
-      address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
-      frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
-    });
-    alert("Customer updated successfully!");
+  const handleCancelEdit = () => {
+    setEditingCustomer(null);
     setShowEditModal(false);
-    fetchData();
+  };
+
+  const handleCancelCreate = () => {
+    setShowCreateModal(false);
   };
 
   const countryCodes = [
@@ -146,14 +176,14 @@ const Component: React.FC = () => {
               <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" name="name" type="text" placeholder="Enter customer name" required />
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" required />
                     </div>
                     <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" name="email" type="email" placeholder="Enter customer email" required />
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" required />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -169,111 +199,46 @@ const Component: React.FC = () => {
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone</Label>
-                      <Input id="phone" name="phone" type="tel" placeholder="Enter customer phone number" required />
+                      <Input id="phone" name="phone" type="tel" placeholder="Enter phone number" required />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="website">Website</Label>
-                    <Input id="website" name="website" type="text" placeholder="Enter customer website" required />
+                    <Label htmlFor="license">License</Label>
+                    <Input id="license" name="license" type="text" placeholder="Enter license" required />
                   </div>
                   <div>
+                    <Label htmlFor="dob">Date of Birth</Label>
+                    <Input id="dob" name="dob" type="date" placeholder="Enter date of birth" required />
+                  </div>
+                  <div>
+  <Label htmlFor="email">Email</Label>
+  <Input id="email" name="email" type="email" placeholder="Enter email address" required />
+</div>
+                  <div>
                     <Label htmlFor="address">Address</Label>
-                    <Input id="address" name="address" type="text" placeholder="Enter customer address" required />
+                    <Input id="address" name="address" type="text" placeholder="Enter address" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="postcode">Postcode</Label>
+                    <Input id="postcode" name="postcode" type="text" placeholder="Enter postcode" required />
                   </div>
                   <div>
                     <Label htmlFor="frequency">Frequency</Label>
-                    <Input id="frequency" name="frequency" type="text" placeholder="Enter customer frequency" required />
+                    <Input id="frequency" name="frequency" type="text" placeholder="Enter frequency" required />
                   </div>
-                  <Button type="submit" className="w-full">
-                    Create Customer
+                </div>
+                <div className="flex justify-end space-x-4 mt-4">
+                  <Button type="submit" style={{ backgroundColor: "#00215E", color: "white" }}>
+                    Save
+                  </Button>
+                  <Button type="button" onClick={handleCancelCreate} className="bg-gray-300 text-black">
+                    Cancel
                   </Button>
                 </div>
               </form>
-              <Button onClick={() => setShowCreateModal(false)} className="mt-4 w-full">
-                Cancel
-              </Button>
             </div>
           </div>
         )}
-
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-          {customerData.length > 0 ? (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Phone
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Website
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Address
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Frequency
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th scope="col" className="relative px-6 py-3">
-                    <span className="sr-only">Edit</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {customerData.map((customer) => (
-                  <tr key={customer.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Link href="#">
-                        <p
-                          className="text-sm font-medium text-gray-900 cursor-pointer"
-                          onClick={() => {
-                            setSelectedCustomer(customer);
-                            setShowCustomerDetail(true);
-                          }}
-                        >
-                          {customer.name}
-                        </p>
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.phone}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.website}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.address}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.frequency}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{customer.created}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Button
-                        onClick={() => handleEditClick(customer)}
-                        style={{ backgroundColor: "#00215E", color: "white" }}
-                        className="mr-2"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteClick(customer.id)}
-                        style={{ backgroundColor: "red", color: "white" }}
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="flex justify-center items-center h-full">
-              <p>No customer data available.</p>
-            </div>
-          )}
-        </div>
 
         {showEditModal && editingCustomer && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
@@ -281,25 +246,21 @@ const Component: React.FC = () => {
               <h2 className="text-2xl font-bold mb-4">Edit Customer</h2>
               <form onSubmit={handleEditSubmit}>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" name="name" type="text" defaultValue={editingCustomer.name} required />
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input id="firstName" name="firstName" type="text" defaultValue={editingCustomer.firstName || ''} required />
+
                     </div>
                     <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" name="email" type="email" defaultValue={editingCustomer.email} required />
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input id="lastName" name="lastName" type="text" defaultValue={editingCustomer.lastName} required />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="countryCode">Country Code</Label>
-                      <select
-                        id="countryCode"
-                        name="countryCode"
-                        className="block w-full border border-gray-300 rounded-md py-2 px-3"
-                        defaultValue={editingCustomer.phone.split(" ")[0]}
-                      >
+                      <select id="countryCode" name="countryCode" className="block w-full border border-gray-300 rounded-md py-2 px-3" defaultValue={editingCustomer.phone.split(" ")[0]}>
                         {countryCodes.map((country) => (
                           <option key={country.code} value={country.code}>
                             {country.name} ({country.code})
@@ -309,45 +270,90 @@ const Component: React.FC = () => {
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        defaultValue={editingCustomer.phone.split(" ")[1]}
-                        required
-                      />
+                      <Input id="phone" name="phone" type="tel" defaultValue={editingCustomer.phone.split(" ")[1]} required />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="website">Website</Label>
-                    <Input id="website" name="website" type="text" defaultValue={editingCustomer.website} required />
+                    <Label htmlFor="license">License</Label>
+                    <Input id="license" name="license" type="text" defaultValue={editingCustomer.license} required />
                   </div>
+                  <div>
+                    <Label htmlFor="dob">Date of Birth</Label>
+                    <Input id="dob" name="dob" type="date" defaultValue={editingCustomer.dob} required />
+                  </div>
+                  <div>
+  <Label htmlFor="email">Email</Label>
+  <Input id="email" name="email" type="email" defaultValue={editingCustomer.email} required />
+</div>
+
                   <div>
                     <Label htmlFor="address">Address</Label>
                     <Input id="address" name="address" type="text" defaultValue={editingCustomer.address} required />
                   </div>
                   <div>
+                    <Label htmlFor="postcode">Postcode</Label>
+                    <Input id="postcode" name="postcode" type="text" defaultValue={editingCustomer.postcode} required />
+                  </div>
+                  <div>
                     <Label htmlFor="frequency">Frequency</Label>
                     <Input id="frequency" name="frequency" type="text" defaultValue={editingCustomer.frequency} required />
                   </div>
-                  <Button type="submit" className="w-full">
-                    Update Customer
+                </div>
+                <div className="flex justify-end space-x-4 mt-4">
+                  <Button type="submit" style={{ backgroundColor: "#00215E", color: "white" }}>
+                    Save
+                  </Button>
+                  <Button type="button" onClick={handleCancelEdit} className="bg-gray-300 text-black">
+                    Cancel
                   </Button>
                 </div>
               </form>
-              <Button onClick={() => setShowEditModal(false)} className="mt-4 w-full">
-                Cancel
-              </Button>
             </div>
           </div>
         )}
 
         {showCustomerDetail && selectedCustomer && (
-          <CustomerDetail
-            customer={selectedCustomer}
-            onClose={() => setShowCustomerDetail(false)}
-          />
+          <CustomerDetail customer={selectedCustomer} onClose={() => setShowCustomerDetail(false)} />
         )}
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr>
+                <th className="py-2 px-4">Registration</th>
+                <th className="py-2 px-4">First Name</th>
+                <th className="py-2 px-4">Last Name</th>
+                <th className="py-2 px-4">Phone</th>
+                <th className="py-2 px-4">License</th>
+                <th className="py-2 px-4">Postcode</th>
+                <th className="py-2 px-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {customerData.map((customer) => (
+                <tr key={customer.id}>
+                  <td className="py-2 px-4">{customer.registration}</td>
+                  <td className="py-2 px-4">{customer.firstName}</td>
+                  <td className="py-2 px-4">{customer.lastName}</td>
+                  <td className="py-2 px-4">{customer.phone}</td>
+                  <td className="py-2 px-4">{customer.license}</td>
+                  <td className="py-2 px-4">{customer.postcode}</td>
+                  <td className="py-2 px-4 flex space-x-2">
+                    <Button size="sm" onClick={() => { setSelectedCustomer(customer); setShowCustomerDetail(true); }}>
+                      View
+                    </Button>
+                    <Button size="sm" onClick={() => handleEditClick(customer)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" onClick={() => handleDeleteClick(customer.id)}>
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </Layout>
   );

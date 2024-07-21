@@ -25,7 +25,7 @@ const Sidebar: React.FC = () => {
         <div className="flex h-16 items-center justify-center w-full px-4 border-b border-gray-700">
           <Link href="/" passHref>
             <p className="flex items-center justify-center gap-2 font-semibold text-white cursor-pointer">
-              <span className={`text-3xl ml-4 ${isCollapsed ? 'hidden' : 'block'}`}>BinApp</span>
+              <span className={`text-3xl  ${isCollapsed ? 'hidden' : 'block'}`}>Albon</span>
             </p>
           </Link>
           <Button size="icon" variant="outline" className="sm:hidden" onClick={() => setIsCollapsed(!isCollapsed)}>
