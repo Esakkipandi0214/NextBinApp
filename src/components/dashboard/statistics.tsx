@@ -1,92 +1,208 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, Card, CardHeader, CardContent } from '@mui/material';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie
+  BarChart, Bar, LineChart, Line, AreaChart, Area,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from "../../firebase"; // Adjust the import path as necessary
+
+interface OrderItem {
+  category: string;
+  pricePerKg: string;
+  weight: string;
+}
+
+interface Order {
+  orderDate: string;
+  orderItems: OrderItem[];
+}
+
+interface CategoryStats {
+  count: number;
+  gain: number;
+  weight: number;
+}
+
+interface TimeFrameStats {
+  [key: string]: {
+    [category: string]: CategoryStats;
+  };
+}
 
 const AnalyticsDashboard: React.FC = () => {
-  const returningCustomersData = [
-    { month: "January", returningCustomers: 45 },
-    { month: "February", returningCustomers: 78 },
-    { month: "March", returningCustomers: 62 },
-    { month: "April", returningCustomers: 35 },
-    { month: "May", returningCustomers: 90 },
-    { month: "June", returningCustomers: 85 },
-  ];
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const sessionsData = [
-    { month: "January", sessions: 153 },
-    { month: "February", sessions: 210 },
-    { month: "March", sessions: 175 },
-    { month: "April", sessions: 120 },
-    { month: "May", sessions: 260 },
-    { month: "June", sessions: 240 },
-  ];
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "orders"));
+        const fetchedOrders = querySnapshot.docs.map(doc => doc.data() as Order);
+        setOrders(fetchedOrders);
+      } catch (error) {
+        setError("Error fetching orders.");
+        console.error("Error fetching orders: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const totalSalesData = [
-    { month: "January", totalSales: 780 },
-    { month: "February", totalSales: 980 },
-    { month: "March", totalSales: 850 },
-    { month: "April", totalSales: 720 },
-    { month: "May", totalSales: 1100 },
-    { month: "June", totalSales: 1050 },
-  ];
+    fetchOrders();
+  }, []);
+
+  if (loading) return <div className="text-center py-4">Loading...</div>;
+  if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
+
+  const getStats = (timeFrame: 'day' | 'week' | 'month') => {
+    const stats: TimeFrameStats = {};
+
+    orders.forEach(order => {
+      let key: string;
+      const orderDate = new Date(order.orderDate);
+
+      switch (timeFrame) {
+        case 'day':
+          key = orderDate.toISOString().split('T')[0];
+          break;
+        case 'week':
+          const startOfWeek = new Date(orderDate.setDate(orderDate.getDate() - orderDate.getDay()));
+          key = `${startOfWeek.getFullYear()}-${startOfWeek.getMonth() + 1}-${startOfWeek.getDate()}`;
+          break;
+        case 'month':
+          key = orderDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+          break;
+      }
+
+      if (!stats[key]) {
+        stats[key] = {};
+      }
+
+      order.orderItems.forEach((item: OrderItem) => {
+        const category = item.category;
+        const pricePerKg = parseFloat(item.pricePerKg);
+        const weight = parseFloat(item.weight);
+        const gain = pricePerKg * weight;
+
+        if (!stats[key][category]) {
+          stats[key][category] = { count: 0, gain: 0, weight: 0 };
+        }
+
+        stats[key][category].count += 1;
+        stats[key][category].gain += gain;
+        stats[key][category].weight += weight;
+      });
+    });
+
+    return Object.keys(stats).map(key => ({
+      key,
+      ...Object.keys(stats[key]).reduce((acc, category) => ({
+        ...acc,
+        [`${category}Count`]: stats[key][category].count,
+        [`${category}Gain`]: stats[key][category].gain,
+        [`${category}Weight`]: stats[key][category].weight,
+      }), {}),
+    }));
+  };
+
+  const dailyStats = getStats('day');
+  const weeklyStats = getStats('week');
+  const monthlyStats = getStats('month');
+
+  const renderLineChart = (data: any[], title: string) => (
+    <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+      <CardHeader title={title} style={{ color: '#ffffff' }} />
+      <CardContent>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="key" stroke="#ffffff" />
+            <YAxis />
+            <Tooltip contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', color: '#ffffff' }} />
+            <Legend />
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Count')).map((key) => (
+              <Line key={key} type="monotone" dataKey={key} stroke="#4caf50" name={key.replace('Count', '') + ' Count'} />
+            ))}
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Gain')).map((key) => (
+              <Line key={key} type="monotone" dataKey={key} stroke="#2196f3" name={key.replace('Gain', '') + ' Gain'} />
+            ))}
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Weight')).map((key) => (
+              <Line key={key} type="monotone" dataKey={key} stroke="#ff9800" name={key.replace('Weight', '') + ' Weight'} />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+
+  const renderAreaChart = (data: any[], title: string) => (
+    <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+      <CardHeader title={title} style={{ color: '#ffffff' }} />
+      <CardContent>
+        <ResponsiveContainer width="100%" height={400}>
+          <AreaChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="key" stroke="#ffffff" />
+            <YAxis />
+            <Tooltip contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', color: '#ffffff' }} />
+            <Legend />
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Count')).map((key) => (
+              <Area key={key} type="monotone" dataKey={key} stroke="#4caf50" fill="#4caf50" name={key.replace('Count', '') + ' Count'} />
+            ))}
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Gain')).map((key) => (
+              <Area key={key} type="monotone" dataKey={key} stroke="#2196f3" fill="#2196f3" name={key.replace('Gain', '') + ' Gain'} />
+            ))}
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Weight')).map((key) => (
+              <Area key={key} type="monotone" dataKey={key} stroke="#ff9800" fill="#ff9800" name={key.replace('Weight', '') + ' Weight'} />
+            ))}
+          </AreaChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+
+  const renderBarChart = (data: any[], title: string) => (
+    <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+      <CardHeader title={title} style={{ color: '#ffffff' }} />
+      <CardContent>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="key" stroke="#ffffff" />
+            <YAxis />
+            <Tooltip contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', color: '#ffffff' }} />
+            <Legend />
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Count')).map((key) => (
+              <Bar key={key} dataKey={key} fill="#4caf50" name={key.replace('Count', '') + ' Count'} />
+            ))}
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Gain')).map((key) => (
+              <Bar key={key} dataKey={key} fill="#2196f3" name={key.replace('Gain', '') + ' Gain'} />
+            ))}
+            {Object.keys(data[0] || {}).filter(key => key.endsWith('Weight')).map((key) => (
+              <Bar key={key} dataKey={key} fill="#ff9800" name={key.replace('Weight', '') + ' Weight'} />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <Grid container spacing={3}>
-      {/* Returning Customers */}
-      <Grid item xs={12} sm={4}>
-        <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-          <CardHeader title="Returning Customers" style={{ color: '#ffffff' }} />
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={returningCustomersData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" stroke="#ffffff" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="returningCustomers" fill="#4caf50" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Daily Stats */}
+      <Grid item xs={12}>
+        {renderLineChart(dailyStats, 'Material Stats Day-Wise')}
       </Grid>
 
-      {/* Sessions */}
-      <Grid item xs={12} sm={4}>
-        <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-          <CardHeader title="Sessions" style={{ color: '#ffffff' }} />
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={sessionsData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" stroke="#ffffff" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="sessions" stroke="#2196f3" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Weekly Stats */}
+      <Grid item xs={12}>
+        {renderAreaChart(weeklyStats, 'Material Stats Week-Wise')}
       </Grid>
 
-      {/* Total Sales */}
-      <Grid item xs={12} sm={4}>
-        <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-          <CardHeader title="Total Sales" style={{ color: '#ffffff' }} />
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie data={totalSalesData} dataKey="totalSales" nameKey="month" fill="#f44336" label />
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Monthly Stats */}
+      <Grid item xs={12}>
+        {renderBarChart(monthlyStats, 'Material Stats Month-Wise')}
       </Grid>
     </Grid>
   );
