@@ -1,3 +1,5 @@
+//orders page 
+
 import React, { useState, useEffect, ChangeEvent } from "react";
 import {
   Card,
@@ -27,8 +29,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import Layout from '@/components/layout';
-
-
+import CustomerNoteOders from "../../components/ui/CustomerNoteOrder";
 interface Customer {
   id: string;
   name: string;
@@ -76,6 +77,7 @@ export default function Component() {
 
   const [subCategories, setSubCategories] = useState<string[]>([]);
   const [orders, setOrders] = useState<FormData[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
 
   useEffect(() => {
     const fetchCustomerNames = async () => {
@@ -173,6 +175,7 @@ export default function Component() {
         customerId: selectedCustomer.id,
         customerName: value,
       }));
+      setSelectedCustomerId(selectedCustomer.id); // Set the selected customer ID
     }
   };
 
@@ -300,7 +303,7 @@ export default function Component() {
       console.error("Error removing document: ", error);
     }
   };
-
+console.log("Selected Customer Id:",selectedCustomerId);
   return (
     <Layout>
       <form onSubmit={handleFormSubmit} className="p-4">
@@ -339,6 +342,11 @@ export default function Component() {
                   </SelectContent>
                 </Select>
               </div>
+                          {/* Pass customer.id to CustomerNoteOders */}
+                {/* <div className="flex flex-col gap-4">
+                  <Label>Customer Notes</Label>
+                  <CustomerNoteOders uid={selectedCustomerId} />
+                </div> */}
               <div className="md:col-span-2">
                 <Label htmlFor="orderPayment">Order Payment</Label>
                 <Input
@@ -457,6 +465,19 @@ export default function Component() {
           </CardContent>
         </Card>
       </form>
+      <Card className="mt-4 mb-5 max-md h-auto mx-3">
+  <CardHeader>
+    <CardTitle>Notes</CardTitle>
+    <CardDescription>Customer Notes</CardDescription>
+    <hr/>
+  </CardHeader>
+  <CardContent>
+  <div className="flex flex-col gap-4">
+                  <CustomerNoteOders uid={selectedCustomerId} />
+                </div>
+    </CardContent>
+    </Card>
+
       <Card className="mt-4 mb-5 max-md h-auto mx-3">
   <CardHeader>
     <CardTitle>Orders List</CardTitle>
