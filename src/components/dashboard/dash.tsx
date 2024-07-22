@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import Statistics from './statistics';
 import Chunks from './chunksSection';
 import RecentOrders from './RecentOrders';
+import CustomerSignedup from './CustomerSignedup'
 import DailyProductInOut from './DailyProductInOut';
 import MonthlyTotalProductChart from './MonthlyTotalProductChart';
 import PriorityProducts from './priority'
@@ -49,6 +50,13 @@ const Dashboard: React.FC = () => {
         <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Recent Orders</h2>
           <RecentOrders />
+        </div>
+      </div>
+       {/* New Customer Signed up */}
+      <div className="col-span-full">
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>CustomerSignedup</h2>
+          <CustomerSignedup/>
         </div>
       </div>
 

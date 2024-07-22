@@ -1,10 +1,14 @@
-// RecentOrders.tsx
-
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { getFirestore, collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
+
+interface OrderItem {
+  category: string;
+  weight: number;
+  subCategory: string;
+}
 
 interface Order {
   id: string;
@@ -12,9 +16,11 @@ interface Order {
   customerName: string;
   orderPayment: string;
   orderTime: string;
-  orderType: string;
-  orderWeight: string;
+  orderItems: OrderItem[];
   status: string;
+  totalWeight?: number;
+  categories?: string[];
+  subCategories?: string[];
 }
 
 const RecentOrders: React.FC = () => {
@@ -25,16 +31,35 @@ const RecentOrders: React.FC = () => {
       const db = getFirestore();
       const ordersRef = collection(db, 'orders');
       const ordersSnapshot = await getDocs(query(ordersRef, orderBy('orderDate', 'desc')));
-      console.log("Order Collection recent:", ordersSnapshot);
       const fetchedOrders: Order[] = [];
-      ordersSnapshot.forEach((doc) => {
+
+      for (const doc of ordersSnapshot.docs) {
+        const data = doc.data() as Omit<Order, 'id'>;
+        const totalWeight = data.orderItems.reduce((acc, item) => acc + item.weight, 0);
+        const categories = data.orderItems.map(item => item.category);
+        
+        // const orderItemsWithSubCategories = await Promise.all(data.orderItems.map(async item => {
+        //   const subCategoryDocRef = doc(db, 'subCategories', item.subCategory);
+        //   const subCategoryDoc = await getDoc(subCategoryDocRef);
+        //   return {
+        //     ...item,
+        //     subCategory: subCategoryDoc.exists() ? subCategoryDoc.data().name : 'N/A'
+        //   };
+        // }));
+
+        // const subCategories = orderItemsWithSubCategories.map(item => item.subCategory);
+        // subCategories
+        // orderItemsWithSubCategories,
         const order = {
           id: doc.id,
-          ...doc.data()
-        } as Order;
+          ...data,
+          orderItems: totalWeight,
+          categories,
+        } as unknown as Order;
+
         fetchedOrders.push(order);
-      });
-      console.log("Order Collection:", fetchedOrders);
+      }
+
       setOrders(fetchedOrders);
     };
 
@@ -42,7 +67,6 @@ const RecentOrders: React.FC = () => {
   }, []); // Run once on component mount
 
   const getStatusBadgeColor = (status: string): string => {
-    // Ensure status is defined and not null or undefined
     const statusLowerCase = status ? status.toLowerCase() : '';
 
     switch (statusLowerCase) {
@@ -70,8 +94,9 @@ const RecentOrders: React.FC = () => {
               <TableHead style={{ color: "white" }}>Customer Name</TableHead>
               <TableHead style={{ color: "white" }}>Payment</TableHead>
               <TableHead style={{ color: "white" }}>Time</TableHead>
-              <TableHead style={{ color: "white" }}>Type</TableHead>
-              <TableHead style={{ color: "white" }}>Weight</TableHead>
+              <TableHead style={{ color: "white" }}>Categories</TableHead>
+              {/* <TableHead style={{ color: "white" }}>SubCategories</TableHead> */}
+              <TableHead style={{ color: "white" }}>Total Weight</TableHead>
               <TableHead style={{ color: "white" }}>Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -83,8 +108,9 @@ const RecentOrders: React.FC = () => {
                 <TableCell style={{ color: "white" }}>{order.customerName}</TableCell>
                 <TableCell style={{ color: "white" }}>{order.orderPayment}</TableCell>
                 <TableCell style={{ color: "white" }}>{order.orderTime}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.orderType}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.orderWeight}</TableCell>
+                <TableCell style={{ color: "white" }}>{order.categories?.join(', ')}</TableCell>
+                {/* <TableCell style={{ color: "white" }}>{order.subCategories?.join(', ')}</TableCell> */}
+                <TableCell style={{ color: "white" }}>{order.totalWeight}</TableCell>
                 <TableCell>
                   <Badge color={getStatusBadgeColor(order.status)}>
                     {order.status}
