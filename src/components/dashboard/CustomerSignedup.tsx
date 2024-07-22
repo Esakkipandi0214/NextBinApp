@@ -44,7 +44,7 @@ const CustomerActivity: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, [period]);
+  }, []);
 
   const fetchData = async () => {
     const oneYearAgoDate = getOneYearAgoDate();
@@ -119,7 +119,7 @@ const CustomerActivity: React.FC = () => {
       <Card style={{ backgroundColor: "#2C4E80", marginTop: '20px' }}>
         <CardHeader>
           <CardTitle style={{ color: "white" }}>Inactive Customers</CardTitle>
-          <CardDescription style={{ color: "white" }}>Customers who haven't returned in over a year</CardDescription>
+          <CardDescription style={{ color: "white" }}>Customers who haven&lsquot returned in over a year</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>

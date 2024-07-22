@@ -129,7 +129,7 @@ const Component: React.FC = () => {
 
   useEffect(() => {
     fetchCustomerData();
-  }, [customerId]); // Add customerId as a dependency to refetch data when it changes
+  }, []); // Add customerId as a dependency to refetch data when it changes
 
   return (
     <Layout>
