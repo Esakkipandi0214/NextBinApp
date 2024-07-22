@@ -5,7 +5,7 @@ import Chunks from './chunksSection';
 import RecentOrders from './RecentOrders';
 import DailyProductInOut from './DailyProductInOut';
 import MonthlyTotalProductChart from './MonthlyTotalProductChart';
-
+import PriorityProducts from './priority'
 interface HighPriorityProduct {
   id: number;
   name: string;
@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
       <div className="col-span-full">
         <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Chunks</h2>
-          <Chunks totalChunks={0} availableChunks={0} reservedChunks={0} />
+          <Chunks newCustomersToday={0} newCustomersThisWeek={0} newCustomersThisMonth={0}/>
         </div>
       </div>
 
@@ -41,34 +41,8 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* High Priority Products Card */}
-      <Card className="col-span-1 lg:col-span-2" style={{ backgroundColor: "#2C4E80" }}>
-        <CardHeader>
-          <CardTitle style={{ color: "white" }}>High Priority Products</CardTitle>
-          <CardDescription style={{ color: "white" }}>A section highlighting high priority products.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ul className="grid gap-4">
-            {highPriorityProducts.map((product) => (
-              <li key={product.id} className={`flex flex-col md:flex-row items-center justify-between px-4 py-2 rounded-md ${
-                product.priority === "high"
-                  ? "bg-red-500 text-red-50"
-                  : product.priority === "medium"
-                  ? "bg-yellow-500 text-yellow-50"
-                  : "bg-green-500 text-green-50"
-              }`}>
-                <div className="font-medium">{product.name}</div>
-                {product.stock && (
-                  <div className="font-bold">{product.stock}</div>
-                )}
-                {product.priority && (
-                  <div className="font-bold">{product.priority}</div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      {/* High Priority Products Section */}
+      <PriorityProducts/>
 
       {/* Recent Orders Section */}
       <div className="col-span-full">

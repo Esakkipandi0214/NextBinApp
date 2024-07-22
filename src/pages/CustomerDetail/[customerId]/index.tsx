@@ -312,4 +312,6 @@ const ContactDetail: React.FC<{ label: string, value: React.ReactNode }> = ({ la
   );
 };
 
+
+
 export default Component;
