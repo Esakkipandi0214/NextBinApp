@@ -91,12 +91,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               Logout
             </button>
-            {/* Profile Image */}
-            {/* <img
-              src="https://randomuser.me/api/portraits/men/32.jpg" // Random image for demonstration
-              alt="Profile"
-              className="h-8 w-8 rounded-full ml-2" // Added margin-left for spacing
-            /> */}
           </div>
         </div>
         <main className="h-full overflow-y-scroll pb-16">

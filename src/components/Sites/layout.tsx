@@ -208,12 +208,6 @@ const addOrdersToCustomerPriority = async () => {
                 {notificationCount > 0 ? notificationCount : "0"}
               </span>
             </div>
-            {/* Profile Image */}
-            <img
-              src="https://randomuser.me/api/portraits/men/32.jpg" // Random image for demonstration
-              alt="Profile"
-              className="h-8 w-8 rounded-full ml-2" // Added margin-left for spacing
-            />
              <button
               onClick={handleLogout}
               className="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
