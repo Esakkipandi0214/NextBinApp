@@ -25,11 +25,13 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
     const fetchCustomerData = async () => {
       try {
         const today = new Date();
+        const formattedToday = today.toISOString().split('T')[0]; // Format date as yyyy-MM-dd
+
         const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
         const customersRef = collection(db, 'customers');
-        const todayQuery = query(customersRef, where('created', '>=', startOfDay(today.toISOString())));
+        const todayQuery = query(customersRef, where('created', '>=', formattedToday));
         const weekQuery = query(customersRef, where('created', '>=', startOfDay(startOfWeek.toISOString())));
         const monthQuery = query(customersRef, where('created', '>=', startOfDay(startOfMonth.toISOString())));
 
@@ -57,7 +59,9 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
     date.setHours(0, 0, 0, 0);
     return date.toISOString();
   };
-
+  const today = new Date();
+  const formattedToday = today.toISOString().split('T')[0]; // Format date as yyyy-MM-dd
+  console.log("formattedToday fetching customer data: ", formattedToday);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
       <Card className="bg-blue-50 border-blue-200">

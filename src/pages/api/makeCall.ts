@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const client = twilio(accountSid, authToken);
 
       const call = await client.calls.create({
-        twiml: '<Response><Say>Hello! This is a test call from your Twilio backend.</Say></Response>',
+        twiml: '<Response><Say>Hello! Happy birthday Mr.Pandi.</Say></Response>',
         to,
         from: sender, // Use a Twilio number you've purchased or verified
       });

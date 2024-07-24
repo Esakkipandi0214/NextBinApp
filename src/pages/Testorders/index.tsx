@@ -31,6 +31,7 @@ import {
 import Layout from '@/components/layout';
 import CustomerNoteOders from "../../components/ui/CustomerNoteOrder";
 interface Customer {
+  number: string;
   id: string;
   name: string;
 }
@@ -43,6 +44,7 @@ interface OrderItem {
 }
 
 interface FormData {
+  phone: string | number | readonly string[] | undefined;
   customerId: string;
   customerName: string;
   orderPayment: string;
@@ -55,6 +57,7 @@ interface FormData {
 
 export default function Component() {
   const [customerNames, setCustomerNames] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState(customerNames);
   const [formData, setFormData] = useState<FormData>({
     customerId: "",
     customerName: "",
@@ -63,6 +66,7 @@ export default function Component() {
     orderItems: [{ category: "", subCategory: "", weight: "", pricePerKg: 0 }],
     totalWeight:0,
     totalPrice: 0,
+    phone:''
   });
 
   const [totalWeight, setTotalWeight] = useState(0);
@@ -86,6 +90,7 @@ export default function Component() {
         const customers = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
+          number:doc.data().phone,
         })) as Customer[];
         setCustomerNames(customers);
       } catch (error) {
@@ -158,6 +163,7 @@ export default function Component() {
         orderItems: [{ category: "", subCategory: "", weight: "", pricePerKg: 0 }],
         totalWeight:0,
         totalPrice: 0,
+        phone:''
       });
 
     } catch (error) {
@@ -166,14 +172,17 @@ export default function Component() {
   };
 
   const handleSelectChange = (value: string) => {
-    const selectedCustomer = customerNames.find(
-      (customer) => customer.name === value
-    );
+    const selectedCustomerByName = customerNames.find((customer) => customer.name === value);
+    const selectedCustomerByPhone = customerNames.find((customer) => customer.number === value);
+
+    const selectedCustomer = selectedCustomerByName || selectedCustomerByPhone;
+
     if (selectedCustomer) {
       setFormData((prevState) => ({
         ...prevState,
         customerId: selectedCustomer.id,
-        customerName: value,
+        customerName: selectedCustomer.name,
+        phone: selectedCustomer.number,
       }));
       setSelectedCustomerId(selectedCustomer.id); // Set the selected customer ID
     }
@@ -214,13 +223,26 @@ export default function Component() {
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = event.target;
-
+    const { name, value } = event.target;
     setFormData((prevState) => ({
       ...prevState,
-      [id]: value,
+      [name]: value,
     }));
+
+    if (name === 'phone') {
+      const filtered = customerNames.filter((customer) =>
+        customer.number.includes(value)
+      );
+      setFilteredCustomers(filtered);
+
+      // Automatically select the customer if an exact match is found
+      const exactMatchCustomer = customerNames.find((customer) => customer.number === value);
+      if (exactMatchCustomer) {
+        handleSelectChange(value);
+      }
+    }
   };
+
   const handleOrderItemChange = (
     index: number,
     field: keyof OrderItem,
@@ -290,6 +312,7 @@ export default function Component() {
       totalWeight:order.totalWeight,
       totalPrice: order.totalPrice,
       orderId: order.orderId,
+      phone:order.phone
     });
   };
 
@@ -303,6 +326,7 @@ export default function Component() {
       console.error("Error removing document: ", error);
     }
   };
+  console.log("Customers Name and number:",customerNames);
 console.log("Selected Customer Id:",selectedCustomerId);
   return (
     <Layout>
@@ -321,13 +345,26 @@ console.log("Selected Customer Id:",selectedCustomerId);
                     <SelectValue placeholder="Select customer name" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customerNames.map((customer) => (
+                    {filteredCustomers.map((customer) => (
                       <SelectItem key={customer.id} value={customer.name}>
                         {customer.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <Label htmlFor="phone">Mobile</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                    handleSelectChange(e.target.value);
+                  }}
+                  placeholder="Enter mobile number"
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="status">Order Status</Label>

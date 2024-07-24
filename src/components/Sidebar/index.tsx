@@ -21,7 +21,7 @@ const Sidebar: React.FC = () => {
   
 
   return (
-    <div className={`h-screen bg-[#2C4E80] text-white transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-56'}`}>
+    <div className={`h-screen bg-[#2C4E80] text-white transition-all duration-300 ${isCollapsed ? 'w-0' : 'w-44'}`}>
       <div className="flex flex-col items-center h-full">
         <div className="flex h-16 items-center justify-center w-full px-4 border-b border-gray-700">
           <Link href="/" passHref>
@@ -35,7 +35,7 @@ const Sidebar: React.FC = () => {
           </Button>
         </div>
         <nav className="flex-1 overflow-auto w-full px-4 py-6">
-          <div className="grid gap-4 text-sm font-medium">
+          <div className="grid gap-4 text-xs font-medium">
             {menuItems.map(item => (
               <Link key={item.href} href={item.href} passHref>
                 <p className={`flex items-center gap-2 rounded-md px-3 py-2 text-white transition-colors hover:bg-[#00215E] cursor-pointer ${
