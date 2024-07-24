@@ -33,6 +33,7 @@ export default function NoteManagement() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showNote,setShowNote]=useState(false);
 
   // Filters
   const [filterTitle, setFilterTitle] = useState('');
@@ -63,6 +64,7 @@ export default function NoteManagement() {
       // Apply filters
       if (selectedCustomer) {
         notesQuery = query(notesQuery, where('customerId', '==', selectedCustomer));
+        setShowNote(!showNote);
       }
       if (filterTitle) {
         notesQuery = query(notesQuery, where('title', '>=', filterTitle), where('title', '<=', filterTitle + '\uf8ff'));

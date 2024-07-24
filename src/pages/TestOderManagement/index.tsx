@@ -196,93 +196,67 @@ export default function OrdersHistory() {
           <CardTitle>Order History</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 flex space-x-4">
+          <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
             <input
               type="text"
               placeholder="Filter by customer name"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="border p-2 rounded"
+              className="border p-2 rounded mb-2 md:mb-0 flex-1"
             />
-            <select
-              value={filterMonth || ""}
-              onChange={(e) => setFilterMonth(e.target.value)}
-              className="border p-2 rounded"
-            >
-              <option value="">Select Month</option>
-              {monthNames.map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </select>
-            <select
-              value={filterYear || ""}
-              onChange={(e) => setFilterYear(e.target.value)}
-              className="border p-2 rounded"
-            >
-              <option value="">Select Year</option>
-              {Array.from(new Array(10), (_, i) => new Date().getFullYear() - i).map((year) => (
-                <option key={year} value={year.toString()}>
-                  {year}
-                </option>
-              ))}
-            </select>
+            <input
+              type="month"
+              value={filterMonth && filterYear ? `${filterYear}-${String(monthNames.indexOf(filterMonth) + 1).padStart(2, '0')}` : ''}
+              onChange={(e) => {
+                const [year, month] = e.target.value.split("-");
+                setFilterYear(year);
+                setFilterMonth(monthNames[parseInt(month) - 1]);
+              }}
+              className="border p-2 rounded mb-2 md:mb-0 flex-1"
+            />
             <input
               type="date"
-              placeholder="Filter by date"
-              value={filterDate || ""}
+              value={filterDate || ''}
               onChange={(e) => setFilterDate(e.target.value)}
-              className="border p-2 rounded"
+              className="border p-2 rounded mb-2 md:mb-0 flex-1"
             />
             <input
               type="week"
-              placeholder="Filter by week"
-              value={filterWeek || ""}
+              value={filterWeek || ''}
               onChange={(e) => setFilterWeek(e.target.value)}
-              className="border p-2 rounded"
+              className="border p-2 rounded mb-2 md:mb-0 flex-1"
             />
-            <Button onClick={() => {
-              setCustomerName("");
-              setFilterMonth(null);
-              setFilterYear(null);
-              setFilterDate(null);
-              setFilterWeek(null);
-            }} variant="outline">Clear Filters</Button>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-300 divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
                   <th className="px-4 py-2 text-left font-medium text-gray-700">Customer Name</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Payment</th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-700">Order Payment</th>
                   <th className="px-4 py-2 text-left font-medium text-gray-700">Status</th>
                   <th className="px-4 py-2 text-left font-medium text-gray-700">Total Price</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Date</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Time</th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-700">Order Date</th>
                   <th className="px-4 py-2 text-left font-medium text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {filteredOrders.map((order) => (
-                  <tr key={order.orderId} className="border-b border-gray-200">
-                    <td className="px-4 py-2 text-gray-900">{order.customerName}</td>
-                    <td className="px-4 py-2 text-gray-900">{order.orderPayment}</td>
-                    <td className="px-4 py-2 text-gray-900">{order.status}</td>
-                    <td className="px-4 py-2 text-gray-900">${order.totalPrice.toFixed(2)}</td>
-                    <td className="px-4 py-2 text-gray-900">{order.orderDate ? formatDate(order.orderDate) : "N/A"}</td>
-                    <td className="px-4 py-2 text-gray-900">{order.orderTime || "N/A"}</td>
-                    <td className="px-4 py-2 text-gray-900">
-                      <div className="flex space-x-2">
-                        <Button onClick={() => deleteOrder(order.orderId!)} variant="destructive">Delete</Button>
-                        <Button onClick={() => setSelectedOrder(order)} variant="default">Details</Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filteredOrders.length === 0 && (
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <tr key={order.orderId} className="border-b border-gray-200">
+                      <td className="px-4 py-2 text-gray-900">{order.customerName}</td>
+                      <td className="px-4 py-2 text-gray-900">{order.orderPayment}</td>
+                      <td className="px-4 py-2 text-gray-900">{order.status}</td>
+                      <td className="px-4 py-2 text-gray-900">${order.totalPrice.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-gray-900">{order.orderDate ? formatDate(order.orderDate) : "N/A"}</td>
+                      <td className="px-4 py-2">
+                        <Button onClick={() => setSelectedOrder(order)} variant="outline" className="mr-2">View</Button>
+                        <Button onClick={() => deleteOrder(order.orderId || '')} variant="destructive">Delete</Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
                   <tr>
-                    <td colSpan={7} className="px-4 py-2 text-center text-gray-500">No orders found</td>
+                    <td colSpan={6} className="px-4 py-2 text-center text-gray-500">No orders found</td>
                   </tr>
                 )}
               </tbody>
@@ -290,10 +264,11 @@ export default function OrdersHistory() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={() => setFilteredOrders(orders)}>Reset Filters</Button>
+          {selectedOrder && (
+            <OrderDetailModal order={selectedOrder} onClose={handleCloseModal} />
+          )}
         </CardFooter>
       </Card>
-      <OrderDetailModal order={selectedOrder} onClose={handleCloseModal} />
     </Layout>
   );
 }

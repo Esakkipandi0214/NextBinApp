@@ -3,10 +3,15 @@ import { getFirestore, collection, getDocs, query, where, orderBy } from 'fireba
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
+interface OrderItem {
+  category: string;
+  subCategory: string;
+}
+
 interface DailyProductData {
   date: string;
   customer: string;
-  materialName: string;
+  orderItems: OrderItem[];
   materialWeight: number;
   price: number;
 }
@@ -37,12 +42,14 @@ const DailyProductInOut: React.FC = () => {
         const updatedDailyProductData: DailyProductData[] = [];
         ordersSnapshot.forEach((doc) => {
           const data = doc.data();
+          const categories = data.orderItems.map((item: { category: any; }) => item.category);
           console.log("Fetched order data:", data);
           const dailyProduct: DailyProductData = {
+            ...data,
             date: data.orderDate,
             customer: data.customerName,
-            materialName: data.orderType,
-            materialWeight: parseFloat(data.orderWeight), // Assuming orderWeight is a string, convert to number if necessary
+            orderItems: categories,
+            materialWeight: parseFloat(data.totalWeight), // Assuming orderWeight is a string, convert to number if necessary
             price: parseFloat(data.orderPayment), // Assuming orderPayment is a string, convert to number if necessary
           };
           updatedDailyProductData.push(dailyProduct);
@@ -57,6 +64,7 @@ const DailyProductInOut: React.FC = () => {
 
     fetchDailyProducts();
   }, []); // useEffect dependency array
+  console.log("Daily ordes:",dailyProductData)
 
   return (
     <Card className="col-span-1 md:col-span-2 lg:col-span-3" style={{ backgroundColor: "#2C4E80" }}>
@@ -80,7 +88,7 @@ const DailyProductInOut: React.FC = () => {
               <TableRow key={index}>
                 <TableCell style={{ color: "white" }}>{data.date}</TableCell>
                 <TableCell style={{ color: "white" }}>{data.customer}</TableCell>
-                <TableCell style={{ color: "white" }}>{data.materialName}</TableCell>
+                <TableCell style={{ color: "white" }}>{data.orderItems.join(', ')}</TableCell>
                 <TableCell style={{ color: "white" }}>{data.materialWeight}</TableCell>
                 <TableCell style={{ color: "white" }}>{data.price}</TableCell>
               </TableRow>
