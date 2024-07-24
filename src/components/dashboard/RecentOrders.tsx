@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { getFirestore, collection, query, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
+import { Button } from "@/components/ui/button";
+import { getFirestore, collection, query, orderBy, getDocs } from 'firebase/firestore';
 
 interface OrderItem {
   category: string;
@@ -25,6 +26,8 @@ interface Order {
 
 const RecentOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 10;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -38,24 +41,12 @@ const RecentOrders: React.FC = () => {
         const totalWeight = data.orderItems.reduce((acc, item) => acc + item.weight, 0);
         const categories = data.orderItems.map(item => item.category);
         
-        // const orderItemsWithSubCategories = await Promise.all(data.orderItems.map(async item => {
-        //   const subCategoryDocRef = doc(db, 'subCategories', item.subCategory);
-        //   const subCategoryDoc = await getDoc(subCategoryDocRef);
-        //   return {
-        //     ...item,
-        //     subCategory: subCategoryDoc.exists() ? subCategoryDoc.data().name : 'N/A'
-        //   };
-        // }));
-
-        // const subCategories = orderItemsWithSubCategories.map(item => item.subCategory);
-        // subCategories
-        // orderItemsWithSubCategories,
         const order = {
           id: doc.id,
           ...data,
-          orderItems: totalWeight,
+          totalWeight,
           categories,
-        } as unknown as Order;
+        } as Order;
 
         fetchedOrders.push(order);
       }
@@ -64,7 +55,10 @@ const RecentOrders: React.FC = () => {
     };
 
     fetchOrders();
-  }, []); // Run once on component mount
+  }, []);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
 
   const getStatusBadgeColor = (status: string): string => {
     const statusLowerCase = status ? status.toLowerCase() : '';
@@ -77,6 +71,69 @@ const RecentOrders: React.FC = () => {
       default:
         return 'default';
     }
+  };
+
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  const renderPaginationButtons = () => {
+    const pages = [];
+
+    // If there are more than 5 pages, we show ellipses (...) and a subset of pages
+    if (totalPages > 3) {
+      pages.push(
+        <Button key="first" onClick={() => paginate(1)} disabled={currentPage === 1} className="m-1">
+          First
+        </Button>
+      );
+      pages.push(
+        <Button key="prev" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className="m-1">
+          Previous
+        </Button>
+      );
+
+      if (currentPage > 2) {
+        pages.push(<span key="start-ellipsis" className="m-1">...</span>);
+      }
+
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, currentPage + 2);
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(
+          <Button key={i} onClick={() => paginate(i)} disabled={currentPage === i} className="m-1">
+            {i}
+          </Button>
+        );
+      }
+
+      if (currentPage < totalPages - 2) {
+        pages.push(<span key="end-ellipsis" className="m-1">...</span>);
+      }
+
+      pages.push(
+        <Button key="next" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className="m-1">
+          Next
+        </Button>
+      );
+      pages.push(
+        <Button key="last" onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} className="m-1">
+          Last
+        </Button>
+      );
+    } else {
+      // If there are 5 or fewer pages, show them all
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(
+          <Button key={i} onClick={() => paginate(i)} disabled={currentPage === i} className="m-1">
+            {i}
+          </Button>
+        );
+      }
+    }
+
+    return pages;
   };
 
   return (
@@ -95,21 +152,19 @@ const RecentOrders: React.FC = () => {
               <TableHead style={{ color: "white" }}>Payment</TableHead>
               <TableHead style={{ color: "white" }}>Time</TableHead>
               <TableHead style={{ color: "white" }}>Categories</TableHead>
-              {/* <TableHead style={{ color: "white" }}>SubCategories</TableHead> */}
               <TableHead style={{ color: "white" }}>Total Weight</TableHead>
               <TableHead style={{ color: "white" }}>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order, index) => (
+            {currentOrders.map((order, index) => (
               <TableRow key={order.id}>
-                <TableCell style={{ color: "white" }}>{index + 1}</TableCell>
+                <TableCell style={{ color: "white" }}>{indexOfFirstOrder + index + 1}</TableCell>
                 <TableCell style={{ color: "white" }}>{order.orderDate}</TableCell>
                 <TableCell style={{ color: "white" }}>{order.customerName}</TableCell>
                 <TableCell style={{ color: "white" }}>{order.orderPayment}</TableCell>
                 <TableCell style={{ color: "white" }}>{order.orderTime}</TableCell>
                 <TableCell style={{ color: "white" }}>{order.categories?.join(', ')}</TableCell>
-                {/* <TableCell style={{ color: "white" }}>{order.subCategories?.join(', ')}</TableCell> */}
                 <TableCell style={{ color: "white" }}>{order.totalWeight}</TableCell>
                 <TableCell>
                   <Badge color={getStatusBadgeColor(order.status)}>
@@ -120,6 +175,9 @@ const RecentOrders: React.FC = () => {
             ))}
           </TableBody>
         </Table>
+        <div className="pagination">
+          {renderPaginationButtons()}
+        </div>
       </CardContent>
     </Card>
   );
