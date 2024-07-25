@@ -121,10 +121,12 @@ const CustomerList: React.FC = () => {
     return Math.floor(differenceInTime / (1000 * 3600 * 24));
   };
 
-  const extractFrequency = (frequency: string): number => {
-    const match = frequency.match(/(\d+)/);
+  const extractFrequency = (frequency: string | number): number => {
+    const frequencyStr = String(frequency); // Convert to string
+    const match = frequencyStr.match(/(\d+)/);
     return match ? parseInt(match[0], 10) : 0;
   };
+  
 
   const storeCustomerInPriority = async (customers: CustomerProps[]) => {
     try {
