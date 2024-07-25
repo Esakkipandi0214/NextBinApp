@@ -1,6 +1,6 @@
 //notes page
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,6 +20,7 @@ interface Note {
 }
 
 interface Customer {
+  phone: string | null ;
   id: string;
   name: string;
 }
@@ -27,6 +28,7 @@ interface Customer {
 export default function NoteManagement() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [Filtercustomers, setFilterCustomers] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
@@ -46,8 +48,9 @@ export default function NoteManagement() {
       try {
         const customerCollection = collection(db, 'customers');
         const customerSnapshot = await getDocs(customerCollection);
-        const customerList = customerSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
-        setCustomers(customerList);
+        const customerList = customerSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name,phone: doc.data().phone }));
+        setFilterCustomers(customerList)
+        // setCustomers(customerList);
       } catch (error) {
         setFeedbackMessage("Failed to load customers.");
       }
@@ -55,7 +58,8 @@ export default function NoteManagement() {
     
     fetchCustomers();
   }, []);
-  
+    console.log("Customers notes:", customers)
+    console.log("selectedCustomer filter:", Filtercustomers)
   const fetchNotes = async () => {
     try {
       const notesCollection = collection(db, 'customerNotes');
@@ -89,7 +93,39 @@ export default function NoteManagement() {
   // Fetch notes based on filters
   useEffect(() => {
     fetchNotes();
-  }, [selectedCustomer, filterTitle, filterCustomerName, filterDate]);
+  }, [selectedCustomer, filterCustomerName, filterDate]);
+
+  const handleSelectChange = (value: string) => {
+    const selectedCustomerByPhone = Filtercustomers.find((customer) => customer.phone === value);
+
+    const selectedCustomer =  selectedCustomerByPhone;
+
+    if (selectedCustomer) {
+      setCustomers((prevState) => ({
+        ...prevState,
+        customerId: selectedCustomer.id,
+        customerName: selectedCustomer.name,
+        phone: selectedCustomer.phone,
+      }));
+    }
+  };
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name,value } = event.target;
+
+    if (name === 'phone') {
+      const filtered = Filtercustomers && Filtercustomers.filter((customer) =>
+        customer?.phone?.includes(value)
+      );
+      setCustomers(filtered);
+    }
+    if(value ==""){
+      setCustomers([]);
+    }
+  };
+
+
+
 
   // Add new note
   const handleAddNote = async () => {
@@ -151,7 +187,7 @@ export default function NoteManagement() {
     setIsModalOpen(false);
     setSelectedNote(null);
   };
-
+  console.log("Notes Data:", notes);
   return (
     <Layout>
       <div className="w-full max-w-6xl mx-auto py-8 px-4 md:px-6 flex flex-col gap-4">
@@ -171,6 +207,19 @@ export default function NoteManagement() {
                   ))}
                 </select>
               </div>
+              <div className="relative w-full max-w-md">
+              <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  onChange={(e) => {
+                    handleInputChange(e);
+                    handleSelectChange(e.target.value);
+                  }}
+                  placeholder="Enter mobile number"
+                  required
+                />
+                </div>
               <div className="relative w-full max-w-md">
                 <Input
                   type="date"
