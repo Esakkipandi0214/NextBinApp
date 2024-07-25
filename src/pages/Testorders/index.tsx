@@ -20,14 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { db } from "../../firebase";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
+import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc,deleteDoc,addDoc } from "firebase/firestore";
 import Layout from '@/components/layout';
 import CustomerNoteOders from "../../components/ui/CustomerNoteOrder";
 interface Customer {
@@ -152,7 +145,8 @@ export default function Component() {
         console.log("Document written with ID: ", docRef.id);
         updatedFormData.orderId = docRef.id;
 
-        setOrders((prevOrders) => [...prevOrders, updatedFormData]);
+        setOrders((prevOrders) => [updatedFormData]);
+        setFilteredCustomers([]); 
       }
 
       setFormData({
@@ -166,6 +160,9 @@ export default function Component() {
         phone:''
       });
 
+      if (formData.customerId) {
+        await calculateAndSetCustomerFrequency(formData.customerId);
+      }
     } catch (error) {
       console.error("Error adding/updating document: ", error);
     }
@@ -234,6 +231,9 @@ export default function Component() {
         customer.number.includes(value)
       );
       setFilteredCustomers(filtered);
+      if((name === 'phone')&&(value =='')){
+        setFilteredCustomers([]);      
+      }
 
       // Automatically select the customer if an exact match is found
       const exactMatchCustomer = customerNames.find((customer) => customer.number === value);
@@ -326,8 +326,70 @@ export default function Component() {
       console.error("Error removing document: ", error);
     }
   };
+
+  const calculateAndSetCustomerFrequency = async (customerId: string) => {
+    try {
+      // Fetch all orders for the customer
+      const ordersQuery = query(
+        collection(db, "orders"),
+        where("customerId", "==", customerId),
+        orderBy("orderDate", "desc"),
+        limit(5)  // Fetch all orders in descending order of date
+      );
+      const querySnapshot = await getDocs(ordersQuery);
+  
+      if (querySnapshot.docs.length > 1) {
+        // Extract and filter unique dates
+        const orderDates = querySnapshot.docs
+          .map(doc => new Date(doc.data().orderDate))
+          .filter((date, index, self) => 
+            index === self.findIndex(d => d.getTime() === date.getTime())
+          )
+          .sort((a, b) => b.getTime() - a.getTime()); // Sort in descending order
+  
+        console.log("Unique Customers orderDates Fetch:", orderDates);
+  
+        // Calculate day differences between unique dates
+        const dayDifferences: number[] = [];
+        for (let i = 0; i < orderDates.length - 1; i++) {
+          const diffInMs = orderDates[i].getTime() - orderDates[i + 1].getTime();
+          const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+          dayDifferences.push(diffInDays);
+        }
+  
+        console.log("Day Differences:", dayDifferences);
+  
+        // Calculate Mean
+        const meanFrequency = dayDifferences.reduce((acc, val) => acc + val, 0) / dayDifferences.length;
+  
+        // Calculate Median
+        const sortedDifferences = dayDifferences.sort((a, b) => a - b);
+        const mid = Math.floor(sortedDifferences.length / 2);
+        const medianFrequency = sortedDifferences.length % 2 === 0
+          ? (sortedDifferences[mid - 1] + sortedDifferences[mid]) / 2
+          : sortedDifferences[mid];
+  
+        console.log("Mean Frequency (Days):", meanFrequency);
+        console.log("Median Frequency (Days):", medianFrequency);
+  
+        // Update the customer's frequency (Choose either mean or median)
+        // Uncomment the line below to use the mean frequency
+        await updateDoc(doc(db, 'customers', customerId), { frequency: meanFrequency });
+  
+        // Uncomment the line below to use the median frequency
+        // await updateDoc(doc(db, 'customers', customerId), { frequency: medianFrequency });
+      }
+    } catch (error) {
+      console.error("Error calculating and setting customer frequency: ", error);
+    }
+  };
+  
+  
+  
   console.log("Customers Name and number:",customerNames);
 console.log("Selected Customer Id:",selectedCustomerId);
+console.log(" Customer orders:",orders);
+
   return (
     <Layout>
       <form onSubmit={handleFormSubmit} className="p-4">
