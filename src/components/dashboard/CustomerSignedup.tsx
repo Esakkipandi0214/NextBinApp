@@ -56,29 +56,33 @@ const CustomerActivity: React.FC = () => {
     const periodStartDate = getStartOfPeriod(period);
     const customersRef = collection(db, 'customers');
     const querySnapshot = await getDocs(customersRef);
-    
+  
     const activeCustomerData: Customer[] = [];
     const inactiveCustomerData: Customer[] = [];
     const newCustomerData: Customer[] = [];
-
+  
     querySnapshot.forEach(doc => {
       const data = doc.data() as Omit<Customer, 'id'>;
       const customer: Customer = {
         id: doc.id,
         ...data,
       };
-
+  
       const createdDate = new Date(customer.created);
-
+  
       if (createdDate >= oneYearAgoDate) {
         activeCustomerData.push(customer);
       } else {
         inactiveCustomerData.push(customer);
       }
-
+  
       if (startDate && endDate) {
         const start = new Date(startDate);
         const end = new Date(endDate);
+        // Adjust the end date to include the entire end day
+        end.setHours(23, 59, 59, 999);
+  
+        console.log(`Start ${start} End ${end}`);
         if (createdDate >= start && createdDate <= end) {
           newCustomerData.push(customer);
         }
@@ -88,11 +92,12 @@ const CustomerActivity: React.FC = () => {
         }
       }
     });
-
+  
     setActiveCustomers(activeCustomerData.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()));
     setInactiveCustomers(inactiveCustomerData.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()));
     setNewCustomers(newCustomerData.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()));
   };
+  
 
   const paginate = (pageNumber: number, type: 'active' | 'inactive') => {
     if (type === 'active') {
@@ -210,7 +215,7 @@ const CustomerActivity: React.FC = () => {
       <Card style={{ backgroundColor: "#2C4E80", marginTop: '20px' }}>
         <CardHeader>
           <CardTitle style={{ color: "white" }}>Inactive Customers</CardTitle>
-          <CardDescription style={{ color: "white" }}>Customers who haven&rsquo;t returned in over a year</CardDescription>
+          <CardDescription style={{ color: "white" }}>Customers who haven't returned in over a year</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
