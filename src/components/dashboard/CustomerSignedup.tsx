@@ -215,7 +215,7 @@ const CustomerActivity: React.FC = () => {
       <Card style={{ backgroundColor: "#2C4E80", marginTop: '20px' }}>
         <CardHeader>
           <CardTitle style={{ color: "white" }}>Inactive Customers</CardTitle>
-          <CardDescription style={{ color: "white" }}>Customers who haven't returned in over a year</CardDescription>
+          <CardDescription style={{ color: "white" }}>Customers who haven&lsquo;t returned in over a year</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
