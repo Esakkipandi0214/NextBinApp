@@ -12,7 +12,7 @@ const Sidebar: React.FC = () => {
   const menuItems = [
     { href: '/Dashboard', icon: <LayoutDashboardIcon className="h-5 w-5" />, label: 'Dashboard' },
     { href: '/Testorders', icon: <ShoppingCartIcon className="h-5 w-5" />, label: 'Orders' },
-    { href: '/TestAddCustomer', icon: <UserIcon className="h-5 w-5" />, label: 'Add Customers' },
+    { href: '/NewTestAddCustomer', icon: <UserIcon className="h-5 w-5" />, label: 'Add Customers' },
     { href: '/TestPage', icon: <SettingsIcon className="h-5 w-5" />, label: 'Customer Detail' },
     { href: '/TestGroupMessage', icon: <InboxIcon className="h-5 w-5" />, label: 'MessageQueue' },
     { href: '/TestOderManagement', icon: <HistoryIcon className="h-5 w-5" />, label: 'Orders History' },
