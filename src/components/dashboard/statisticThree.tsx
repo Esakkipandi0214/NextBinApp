@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Card, CardHeader, CardContent } from '@mui/material';
 import {
-  BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from "../../firebase"; // Adjust the import path as necessary
@@ -24,10 +23,8 @@ interface CategoryStats {
   weight: number;
 }
 
-interface DailyStats {
-  [key: string]: {
-    [category: string]: CategoryStats;
-  };
+interface MonthlyStats {
+  [key: string]: CategoryStats;
 }
 
 const AnalyticsDashboard: React.FC = () => {
@@ -55,14 +52,16 @@ const AnalyticsDashboard: React.FC = () => {
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
 
-  const getTodayStats = () => {
-    const stats: { [category: string]: CategoryStats } = {};
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  const getCurrentMonthStats = () => {
+    const stats: MonthlyStats = {};
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the month
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of the month
 
     orders.forEach(order => {
-      const orderDate = new Date(order.orderDate).toISOString().split('T')[0];
+      const orderDate = new Date(order.orderDate);
       
-      if (orderDate === today) {
+      if (orderDate >= startOfMonth && orderDate <= endOfMonth) {
         order.orderItems.forEach(item => {
           const category = item.category;
           const pricePerKg = parseFloat(item.pricePerKg);
@@ -81,40 +80,31 @@ const AnalyticsDashboard: React.FC = () => {
     });
 
     // Convert the stats object to an array suitable for rendering
-    return [{
-      date: today,
-      ...Object.keys(stats).reduce((acc, category) => ({
-        ...acc,
-        [`${category}Count`]: stats[category].count,
-        [`${category}Gain`]: stats[category].gain,
-        [`${category}Weight`]: stats[category].weight,
-      }), {}),
-    }];
+    return Object.keys(stats).map(category => ({
+      category,
+      count: stats[category].count,
+      gain: stats[category].gain,
+      weight: stats[category].weight,
+    }));
   };
 
-  const todayStats = getTodayStats();
+  const monthStats = getCurrentMonthStats();
 
-  const renderBarChart = (data: any[], title: string) => (
+  const renderAreaChart = (data: any[], title: string) => (
     <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
       <CardHeader title={title} style={{ color: '#ffffff' }} />
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={data}>
+          <AreaChart data={data} stackOffset="expand">
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" stroke="#ffffff" />
+            <XAxis dataKey="category" stroke="#ffffff" />
             <YAxis />
             <Tooltip contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', color: '#ffffff' }} />
             <Legend />
-            {Object.keys(data[0] || {}).filter(key => key.endsWith('Count')).map((key) => (
-              <Bar key={key} dataKey={key} fill="#4caf50" name={key.replace('Count', '') + ' Count'} />
-            ))}
-            {Object.keys(data[0] || {}).filter(key => key.endsWith('Gain')).map((key) => (
-              <Bar key={key} dataKey={key} fill="#2196f3" name={key.replace('Gain', '') + ' Gain'} />
-            ))}
-            {Object.keys(data[0] || {}).filter(key => key.endsWith('Weight')).map((key) => (
-              <Bar key={key} dataKey={key} fill="#ff9800" name={key.replace('Weight', '') + ' Weight'} />
-            ))}
-          </BarChart>
+            <Area type="monotone" dataKey="count" stroke="#4caf50" fill="#4caf50" name="Count" />
+            <Area type="monotone" dataKey="gain" stroke="#2196f3" fill="#2196f3" name="Gain" />
+            <Area type="monotone" dataKey="weight" stroke="#ff9800" fill="#ff9800" name="Weight" />
+          </AreaChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
@@ -122,9 +112,9 @@ const AnalyticsDashboard: React.FC = () => {
 
   return (
     <Grid container spacing={3}>
-      {/* Today's Stats */}
+      {/* Monthly Stats */}
       <Grid item xs={12}>
-        {renderBarChart(todayStats, 'Materials Ordered Today')}
+        {renderAreaChart(monthStats, 'Materials Ordered This Month')}
       </Grid>
     </Grid>
   );

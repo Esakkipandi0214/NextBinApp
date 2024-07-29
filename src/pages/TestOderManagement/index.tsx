@@ -246,7 +246,7 @@ export default function OrdersHistory() {
                       <td className="px-4 py-2 text-gray-900">{order.customerName}</td>
                       <td className="px-4 py-2 text-gray-900">{order.orderPayment}</td>
                       <td className="px-4 py-2 text-gray-900">{order.status}</td>
-                      <td className="px-4 py-2 text-gray-900">${order.totalPrice.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-gray-900"> AU$ {order.totalPrice.toFixed(2)}</td>
                       <td className="px-4 py-2 text-gray-900">{order.orderDate ? formatDate(order.orderDate) : "N/A"}</td>
                       <td className="px-4 py-2">
                         <Button onClick={() => setSelectedOrder(order)} variant="outline" className="mr-2">View</Button>

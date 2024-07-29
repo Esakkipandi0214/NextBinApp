@@ -34,7 +34,6 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
         const todayQuery = query(customersRef, where('created', '>=', formattedToday));
         const weekQuery = query(customersRef, where('created', '>=', startOfDay(startOfWeek.toISOString())));
         const monthQuery = query(customersRef, where('created', '>=', startOfDay(startOfMonth.toISOString())));
-
         const [todaySnap, weekSnap, monthSnap] = await Promise.all([
           getDocs(todayQuery),
           getDocs(weekQuery),
@@ -46,6 +45,8 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
           newCustomersThisWeek: weekSnap.size,
           newCustomersThisMonth: monthSnap.size,
         });
+        console.log("Week Query:",startOfDay(startOfWeek.toISOString()))
+        console.log("Month Query:",startOfDay(startOfMonth.toISOString()))
       } catch (error) {
         console.error("Error fetching customer data: ", error);
       }
@@ -61,6 +62,12 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
   };
   const today = new Date();
   const formattedToday = today.toISOString().split('T')[0]; // Format date as yyyy-MM-dd
+  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+  const formattedStartOfWeek = startOfWeek.toDateString(); // "Sun Jul 28 2024"
+  console.log("Start of Week (formatted): ", formattedStartOfWeek);
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const formattedStartOfMonth = startOfMonth.toDateString(); // "Mon Jul 01 2024"
+  console.log("Start of Month (formatted): ", formattedStartOfMonth);
   console.log("formattedToday fetching customer data: ", formattedToday);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -72,7 +79,7 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
         <CardContent>
           <div className="text-4xl font-bold text-blue-700">{data.newCustomersToday}</div>
           <p className="text-blue-600">
-            <span className="font-medium">+5.2%</span> from yesterday
+            <span className="font-medium">{formattedToday}</span>
           </p>
         </CardContent>
       </Card>
@@ -85,7 +92,7 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
         <CardContent>
           <div className="text-4xl font-bold text-green-700">{data.newCustomersThisWeek}</div>
           <p className="text-green-600">
-            <span className="font-medium">+3.1%</span> from last week
+            <span className="font-medium">{`${formattedStartOfWeek}`}</span>
           </p>
         </CardContent>
       </Card>
@@ -98,7 +105,7 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
         <CardContent>
           <div className="text-4xl font-bold text-red-700">{data.newCustomersThisMonth}</div>
           <p className="text-red-600">
-            <span className="font-medium">+2.7%</span> from last month
+            <span className="font-medium">{`${formattedStartOfMonth}`}</span>
           </p>
         </CardContent>
       </Card>

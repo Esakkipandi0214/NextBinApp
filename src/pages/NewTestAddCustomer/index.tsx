@@ -134,7 +134,7 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
     postcode: (event.currentTarget.elements.namedItem("postcode") as HTMLInputElement).value,
     frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
-    registration: (event.currentTarget.elements.namedItem("registerno") as HTMLInputElement)?.value || '',
+    registration: registrationNumber,
     Company: (event.currentTarget.elements.namedItem("company") as HTMLInputElement)?.value || '',
     created: new Date().toISOString(),
     email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value, // Add this line
@@ -172,7 +172,6 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       postcode: (event.currentTarget.elements.namedItem("postcode") as HTMLInputElement)?.value || '',
       frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement)?.value || '',
       email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement)?.value || '', // Add this line
-      registration: (event.currentTarget.elements.namedItem("registerno") as HTMLInputElement)?.value || '',
       Company: (event.currentTarget.elements.namedItem("company") as HTMLInputElement)?.value || ''
     };
   
@@ -199,9 +198,6 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
   };
 
   const countryCodes = [
-    { code: "+1", name: "United States" },
-    { code: "+44", name: "United Kingdom" },
-    { code: "+91", name: "India" },
     { code: "+61", name: "Australia" },
     // Add more country codes as needed
   ];
@@ -243,9 +239,19 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
                   </select>
                 </div>
                 <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" name="phone" type="tel" placeholder="Enter phone number" required />
-                </div>
+  <Label htmlFor="phone">Phone</Label>
+  <Input
+    id="phone"
+    name="phone"
+    type="tel"
+    placeholder="Enter phone number"
+    required
+    pattern="\d{10}"
+    minLength={10}
+    maxLength={10}
+    title="Phone number must be exactly 10 digits"
+  />
+</div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -258,10 +264,6 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="registerno">Reg NO</Label>
-                  <Input id="registerno" name="registerno" type="text" placeholder="Enter registerno" required />
-                </div>
                 <div>
                   <Label htmlFor="dob">Date of Birth</Label>
                   <Input id="dob" name="dob" type="date" placeholder="Enter date of birth" required />
@@ -280,7 +282,10 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="postcode">Postcode</Label>
-                  <Input id="postcode" name="postcode" type="text" placeholder="Enter postcode" required />
+                  <Input id="postcode" name="postcode" type="text" placeholder="Enter postcode" required pattern="\d{4}"
+    minLength={4}
+    maxLength={4}
+    title="Postcode must be exactly 4 digits" />
                 </div>
                 <div>
                   <Label htmlFor="frequency">Frequency</Label>
@@ -506,6 +511,10 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               type="text"
               value={phoneNumber || ''}
               placeholder="e.g., 8925722979"
+              pattern="\d{10}"
+              minLength={10}
+              maxLength={10}
+              title="Phone number must be exactly 10 digits"
               onChange={(e) => setPhoneNumber(e.target.value || null)}
             />
           </div>

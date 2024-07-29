@@ -16,7 +16,8 @@ const Sidebar: React.FC = () => {
     { href: '/TestPage', icon: <SettingsIcon className="h-5 w-5" />, label: 'Customer Detail' },
     { href: '/TestGroupMessage', icon: <InboxIcon className="h-5 w-5" />, label: 'MessageQueue' },
     { href: '/TestOderManagement', icon: <HistoryIcon className="h-5 w-5" />, label: 'Orders History' },
-    { href: '/CustomerNotes', icon: <HistoryIcon className="h-5 w-5" />, label: 'Notes' }
+    { href: '/CustomerNotes', icon: <HistoryIcon className="h-5 w-5" />, label: 'Notes' },
+    { href: '/TestCategoryUpdate', icon: <ShoppingCartIcon className="h-5 w-5" />, label: 'Add Materal' }
   ];
   
 
