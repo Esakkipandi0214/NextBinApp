@@ -51,6 +51,7 @@ interface FormData {
 export default function Component() {
   const [customerNames, setCustomerNames] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState(customerNames);
+  const [orderCategories, setOrderCategories] = useState<{ id: string; mainCategory: string; subCategory: string[] }[]>([]);
   const [formData, setFormData] = useState<FormData>({
     customerId: "",
     customerName: "",
@@ -64,14 +65,14 @@ export default function Component() {
 
   const [totalWeight, setTotalWeight] = useState(0);
 
-  const DropDown = [
-    { orderType: "Aluminum", SubCategory: ["Aluminum Cast", "Aluminum Domestic","Aluminum Extrusion", "Aluminum Cables","Aluminum Engine Irony", "Aluminum Wheels","Aluminum rad clean", "Aluminum rad irony"] },
-    { orderType: "Batteries", SubCategory: ["Batteries clean", "Batteries irony"] },
-    { orderType: "Copper", SubCategory: ["Copper Bright and Shiny", "Copper Domestic","Copper 1", "Copper 2","Copper PVC 23%", "Copper PVC43%","Copper PVC high grade", "Copper Brass rad clean","Copper Brass rad irony"] },
-    { orderType: "Compressor", SubCategory: ["Electric motors", "Electric Mot Starter motors","Lead wheel weights","Lead Sheets"] },
-    { orderType: "Stainless", SubCategory: ["Stainless steel clean", "Stainless  steel","Steel HMS","Steel Pressings"] },
-  ];
-
+  // const DropDown = [
+  //   { orderType: "Aluminum", SubCategory: ["Aluminum Cast", "Aluminum Domestic","Aluminum Extrusion", "Aluminum Cables","Aluminum Engine Irony", "Aluminum Wheels","Aluminum rad clean", "Aluminum rad irony"] },
+  //   { orderType: "Batteries", SubCategory: ["Batteries clean", "Batteries irony"] },
+  //   { orderType: "Copper", SubCategory: ["Copper Bright and Shiny", "Copper Domestic","Copper 1", "Copper 2","Copper PVC 23%", "Copper PVC43%","Copper PVC high grade", "Copper Brass rad clean","Copper Brass rad irony"] },
+  //   { orderType: "Compressor", SubCategory: ["Electric motors", "Electric Mot Starter motors","Lead wheel weights","Lead Sheets"] },
+  //   { orderType: "Stainless", SubCategory: ["Stainless steel clean", "Stainless  steel","Steel HMS","Steel Pressings"] },
+  // ];
+  const DropDown=orderCategories;
   const [subCategories, setSubCategories] = useState<string[]>([]);
   const [orders, setOrders] = useState<FormData[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
@@ -92,6 +93,28 @@ export default function Component() {
     };
 
     fetchCustomerNames();
+  }, []);
+
+  useEffect(() => {
+    const fetchOrderCategories = async () => {
+      try {
+        const q = query(collection(db, "OrderCategory"));
+        const querySnapshot = await getDocs(q);
+        const categories: { id: string; mainCategory: string; subCategory: string[] }[] = [];
+        querySnapshot.forEach((doc) => {
+          categories.push({
+            id: doc.id,
+            mainCategory: doc.data().mainCategory,
+            subCategory: doc.data().subCategory || []
+          });
+        });
+        setOrderCategories(categories);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
+    fetchOrderCategories();
   }, []);
 
   useEffect(() => {
@@ -197,9 +220,9 @@ export default function Component() {
     updatedOrderItems[index].category = value;
     updatedOrderItems[index].subCategory = "";
 
-    const selectedCategory = DropDown.find((item) => item.orderType === value);
+    const selectedCategory = DropDown.find((item) => item.mainCategory === value);
     if (selectedCategory) {
-      setSubCategories(selectedCategory.SubCategory);
+      setSubCategories(selectedCategory.subCategory);
     } else {
       setSubCategories([]);
     }
@@ -389,6 +412,7 @@ export default function Component() {
   console.log("Customers Name and number:",customerNames);
 console.log("Selected Customer Id:",selectedCustomerId);
 console.log(" Customer orders:",orders);
+console.log("order Categories:",orderCategories)
 
   return (
     <Layout>
@@ -426,6 +450,10 @@ console.log(" Customer orders:",orders);
                   }}
                   placeholder="Enter mobile number"
                   required
+                  pattern="\d{10}"
+                  minLength={10}
+                  maxLength={10}
+                  title="Phone number must be exactly 10 digits"
                 />
               </div>
               <div>
@@ -436,7 +464,6 @@ console.log(" Customer orders:",orders);
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
                     <SelectItem value="Completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
@@ -489,8 +516,8 @@ console.log(" Customer orders:",orders);
                         </SelectTrigger>
                         <SelectContent>
                           {DropDown.map((dropdown) => (
-                            <SelectItem key={dropdown.orderType} value={dropdown.orderType}>
-                              {dropdown.orderType}
+                            <SelectItem key={dropdown.mainCategory} value={dropdown.mainCategory}>
+                              {dropdown.mainCategory}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -610,7 +637,7 @@ console.log(" Customer orders:",orders);
                 </ul>
               </td>
               <td className="border border-gray-300 px-4 py-2">{order.totalWeight.toFixed(2)}</td>
-              <td className="border border-gray-300 px-4 py-2">${order.totalPrice.toFixed(2)}</td>
+              <td className="border border-gray-300 px-4 py-2"> AU$ {order.totalPrice.toFixed(2)}</td>
               <td className="border border-gray-300 px-4 py-2">
                 <Button
                   className="mr-2"

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import Statistics from './statistics';
+import StatisticsTwo from './statisticsTwo';
+import StatisticsThree from './statisticThree';
 import Chunks from './chunksSection';
 import RecentOrders from './RecentOrders';
 import CustomerSignedup from './CustomerSignedup'
@@ -29,16 +31,32 @@ const Dashboard: React.FC = () => {
       {/* Chunks Section */}
       <div className="col-span-full">
         <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
-          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Chunks</h2>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Customers</h2>
           <Chunks newCustomersToday={0} newCustomersThisWeek={0} newCustomersThisMonth={0}/>
         </div>
       </div>
 
-      {/* Statistics Section */}
+      {/* Statistics Section Today */}
       <div className="col-span-full">
         <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Statistics</h2>
           <Statistics />
+        </div>
+      </div>
+
+      {/* Statistics Section Week */}
+      <div className="col-span-full">
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Statistics</h2>
+          <StatisticsTwo />
+        </div>
+      </div>
+
+      {/* Statistics Section Month */}
+      <div className="col-span-full">
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+          <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Statistics</h2>
+          <StatisticsThree />
         </div>
       </div>
 

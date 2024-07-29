@@ -24,7 +24,7 @@ interface CategoryStats {
   weight: number;
 }
 
-interface DailyStats {
+interface WeeklyStats {
   [key: string]: {
     [category: string]: CategoryStats;
   };
@@ -55,14 +55,21 @@ const AnalyticsDashboard: React.FC = () => {
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
 
-  const getTodayStats = () => {
+  const getCurrentWeekStats = () => {
     const stats: { [category: string]: CategoryStats } = {};
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+    startOfWeek.setHours(0, 0, 0, 0); // Start of the day
+
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + (7 - today.getDay())); // Sunday
+    endOfWeek.setHours(23, 59, 59, 999); // End of the day
 
     orders.forEach(order => {
-      const orderDate = new Date(order.orderDate).toISOString().split('T')[0];
+      const orderDate = new Date(order.orderDate);
       
-      if (orderDate === today) {
+      if (orderDate >= startOfWeek && orderDate <= endOfWeek) {
         order.orderItems.forEach(item => {
           const category = item.category;
           const pricePerKg = parseFloat(item.pricePerKg);
@@ -82,7 +89,7 @@ const AnalyticsDashboard: React.FC = () => {
 
     // Convert the stats object to an array suitable for rendering
     return [{
-      date: today,
+      date: `Week of ${startOfWeek.toISOString().split('T')[0]} - ${endOfWeek.toISOString().split('T')[0]}`,
       ...Object.keys(stats).reduce((acc, category) => ({
         ...acc,
         [`${category}Count`]: stats[category].count,
@@ -92,7 +99,7 @@ const AnalyticsDashboard: React.FC = () => {
     }];
   };
 
-  const todayStats = getTodayStats();
+  const weekStats = getCurrentWeekStats();
 
   const renderBarChart = (data: any[], title: string) => (
     <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
@@ -122,9 +129,9 @@ const AnalyticsDashboard: React.FC = () => {
 
   return (
     <Grid container spacing={3}>
-      {/* Today's Stats */}
+      {/* Weekly Stats */}
       <Grid item xs={12}>
-        {renderBarChart(todayStats, 'Materials Ordered Today')}
+        {renderBarChart(weekStats, 'Materials Ordered This Week')}
       </Grid>
     </Grid>
   );
