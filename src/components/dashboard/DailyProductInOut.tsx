@@ -67,7 +67,7 @@ const DailyProductInOut: React.FC = () => {
   console.log("Daily ordes:",dailyProductData)
 
   return (
-    <Card className="col-span-1 md:col-span-2 lg:col-span-3" style={{ backgroundColor: "#2C4E80" }}>
+    <Card className="col-span-1 md:col-span-2 lg:col-span-3" style={{ backgroundColor: "#ff9e00" }}>
       <CardHeader>
         <CardTitle style={{ color: "white" }}>Daily Product In/Out</CardTitle>
         <CardDescription style={{ color: "white" }}>A table showing the daily inflow and outflow of products.</CardDescription>

@@ -3,12 +3,14 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+// import { Card } from "@/components/ui/card";
 import Layout from '@/components/layout';
 import { db } from '@/firebase'; // Adjust path as necessary
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { FilePenIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import Modal from '../../components/ui/Model'; // Import the modal component
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+
 
 interface Note {
   id: string;
@@ -190,6 +192,7 @@ export default function NoteManagement() {
   console.log("Notes Data:", notes);
   return (
     <Layout>
+      <Card className="w-full  py-6">
       <div className="w-full max-w-6xl mx-auto py-8 px-4 md:px-6 flex flex-col gap-4">
         {/* Main Content */}
         <main className="flex-1 lg:w-full overflow-hidden">
@@ -299,6 +302,7 @@ export default function NoteManagement() {
             createdAt={selectedNote?.createdAt || ''} customerName={selectedNote?.customerName || ''}          />
         </main>
       </div>
+      </Card>
     </Layout>
   );
 }
