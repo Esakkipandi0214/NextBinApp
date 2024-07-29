@@ -27,10 +27,10 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 lg:grid-cols-3" style={{ backgroundColor: "#00215E" }}>
+    <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 lg:grid-cols-3" style={{ backgroundColor: "#f1faee" }}>
       {/* Chunks Section */}
       <div className="col-span-full">
-        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#ff9e00" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Customers</h2>
           <Chunks newCustomersToday={0} newCustomersThisWeek={0} newCustomersThisMonth={0}/>
         </div>
@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
 
       {/* Statistics Section Today */}
       <div className="col-span-full">
-        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#ff9e00" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Statistics</h2>
           <Statistics />
         </div>
@@ -46,7 +46,7 @@ const Dashboard: React.FC = () => {
 
       {/* Statistics Section Week */}
       <div className="col-span-full">
-        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#ff9e00" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Statistics</h2>
           <StatisticsTwo />
         </div>
@@ -54,7 +54,7 @@ const Dashboard: React.FC = () => {
 
       {/* Statistics Section Month */}
       <div className="col-span-full">
-        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#ff9e00" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Statistics</h2>
           <StatisticsThree />
         </div>
@@ -65,14 +65,14 @@ const Dashboard: React.FC = () => {
 
       {/* Recent Orders Section */}
       <div className="col-span-full">
-        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#ff9e00" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Recent Orders</h2>
           <RecentOrders />
         </div>
       </div>
        {/* New Customer Signed up */}
       <div className="col-span-full">
-        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#2C4E80" }}>
+        <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "#ff9e00" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>CustomerSignedup</h2>
           <CustomerSignedup/>
         </div>
@@ -82,7 +82,7 @@ const Dashboard: React.FC = () => {
       <DailyProductInOut />
 
       {/* Monthly Total Product In/Out Card */}
-      <Card className="col-span-1 md:col-span-2 lg:col-span-2" style={{ backgroundColor: "#2C4E80" }}>
+      <Card className="col-span-1 md:col-span-2 lg:col-span-2" style={{ backgroundColor: "#ff9e00" }}>
         <CardHeader>
           <CardTitle style={{ color: "white" }}>Monthly Total Product In/Out</CardTitle>
           <CardDescription style={{ color: "white" }}>A chart displaying the monthly total product inflow and outflow.</CardDescription>

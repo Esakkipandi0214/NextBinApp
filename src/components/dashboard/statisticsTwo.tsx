@@ -102,8 +102,8 @@ const AnalyticsDashboard: React.FC = () => {
   const weekStats = getCurrentWeekStats();
 
   const renderBarChart = (data: any[], title: string) => (
-    <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-      <CardHeader title={title} style={{ color: '#ffffff' }} />
+    <Card style={{ backgroundColor: "#f1faee" }}>
+      <CardHeader title={title} className=' text-gray-900' />
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data}>

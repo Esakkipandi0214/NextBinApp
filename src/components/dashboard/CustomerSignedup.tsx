@@ -180,28 +180,28 @@ const CustomerActivity: React.FC = () => {
     <div>
       {/* <Card style={{ backgroundColor: "#2C4E80" }}>
         <CardHeader>
-          <CardTitle style={{ color: "white" }}>Active Customers</CardTitle>
-          <CardDescription style={{ color: "white" }}>Customers who returned within a year</CardDescription>
+          <CardTitle style={{ color: "black" }}>Active Customers</CardTitle>
+          <CardDescription style={{ color: "black" }}>Customers who returned within a year</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead style={{ color: "white" }}>Registration Number</TableHead>
-                <TableHead style={{ color: "white" }}>First Name</TableHead>
-                <TableHead style={{ color: "white" }}>Last Name</TableHead>
-                <TableHead style={{ color: "white" }}>Phone Number</TableHead>
-                <TableHead style={{ color: "white" }}>Signup Date</TableHead>
+                <TableHead style={{ color: "black" }}>Registration Number</TableHead>
+                <TableHead style={{ color: "black" }}>First Name</TableHead>
+                <TableHead style={{ color: "black" }}>Last Name</TableHead>
+                <TableHead style={{ color: "black" }}>Phone Number</TableHead>
+                <TableHead style={{ color: "black" }}>Signup Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentActiveCustomers.map(customer => (
                 <TableRow key={customer.id}>
-                  <TableCell style={{ color: "white" }}>{customer.registration}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.firstName}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.lastName}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.phone}</TableCell>
-                  <TableCell style={{ color: "white" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.registration}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.firstName}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.lastName}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.phone}</TableCell>
+                  <TableCell style={{ color: "black" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -212,30 +212,30 @@ const CustomerActivity: React.FC = () => {
         </CardContent>
       </Card> */}
 
-      <Card style={{ backgroundColor: "#2C4E80", marginTop: '20px' }}>
+      <Card style={{ backgroundColor: "#f1faee", marginTop: '20px' }}>
         <CardHeader>
-          <CardTitle style={{ color: "white" }}>Inactive Customers</CardTitle>
-          <CardDescription style={{ color: "white" }}>Customers who haven&lsquo;t returned in over a year</CardDescription>
+          <CardTitle style={{ color: "black" }}>Inactive Customers</CardTitle>
+          <CardDescription style={{ color: "black" }}>Customers who haven&lsquo;t returned in over a year</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead style={{ color: "white" }}>Registration Number</TableHead>
-                <TableHead style={{ color: "white" }}>First Name</TableHead>
-                <TableHead style={{ color: "white" }}>Last Name</TableHead>
-                <TableHead style={{ color: "white" }}>Phone Number</TableHead>
-                <TableHead style={{ color: "white" }}>Signup Date</TableHead>
+                <TableHead style={{ color: "black" }}>Registration Number</TableHead>
+                <TableHead style={{ color: "black" }}>First Name</TableHead>
+                <TableHead style={{ color: "black" }}>Last Name</TableHead>
+                <TableHead style={{ color: "black" }}>Phone Number</TableHead>
+                <TableHead style={{ color: "black" }}>Signup Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentInactiveCustomers.map(customer => (
                 <TableRow key={customer.id}>
-                  <TableCell style={{ color: "white" }}>{customer.registration}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.firstName}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.lastName}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.phone}</TableCell>
-                  <TableCell style={{ color: "white" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.registration}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.firstName}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.lastName}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.phone}</TableCell>
+                  <TableCell style={{ color: "black" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -248,7 +248,7 @@ const CustomerActivity: React.FC = () => {
 <div className='flex'>
       <div className='mt-4'>
         <label className='text-xl flex'>
-          <p className='text-white mr-2'>Start Date:</p>
+          <p className='text-black mr-2'>Start Date:</p>
           <input
             type="date"
             value={startDate}
@@ -260,7 +260,7 @@ const CustomerActivity: React.FC = () => {
 
       <div className='mt-4 ml-4'>
         <label className='text-xl flex'>
-          <p className='text-white mr-2'>End Date:</p>
+          <p className='text-black mr-2'>End Date:</p>
           <input
             type="date"
             value={endDate}
@@ -270,30 +270,30 @@ const CustomerActivity: React.FC = () => {
         </label>
       </div>
       </div>
-      <Card style={{ backgroundColor: "#2C4E80", marginTop: '20px' }}>
+      <Card style={{  backgroundColor: "#f1faee", marginTop: '20px' }}>
         <CardHeader>
-          <CardTitle style={{ color: "white" }}>New Customers Signed Up</CardTitle>
-          <CardDescription style={{ color: "white" }}>Customers who signed up in the selected period or date</CardDescription>
+          <CardTitle style={{ color: "black" }}>New Customers Signed Up</CardTitle>
+          <CardDescription style={{ color: "black" }}>Customers who signed up in the selected period or date</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead style={{ color: "white" }}>Registration Number</TableHead>
-                <TableHead style={{ color: "white" }}>First Name</TableHead>
-                <TableHead style={{ color: "white" }}>Last Name</TableHead>
-                <TableHead style={{ color: "white" }}>Phone Number</TableHead>
-                <TableHead style={{ color: "white" }}>Signup Date</TableHead>
+                <TableHead style={{ color: "black" }}>Registration Number</TableHead>
+                <TableHead style={{ color: "black" }}>First Name</TableHead>
+                <TableHead style={{ color: "black" }}>Last Name</TableHead>
+                <TableHead style={{ color: "black" }}>Phone Number</TableHead>
+                <TableHead style={{ color: "black" }}>Signup Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {newCustomers.map(customer => (
                 <TableRow key={customer.id}>
-                  <TableCell style={{ color: "white" }}>{customer.registration}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.firstName}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.lastName}</TableCell>
-                  <TableCell style={{ color: "white" }}>{customer.phone}</TableCell>
-                  <TableCell style={{ color: "white" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.registration}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.firstName}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.lastName}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.phone}</TableCell>
+                  <TableCell style={{ color: "black" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -65,13 +65,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Main Content */}
       <div className="flex-1">
-        <div className='h-[4rem] w-full bg-[#2C4E80] flex items-center justify-between px-4'>
+        <div className='h-[4rem] w-full bg-[#ff9e00] flex items-center justify-between px-4'>
           {/* Navigation Links */}
           <div className='flex items-center'>
             <Link href={"/"}>
-              <h1 className='pt-5 pl-2 hover:underline text-white'>Home</h1>
+              <h1 className='pt-5 pl-2 hover:underline  text-gray-900 '>Home</h1>
             </Link>
-            <h1 className='pt-5 text-white'>{router.pathname}</h1>
+            <h1 className='pt-5 text-gray-900 '>{router.pathname}</h1>
           </div>
 
           {/* Notification and Profile Section */}

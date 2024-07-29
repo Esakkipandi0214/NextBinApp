@@ -137,35 +137,35 @@ const RecentOrders: React.FC = () => {
   };
 
   return (
-    <Card style={{ backgroundColor: "#2C4E80" }}>
+    <Card style={{ backgroundColor: "#f1faee" }}>
       <CardHeader>
-        <CardTitle style={{ color: "white" }}>Recent Orders</CardTitle>
-        <CardDescription style={{ color: "white" }}>A table showing the most recent orders.</CardDescription>
+        <CardTitle style={{ color: "black" }}>Recent Orders</CardTitle>
+        <CardDescription style={{ color: "black" }}>A table showing the most recent orders.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead style={{ color: "white" }}>Order ID</TableHead>
-              <TableHead style={{ color: "white" }}>Date</TableHead>
-              <TableHead style={{ color: "white" }}>Customer Name</TableHead>
-              <TableHead style={{ color: "white" }}>Payment</TableHead>
-              <TableHead style={{ color: "white" }}>Time</TableHead>
-              <TableHead style={{ color: "white" }}>Categories</TableHead>
-              <TableHead style={{ color: "white" }}>Total Weight</TableHead>
-              <TableHead style={{ color: "white" }}>Status</TableHead>
+              <TableHead style={{ color: "black" }}>Order ID</TableHead>
+              <TableHead style={{ color: "black" }}>Date</TableHead>
+              <TableHead style={{ color: "black" }}>Customer Name</TableHead>
+              <TableHead style={{ color: "black" }}>Payment</TableHead>
+              <TableHead style={{ color: "black" }}>Time</TableHead>
+              <TableHead style={{ color: "black" }}>Categories</TableHead>
+              <TableHead style={{ color: "black" }}>Total Weight</TableHead>
+              <TableHead style={{ color: "black" }}>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {currentOrders.map((order, index) => (
               <TableRow key={order.id}>
-                <TableCell style={{ color: "white" }}>{indexOfFirstOrder + index + 1}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.orderDate}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.customerName}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.orderPayment}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.orderTime}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.categories?.join(', ')}</TableCell>
-                <TableCell style={{ color: "white" }}>{order.totalWeight}</TableCell>
+                <TableCell style={{ color: "black" }}>{indexOfFirstOrder + index + 1}</TableCell>
+                <TableCell style={{ color: "black" }}>{order.orderDate}</TableCell>
+                <TableCell style={{ color: "black" }}>{order.customerName}</TableCell>
+                <TableCell style={{ color: "black" }}>{order.orderPayment}</TableCell>
+                <TableCell style={{ color: "black" }}>{order.orderTime}</TableCell>
+                <TableCell style={{ color: "black" }}>{order.categories?.join(', ')}</TableCell>
+                <TableCell style={{ color: "black" }}>{order.totalWeight}</TableCell>
                 <TableCell>
                   <Badge color={getStatusBadgeColor(order.status)}>
                     {order.status}

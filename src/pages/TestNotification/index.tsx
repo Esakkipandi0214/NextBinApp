@@ -6,6 +6,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { FaPhone, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+
 
 interface CustomerPriorityProps {
   customerId: string;
@@ -131,6 +133,7 @@ const CustomerList: React.FC = () => {
 
   return (
     <Layout>
+        <Card className="w-full h-screen py-6">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-2xl font-bold mb-6">Customer List</h1>
         <div className="grid gap-6">
@@ -145,6 +148,7 @@ const CustomerList: React.FC = () => {
           ))}
         </div>
       </div>
+      </Card>
     </Layout>
   );
 };

@@ -71,8 +71,8 @@ const MonthlyTotalProductChart: React.FC = () => {
         label: 'Total Amount',
         data: totalAmountData,
         fill: false,
-        backgroundColor: 'rgb(255, 159, 64)',
-        borderColor: 'rgba(255, 159, 64, 0.2)',
+        backgroundColor: '#e63946',
+        borderColor: '#dc2f02',
       }
     ],
   };

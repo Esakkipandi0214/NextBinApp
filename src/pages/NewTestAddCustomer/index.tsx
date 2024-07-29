@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+
 
 interface Customer {
   id: string;
@@ -204,6 +206,7 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
   return (
     <Layout>
+       <Card className="w-full  py-6">
       <div className="max-w-7xl mx-auto md:p-10 p-4">
         <div className="flex justify-end mb-4">
           <Button onClick={() => setShowCreateModal(true)} style={{ backgroundColor: "#00215E", color: "white" }}>
@@ -575,6 +578,7 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         </table>
       </div>
       </div>
+      </Card>
     </Layout>
   );
 };

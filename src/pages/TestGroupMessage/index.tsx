@@ -4,6 +4,8 @@ import { db } from '@/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import API_BASE_URL from './../../../apiConfig';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+
 
 interface CustomerProps {
   customerId: string;
@@ -302,6 +304,7 @@ const CustomerList: React.FC = () => {
 
   return (
     <Layout>
+       <Card className="w-full  py-6">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Customer List</h1>
 
@@ -430,6 +433,7 @@ const CustomerList: React.FC = () => {
 
         {error && <p className="text-red-500 mt-4">{error}</p>}
       </div>
+      </Card>
     </Layout>
   );
 };

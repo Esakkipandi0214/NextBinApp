@@ -22,11 +22,11 @@ const Sidebar: React.FC = () => {
   
 
   return (
-    <div className={`h-screen bg-[#2C4E80] text-white transition-all duration-300 ${isCollapsed ? 'w-0' : 'w-44'}`}>
+    <div className={`h-screen bg-[#ff9e00] text-white transition-all duration-300 ${isCollapsed ? 'w-0' : 'w-44'}`}>
       <div className="flex flex-col items-center h-full">
         <div className="flex h-16 items-center justify-center w-full px-4 border-b border-gray-700">
           <Link href="/" passHref>
-            <p className="flex items-center justify-center gap-2 font-semibold text-white cursor-pointer">
+            <p className="flex items-center justify-center gap-2 font-semibold text-gray-900 cursor-pointer">
               <span className={`text-3xl  ${isCollapsed ? 'hidden' : 'block'}`}>Albon</span>
             </p>
           </Link>
@@ -39,8 +39,8 @@ const Sidebar: React.FC = () => {
           <div className="grid gap-4 text-xs font-medium">
             {menuItems.map(item => (
               <Link key={item.href} href={item.href} passHref>
-                <p className={`flex items-center gap-2 rounded-md px-3 py-2 text-white transition-colors hover:bg-[#00215E] cursor-pointer ${
-                  router.pathname === item.href ? 'bg-[#00215E]' : ''
+                <p className={`flex items-center gap-2 rounded-md px-3 py-2 text-gray-900 transition-colors hover:bg-[#f1faee] cursor-pointer ${
+                  router.pathname === item.href ? 'bg-[#f1faee]' : ''
                 }`}>
                   {item.icon}
                   {!isCollapsed && <span>{item.label}</span>}

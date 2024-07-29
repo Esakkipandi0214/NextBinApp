@@ -57,7 +57,7 @@ const PriorityProducts: React.FC = () => {
   };
 
   return (
-    <Card className="col-span-1 lg:col-span-2 p-4" style={{ backgroundColor: "#2C4E80" }}>
+    <Card className="col-span-1 lg:col-span-2 p-4 bg-[#ff9e00]">
       <CardHeader>
         <CardTitle className="text-white">Customer Priority</CardTitle>
         <CardDescription className="text-white">A section highlighting high priority customers with additional details.</CardDescription>

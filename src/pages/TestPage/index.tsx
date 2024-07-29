@@ -4,6 +4,8 @@ import Layout from '@/components/layout';
 import { db } from '../../firebase'; // Ensure this import is correct
 import { collection, getDocs, query, where, setDoc, doc, deleteDoc, getFirestore } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+
 
 interface CustomerProps {
   email: string;
@@ -192,6 +194,7 @@ const CustomerList: React.FC = () => {
 
   return (
     <Layout>
+        <Card className="w-full  py-6">
       <div className="container mx-auto px-4 md:px-6 py-8">
         <h1 className="text-2xl font-bold mb-4">Customer List</h1>
         <Input
@@ -237,6 +240,7 @@ const CustomerList: React.FC = () => {
           })}
         </div>
       </div>
+      </Card>
     </Layout>
   );
 };
