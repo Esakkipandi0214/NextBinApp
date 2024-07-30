@@ -450,10 +450,6 @@ console.log("order Categories:",orderCategories)
                   }}
                   placeholder="Enter mobile number"
                   required
-                  pattern="\d{10}"
-                  minLength={10}
-                  maxLength={10}
-                  title="Phone number must be exactly 10 digits"
                 />
               </div>
               <div>
