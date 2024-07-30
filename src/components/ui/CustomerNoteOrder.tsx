@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from "../../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs ,orderBy} from "firebase/firestore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface CustomerNoteProps {
@@ -24,7 +24,8 @@ const CustomerNoteOrders: React.FC<CustomerNoteProps> = ({ uid }) => {
         const notesCollection = collection(db, "customerNotes");
         const notesQuery = query(
           notesCollection,
-          where('customerId', '==', uid)
+          where('customerId', '==', uid),
+          orderBy('createdAt', 'desc')
         );
         const notesSnapshot = await getDocs(notesQuery);
 
