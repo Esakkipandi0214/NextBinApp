@@ -27,13 +27,23 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
         const today = new Date();
         const formattedToday = today.toISOString().split('T')[0]; // Format date as yyyy-MM-dd
 
-        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+        startOfWeek.setHours(0, 0, 0, 0); // Start of the day
+    
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + (7 - today.getDay())); // Sunday
+        endOfWeek.setHours(23, 59, 59, 999); // End of the day
+        
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the month
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of the month
+    endOfMonth.setHours(23, 59, 59, 999); // Include the entire last day
+
 
         const customersRef = collection(db, 'customers');
         const todayQuery = query(customersRef, where('created', '>=', formattedToday));
-        const weekQuery = query(customersRef, where('created', '>=', startOfDay(startOfWeek.toISOString())));
-        const monthQuery = query(customersRef, where('created', '>=', startOfDay(startOfMonth.toISOString())));
+        const weekQuery = query(customersRef, where('created', '>=', startOfDay(startOfWeek.toISOString())),where('created', '<=', startOfDay(endOfWeek.toISOString())));
+        const monthQuery = query(customersRef,where('created', '>=', startOfMonth.toISOString()), where('created', '<=', endOfMonth.toISOString()));
         const [todaySnap, weekSnap, monthSnap] = await Promise.all([
           getDocs(todayQuery),
           getDocs(weekQuery),
@@ -61,11 +71,24 @@ const CustomerStatistics: React.FC<CustomerStatisticsProps> = ({
     return date.toISOString();
   };
   const today = new Date();
+
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+  startOfWeek.setHours(0, 0, 0, 0); // Start of the day
+
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + (7 - today.getDay())); // Sunday
+  endOfWeek.setHours(23, 59, 59, 999); // End of the day
+  
+const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of the month
+const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of the month
+endOfMonth.setHours(23, 59, 59, 999); // Include the entire last day
+  // =====================
+
   const formattedToday = today.toISOString().split('T')[0]; // Format date as yyyy-MM-dd
-  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+ 
   const formattedStartOfWeek = startOfWeek.toDateString(); // "Sun Jul 28 2024"
   console.log("Start of Week (formatted): ", formattedStartOfWeek);
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const formattedStartOfMonth = startOfMonth.toDateString(); // "Mon Jul 01 2024"
   console.log("Start of Month (formatted): ", formattedStartOfMonth);
   console.log("formattedToday fetching customer data: ", formattedToday);
