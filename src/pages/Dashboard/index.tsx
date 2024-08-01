@@ -1,7 +1,23 @@
 import Layout from "@/components/layout";
 import React from 'react'
 import DashBoard from "@/components/dashboard/dash"
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 const Dashboard = () => {
+  const router = useRouter();
+
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          router.push("/");
+        }
+      });
+
+      return () => unsubscribe();
+    }, [router]);
+    
   return (
     <Layout>
     <div>

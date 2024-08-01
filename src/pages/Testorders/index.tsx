@@ -23,6 +23,10 @@ import { db } from "../../firebase";
 import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc,deleteDoc,addDoc } from "firebase/firestore";
 import Layout from '@/components/layout';
 import CustomerNoteOders from "../../components/ui/CustomerNoteOrder";
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
+
 interface Customer {
   number: string;
   id: string;
@@ -64,6 +68,7 @@ export default function Component() {
   });
 
   const [totalWeight, setTotalWeight] = useState(0);
+  const router = useRouter();
 
   // const DropDown = [
   //   { orderType: "Aluminum", SubCategory: ["Aluminum Cast", "Aluminum Domestic","Aluminum Extrusion", "Aluminum Cables","Aluminum Engine Irony", "Aluminum Wheels","Aluminum rad clean", "Aluminum rad irony"] },
@@ -94,6 +99,16 @@ export default function Component() {
 
     fetchCustomerNames();
   }, []);
+  // to restrict index page route
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const fetchOrderCategories = async () => {

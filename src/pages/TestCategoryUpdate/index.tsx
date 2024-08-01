@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { addDoc, collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase"; // Make sure to import your Firebase configuration
 import Layout from '@/components/layout';
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
+
 
 const Component: React.FC = () => {
   const [mainCategory, setMainCategory] = useState("");
@@ -13,6 +17,17 @@ const Component: React.FC = () => {
   const [orderCategories, setOrderCategories] = useState<{ id: string; mainCategory: string; subCategory: string[] }[]>([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const fetchOrderCategories = async () => {

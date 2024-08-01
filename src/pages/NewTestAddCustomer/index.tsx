@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 interface Customer {
   id: string;
@@ -72,8 +74,18 @@ const Component: React.FC = () => {
   const [countryCode, setCountryCode] = useState<string | null>(null);
 
   const phoneFilter = countryCode && phoneNumber ? `${countryCode} ${phoneNumber}` : null;
+  const router = useRouter();
 
   
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     fetchData();

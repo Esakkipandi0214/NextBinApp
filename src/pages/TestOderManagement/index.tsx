@@ -15,6 +15,9 @@ import {
   doc,
   deleteDoc,
 } from "firebase/firestore";
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 interface OrderItem {
   category: string;
@@ -102,6 +105,17 @@ export default function OrdersHistory() {
   const [filterDate, setFilterDate] = useState<string | null>(null);
   const [filterWeek, setFilterWeek] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<FormData | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const fetchOrders = async () => {
