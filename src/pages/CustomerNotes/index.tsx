@@ -10,7 +10,9 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } 
 import { FilePenIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import Modal from '../../components/ui/Model'; // Import the modal component
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 interface Note {
   id: string;
@@ -43,6 +45,17 @@ export default function NoteManagement() {
   const [filterTitle, setFilterTitle] = useState('');
   const [filterCustomerName, setFilterCustomerName] = useState('');
   const [filterDate, setFilterDate] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   // Fetch customers
   useEffect(() => {

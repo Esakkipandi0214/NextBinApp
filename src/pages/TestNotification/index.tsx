@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { FaPhone, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 interface CustomerPriorityProps {
   customerId: string;
@@ -23,6 +25,17 @@ interface CustomerPriorityProps {
 const CustomerList: React.FC = () => {
   const [customers, setCustomers] = useState<CustomerPriorityProps[]>([]);
   const [notificationCount, setNotificationCount] = useState<number>(0);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   const fetchCustomers = async () => {
     try {

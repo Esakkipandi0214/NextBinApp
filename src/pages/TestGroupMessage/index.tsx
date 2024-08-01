@@ -5,7 +5,9 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import API_BASE_URL from './../../../apiConfig';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-
+import { useRouter } from 'next/router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 interface CustomerProps {
   customerId: string;
@@ -103,6 +105,17 @@ const CustomerList: React.FC = () => {
   const [orderDateFilter, setOrderDateFilter] = useState<string>('');
   const [messageBody, setMessageBody] = useState<string>(''); // New state variable for message body
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   const fetchCustomersAndOrders = async () => {
     try {

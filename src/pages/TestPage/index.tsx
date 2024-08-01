@@ -5,7 +5,8 @@ import { db } from '../../firebase'; // Ensure this import is correct
 import { collection, getDocs, query, where, setDoc, doc, deleteDoc, getFirestore } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 interface CustomerProps {
   email: string;
@@ -95,6 +96,16 @@ const CustomerList: React.FC = () => {
   const handleCustomerSelect = (customerId: string) => {
     router.push(`/CustomerDetail/${customerId}`);
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value.toLowerCase();
