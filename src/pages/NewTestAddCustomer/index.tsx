@@ -213,6 +213,7 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
   const countryCodes = [
     { code: "+61", name: "Australia" },
+    { code: "+91", name: "Australia" }
     // Add more country codes as needed
   ];
 

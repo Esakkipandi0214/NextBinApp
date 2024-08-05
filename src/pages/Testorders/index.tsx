@@ -431,177 +431,162 @@ console.log("order Categories:",orderCategories)
 
   return (
     <Layout>
-      <form onSubmit={handleFormSubmit} className="p-4">
-        <Card className="w-full max-md h-auto">
-          <CardHeader>
-            <CardTitle>Place Your Order</CardTitle>
-            <CardDescription>Fill out the form to submit your order.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<form onSubmit={handleFormSubmit} className="p-4">
+  <Card className="w-full max-md h-auto">
+    <CardHeader>
+      <CardTitle>Place Your Order</CardTitle>
+      <CardDescription>Fill out the form to submit your order.</CardDescription>
+    </CardHeader>
+    <CardContent className="grid gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="phone">Mobile</Label>
+          <Input
+            id="phone"
+            name="phone"
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleSelectChange(e.target.value);
+            }}
+            placeholder="Enter mobile number to select Customer"
+            required
+          />
+          <Label htmlFor="customerName">Customer Name</Label>
+          <Select onValueChange={handleSelectChange} value={formData.customerName}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select customer here" />
+            </SelectTrigger>
+            <SelectContent>
+              {filteredCustomers.map((customer) => (
+                <SelectItem key={customer.id} value={customer.name}>
+                  {customer.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="status">Order Status</Label>
+          <Select onValueChange={handleOrderStatusChange} value={formData.status}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select order status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {formData.orderItems.map((item, index) => (
+          <Card key={index} className="w-full max-md h-auto">
+            <CardHeader>
+              <CardTitle>Order Item {index + 1}</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="customerName">Customer Name</Label>
-                <Select onValueChange={handleSelectChange} value={formData.customerName}>
+                <Label htmlFor={`category-${index}`}>Category</Label>
+                <Select
+                  onValueChange={(value) => handleCategoryChange(index, value)}
+                  value={item.category}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select customer name" />
+                    <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {filteredCustomers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.name}>
-                        {customer.name}
+                    {DropDown.map((dropdown) => (
+                      <SelectItem key={dropdown.mainCategory} value={dropdown.mainCategory}>
+                        {dropdown.mainCategory}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Label htmlFor="phone">Mobile</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => {
-                    handleInputChange(e);
-                    handleSelectChange(e.target.value);
-                  }}
-                  placeholder="Enter mobile number"
-                  required
-                />
               </div>
-              <div>
-                <Label htmlFor="status">Order Status</Label>
-                <Select onValueChange={handleOrderStatusChange} value={formData.status}>
+              <div className="space-y-2">
+                <Label htmlFor={`subCategory-${index}`}>Sub Category</Label>
+                <Select
+                  onValueChange={(value) => handleSubCategoryChange(index, value)}
+                  value={item.subCategory}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select order status" />
+                    <SelectValue placeholder="Select sub category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
+                    {subCategories.map((subCategory) => (
+                      <SelectItem key={subCategory} value={subCategory}>
+                        {subCategory}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-                          {/* Pass customer.id to CustomerNoteOders */}
-                {/* <div className="flex flex-col gap-4">
-                  <Label>Customer Notes</Label>
-                  <CustomerNoteOders uid={selectedCustomerId} />
-                </div> */}
-              <div className="md:col-span-2">
-                <Label htmlFor="orderPayment">Order Payment</Label>
+              <div>
+                <Label htmlFor={`weight-${index}`}>Weight</Label>
                 <Input
-                  id="orderPayment"
+                  id={`weight-${index}`}
                   type="text"
-                  value={formData.orderPayment}
-                  onChange={handleInputChange}
-                  disabled
+                  value={item.weight}
+                  onChange={(e) => handleOrderItemChange(index, "weight", e.target.value)}
                 />
               </div>
-              
-            </div>
-            <div className=" ">
-              
-                  <CardTitle className="text-sm ">Total Weight</CardTitle>
-                  <Card className="w-full h-10">
-              
-                <CardContent>
-                  <p>{totalWeight} kg</p>
-                </CardContent>
-                
-              </Card>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {formData.orderItems.map((item, index) => (
-                <Card key={index} className="w-full max-md h-auto">
-                  <CardHeader>
-                    <CardTitle>Order Item {index + 1}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Label htmlFor={`category-${index}`}>Category</Label>
-                      <Select
-                        onValueChange={(value) =>
-                          handleCategoryChange(index, value)
-                        }
-                        value={item.category}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DropDown.map((dropdown) => (
-                            <SelectItem key={dropdown.mainCategory} value={dropdown.mainCategory}>
-                              {dropdown.mainCategory}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`subCategory-${index}`}>Sub Category</Label>
-                      <Select
-                        onValueChange={(value) =>
-                          handleSubCategoryChange(index, value)
-                        }
-                        value={item.subCategory}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select sub category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {subCategories.map((subCategory) => (
-                            <SelectItem key={subCategory} value={subCategory}>
-                              {subCategory}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor={`weight-${index}`}>Weight</Label>
-                      <Input
-                        id={`weight-${index}`}
-                        type="text"
-                        value={item.weight}
-                        onChange={(e) =>
-                          handleOrderItemChange(index, "weight", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`pricePerKg-${index}`}>Price per Kg</Label>
-                      <Input
-                        id={`pricePerKg-${index}`}
-                        type="number"
-                        step="0.01"
-                        value={item.pricePerKg.toString()}
-                        onChange={(e) =>
-                          handleOrderItemChange(index, "pricePerKg", e.target.value)
-                        }
-                      />
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      type="button"
-                      onClick={() => removeOrderItem(index)}
-                      className="mr-2"
-                    >
-                      Remove Item
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-            <div className="flex justify-end">
-              <Button type="button" onClick={addOrderItem}>
-                Add Order Item
+              <div>
+                <Label htmlFor={`pricePerKg-${index}`}>Price per Kg</Label>
+                <Input
+                  id={`pricePerKg-${index}`}
+                  type="number"
+                  step="0.01"
+                  value={item.pricePerKg.toString()}
+                  onChange={(e) => handleOrderItemChange(index, "pricePerKg", e.target.value)}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="button" onClick={() => removeOrderItem(index)} className="mr-2">
+                Remove Item
               </Button>
-            </div>
-            
-            <div className="flex justify-end mt-4">
-              <Button type="submit">Submit Order</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </form>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex justify-end mb-4">
+        <Button type="button" onClick={addOrderItem}>
+          Add Order Item
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="md:col-span-2">
+          <Label htmlFor="orderPayment">Order Payment</Label>
+          <Input
+            id="orderPayment"
+            type="text"
+            value={formData.orderPayment}
+            onChange={handleInputChange}
+            disabled
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <CardTitle className="text-sm">Total Weight</CardTitle>
+          <Card className="w-full h-10">
+            <CardContent>
+              <p>{totalWeight} kg</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-4">
+        <Button type="submit">Submit Order</Button>
+      </div>
+    </CardContent>
+  </Card>
+</form>
       <Card className="mt-4 mb-5 max-md h-auto mx-3">
   <CardHeader>
     <CardTitle>Notes</CardTitle>

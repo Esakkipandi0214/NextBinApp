@@ -212,6 +212,19 @@ export default function NoteManagement() {
           <header className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Customer Notes</h1>
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 mt-4 lg:mt-0">
+            <div className="relative w-full max-w-md">
+              <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  onChange={(e) => {
+                    handleInputChange(e);
+                    handleSelectChange(e.target.value);
+                  }}
+                  placeholder="Enter Customer Number"
+                  required
+                />
+                </div>
               <div className="relative w-full max-w-md">
                 <select
                   onChange={(e) => setSelectedCustomer(e.target.value)}
@@ -223,19 +236,6 @@ export default function NoteManagement() {
                   ))}
                 </select>
               </div>
-              <div className="relative w-full max-w-md">
-              <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  onChange={(e) => {
-                    handleInputChange(e);
-                    handleSelectChange(e.target.value);
-                  }}
-                  placeholder="Enter mobile number"
-                  required
-                />
-                </div>
               <div className="relative w-full max-w-md">
                 <Input
                   type="date"

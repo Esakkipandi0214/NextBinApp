@@ -67,30 +67,30 @@ const DailyProductInOut: React.FC = () => {
   console.log("Daily ordes:",dailyProductData)
 
   return (
-    <Card className="col-span-1 md:col-span-2 lg:col-span-3" style={{ backgroundColor: "#ff9e00" }}>
+    <Card className="col-span-1 md:col-span-2 lg:col-span-3" style={{ backgroundColor: "white" }}>
       <CardHeader>
-        <CardTitle style={{ color: "white" }}>Daily Product In/Out</CardTitle>
-        <CardDescription style={{ color: "white" }}>A table showing the daily inflow and outflow of products.</CardDescription>
+        <CardTitle style={{ color: "black" }}>Daily Product In/Out</CardTitle>
+        <CardDescription style={{ color: "black" }}>A table showing the daily inflow and outflow of products.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead style={{ color: "white" }}>Date</TableHead>
-              <TableHead style={{ color: "white" }}>Customer</TableHead>
-              <TableHead style={{ color: "white" }}>Material Name</TableHead>
-              <TableHead style={{ color: "white" }}>Material Weight</TableHead>
-              <TableHead style={{ color: "white" }}>Price</TableHead>
+              <TableHead style={{ color: "black" }}>Date</TableHead>
+              <TableHead style={{ color: "black" }}>Customer</TableHead>
+              <TableHead style={{ color: "black" }}>Material Name</TableHead>
+              <TableHead style={{ color: "black" }}>Material Weight</TableHead>
+              <TableHead style={{ color: "black" }}>Price</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {dailyProductData.map((data, index) => (
               <TableRow key={index}>
-                <TableCell style={{ color: "white" }}>{data.date}</TableCell>
-                <TableCell style={{ color: "white" }}>{data.customer}</TableCell>
-                <TableCell style={{ color: "white" }}>{data.orderItems.join(', ')}</TableCell>
-                <TableCell style={{ color: "white" }}>{data.materialWeight}</TableCell>
-                <TableCell style={{ color: "white" }}>{data.price}</TableCell>
+                <TableCell style={{ color: "black" }}>{data.date}</TableCell>
+                <TableCell style={{ color: "black" }}>{data.customer}</TableCell>
+                <TableCell style={{ color: "black" }}>{data.orderItems.join(', ')}</TableCell>
+                <TableCell style={{ color: "black" }}>{data.materialWeight}</TableCell>
+                <TableCell style={{ color: "black" }}>{data.price}</TableCell>
               </TableRow>
             ))}
           </TableBody>
