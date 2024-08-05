@@ -65,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Main Content */}
       <div className="flex-1">
-        <div className='h-[4rem] w-full bg-[#ff9e00] flex items-center justify-between px-4'>
+        <div className='h-[4rem] w-full bg-white flex items-center justify-between px-4'>
           {/* Navigation Links */}
           <div className='flex items-center'>
             <Link href={"/"}>
@@ -79,7 +79,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* Notification Icon with Count */}
             <div className='flex items-center relative mr-4'>
               <Link href={"/TestNotification"}>
-                <BellIcon className="h-6 w-6 text-white cursor-pointer" />
+                <BellIcon className="h-6 w-6 text-black cursor-pointer" />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
                   {notificationCount > 0 ? notificationCount : "0"}
                 </span>

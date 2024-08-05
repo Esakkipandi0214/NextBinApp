@@ -18,8 +18,10 @@ const Component: React.FC<ComponentProps> = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const router = useRouter();
-
+  const [success ,setSuccess]=useState("");
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -30,10 +32,29 @@ const Component: React.FC<ComponentProps> = () => {
     return () => unsubscribe();
   }, [router]);
 
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
   const handleLogin = async () => {
+    setEmailError("");
+    setPasswordError("");
+    
+    if (!validateEmail(email)) {
+      setEmailError("Invalid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters.");
+      return;
+    }
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
+      setSuccess("Logged In Successfully!")
       setCookie(null, 'token', token, {
         maxAge: 30 * 24 * 60 * 60,
         path: '/',
@@ -41,13 +62,28 @@ const Component: React.FC<ComponentProps> = () => {
       router.push("/Dashboard");
     } catch (error) {
       console.error("Login error: ", error);
+      setPasswordError("Invalid Email or password.");
     }
   };
 
   const handleSignUp = async () => {
+    setEmailError("");
+    setPasswordError("");
+    
+    if (!validateEmail(email)) {
+      setEmailError("Invalid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters.");
+      return;
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
+      setSuccess("Registered Successfully!")
       setCookie(null, 'token', token, {
         maxAge: 30 * 24 * 60 * 60,
         path: '/',
@@ -55,6 +91,7 @@ const Component: React.FC<ComponentProps> = () => {
       router.push("/Dashboard");
     } catch (error) {
       console.error("Sign Up error: ", error);
+      setPasswordError("Failed to create account. Please check your email and password.");
     }
   };
 
@@ -95,6 +132,7 @@ const Component: React.FC<ComponentProps> = () => {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" />
+              {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
             </div>
             <div className="space-y-2 relative">
               <Label htmlFor="password">Password</Label>
@@ -111,7 +149,9 @@ const Component: React.FC<ComponentProps> = () => {
               >
                 {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
               </div>
+              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
             </div>
+            {success && success}
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <Button

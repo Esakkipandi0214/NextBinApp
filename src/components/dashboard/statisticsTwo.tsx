@@ -108,7 +108,7 @@ const AnalyticsDashboard: React.FC = () => {
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" stroke="#ffffff" />
+            <XAxis dataKey="date" stroke="black" />
             <YAxis />
             <Tooltip contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', color: '#ffffff' }} />
             <Legend />
