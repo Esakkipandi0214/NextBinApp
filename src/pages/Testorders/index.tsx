@@ -439,34 +439,34 @@ console.log("order Categories:",orderCategories)
     </CardHeader>
     <CardContent className="grid gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="phone">Mobile</Label>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => {
-              handleInputChange(e);
-              handleSelectChange(e.target.value);
-            }}
-            placeholder="Enter mobile number to select Customer"
-            required
-          />
-          <Label htmlFor="customerName">Customer Name</Label>
-          <Select onValueChange={handleSelectChange} value={formData.customerName}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select customer here" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredCustomers.map((customer) => (
-                <SelectItem key={customer.id} value={customer.name}>
-                  {customer.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+      <Label htmlFor="phone">Mobile</Label>
+      <Input
+        id="phone"
+        name="phone"
+        type="tel"
+        value={formData.phone}
+        onChange={(e) => {
+          handleInputChange(e);
+          // Handle any other logic if needed
+        }}
+        placeholder="Enter mobile number to select Customer"
+        required
+      />
+      <Label htmlFor="customerName">Customer Name</Label>
+      <Select onValueChange={handleSelectChange} value={formData.customerName} >
+        <SelectTrigger>
+          <SelectValue placeholder="Select customer here" />
+        </SelectTrigger>
+        <SelectContent>
+          {filteredCustomers.map((customer) => (
+            <SelectItem key={customer.id} value={customer.name}>
+              {customer.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
         <div className="space-y-2">
           <Label htmlFor="status">Order Status</Label>
           <Select onValueChange={handleOrderStatusChange} value={formData.status}>
@@ -480,7 +480,6 @@ console.log("order Categories:",orderCategories)
           </Select>
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {formData.orderItems.map((item, index) => (
           <Card key={index} className="w-full max-md h-auto">

@@ -107,7 +107,7 @@ const Component: React.FC = () => {
       constraints.push(where("license", "==", licenseFilter));
     }
 
-    constraints.push(limit(constraints.length === 0 ? 8 : 7));
+    // constraints.push(limit(constraints.length === 0 ? 8 : 7));
     
     const q = query(collection(db, "customers"), ...constraints);
 

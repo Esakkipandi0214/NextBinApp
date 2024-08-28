@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
       <div className="col-span-full">
         <div className="shadow-md rounded-lg p-6" style={{ backgroundColor: "white" }}>
           <h2 className="text-lg font-semibold mb-4" style={{ color: "white" }}>Customers</h2>
-          <Chunks newCustomersToday={0} newCustomersThisWeek={0} newCustomersThisMonth={0}/>
+          <Chunks/>
         </div>
       </div>
 
