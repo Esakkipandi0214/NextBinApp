@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { XIcon, LayoutDashboardIcon, ShoppingCartIcon, UserIcon, SettingsIcon, MenuIcon,InboxIcon,HistoryIcon } from 'lucide-react';
+import {  LayoutDashboardIcon, ShoppingCartIcon, UserIcon,CalendarIcon, SettingsIcon, MenuIcon,InboxIcon,HistoryIcon , TagIcon,
+  XIcon,ArchiveIcon} from 'lucide-react';
 import { useRouter } from 'next/router';
 
 const Sidebar: React.FC = () => {
@@ -16,8 +17,9 @@ const Sidebar: React.FC = () => {
     { href: '/TestPage', icon: <SettingsIcon className="h-5 w-5" />, label: 'Customer Detail' },
     { href: '/TestGroupMessage', icon: <InboxIcon className="h-5 w-5" />, label: 'MessageQueue' },
     { href: '/TestOderManagement', icon: <HistoryIcon className="h-5 w-5" />, label: 'Orders History' },
-    { href: '/CustomerNotes', icon: <HistoryIcon className="h-5 w-5" />, label: 'Notes' },
-    { href: '/TestCategoryUpdate', icon: <ShoppingCartIcon className="h-5 w-5" />, label: 'Add Materal' }
+    { href: '/CustomerNotes', icon: <CalendarIcon  className="h-5 w-5" />, label: 'Notes' }, // Unique icon
+    { href: '/TestCategoryUpdate', icon: <TagIcon className="h-5 w-5" />, label: 'Add Material' }, // Unique icon
+    { href: '/TestInventory', icon: <ArchiveIcon className="h-5 w-5" />, label: 'Inventory' } // Unique icon
   ];
   
 
