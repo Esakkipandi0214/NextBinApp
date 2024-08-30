@@ -28,10 +28,19 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/firebase';
 
 interface Customer {
-  number: string;
   id: string;
   name: string;
+  number: string;
+  email: string;
+  license: string;
+  registration: string;
+  company: string;
 }
+
+interface CustomerWithMatchType extends Customer {
+  matchType?: string; // Optional property
+}
+
 
 interface OrderItem {
   category: string;
@@ -81,7 +90,9 @@ export default function Component() {
   const [subCategories, setSubCategories] = useState<string[]>([]);
   const [orders, setOrders] = useState<FormData[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
+  // Fetch Customer Names
   useEffect(() => {
     const fetchCustomerNames = async () => {
       try {
@@ -89,7 +100,11 @@ export default function Component() {
         const customers = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
-          number:doc.data().phone,
+          number: doc.data().phone,
+          email: doc.data().email,
+          license: doc.data().license,
+          registration: doc.data().registration,
+          company: doc.data().Company,
         })) as Customer[];
         setCustomerNames(customers);
       } catch (error) {
@@ -99,6 +114,7 @@ export default function Component() {
 
     fetchCustomerNames();
   }, []);
+  
   // to restrict index page route
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -257,22 +273,63 @@ export default function Component() {
     }));
   };
 
+  const [queryName, setQueryName] = useState<string | null>(null);
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-
+  
     if (name === 'phone') {
-      const filtered = customerNames.filter((customer) =>
-        customer.number.includes(value)
-      );
+      // Track the query name for filtering
+      let queryName: string | null = null;
+  
+      // Filter customers based on the input value
+      const filtered = customerNames
+        .map((customer) => {
+          const customerNumber = customer.number || '';
+          const customerCompany = customer.company || '';
+          const customerRegistration = customer.registration || '';
+          const customerLicense = customer.license || '';
+          const customerEmail = customer.email || '';
+  
+          let matchType: string | null = null;
+  
+          if (customerNumber.includes(value)) {
+            matchType = 'number';
+            queryName = 'number'; // Update queryName if a match is found
+          } else if (customerCompany.toLowerCase().includes(value.toLowerCase())) {
+            matchType = 'company';
+            queryName = 'company'; // Update queryName if a match is found
+          } else if (customerRegistration.toLowerCase().includes(value.toLowerCase())) {
+            matchType = 'registration';
+            queryName = 'registration'; // Update queryName if a match is found
+          } else if (customerLicense.toLowerCase().includes(value.toLowerCase())) {
+            matchType = 'license';
+            queryName = 'license'; // Update queryName if a match is found
+          } else if (customerEmail.toLowerCase().includes(value.toLowerCase())) {
+            matchType = 'email';
+            queryName = 'email'; // Update queryName if a match is found
+          }
+  
+          if (matchType) {
+            return { ...customer, matchType };
+          } else {
+            return null;
+          }
+        })
+        .filter((customer) => customer !== null) as (Customer & { matchType: string })[];
+  
       setFilteredCustomers(filtered);
-      if((name === 'phone')&&(value =='')){
-        setFilteredCustomers([]);      
+      setQueryName(queryName); // Update state with the matched query name
+  
+      if (value === '') {
+        setFilteredCustomers([]);
+        setQueryName(null); // Reset queryName when input is empty
       }
-
+  
       // Automatically select the customer if an exact match is found
       const exactMatchCustomer = customerNames.find((customer) => customer.number === value);
       if (exactMatchCustomer) {
@@ -280,6 +337,7 @@ export default function Component() {
       }
     }
   };
+  
 
   const handleOrderItemChange = (
     index: number,
@@ -421,13 +479,20 @@ export default function Component() {
       console.error("Error calculating and setting customer frequency: ", error);
     }
   };
-  
-  
+
+  const handleDisplay = (customer: CustomerWithMatchType) => {
+    return (
+      <div>
+        {customer[queryName as keyof CustomerWithMatchType] || 'No data available'}
+      </div>
+    );
+  };
   
   console.log("Customers Name and number:",customerNames);
 console.log("Selected Customer Id:",selectedCustomerId);
 console.log(" Customer orders:",orders);
 console.log("order Categories:",orderCategories)
+console.log("Filter Key:",queryName)
 
   return (
     <Layout>
@@ -440,32 +505,44 @@ console.log("order Categories:",orderCategories)
     <CardContent className="grid gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
-      <Label htmlFor="phone">Mobile</Label>
       <Input
         id="phone"
         name="phone"
-        type="tel"
+        type="text"
         value={formData.phone}
         onChange={(e) => {
           handleInputChange(e);
+          setIsDropdownVisible(true)
           // Handle any other logic if needed
         }}
         placeholder="Enter mobile number to select Customer"
         required
       />
-      <Label htmlFor="customerName">Customer Name</Label>
-      <Select onValueChange={handleSelectChange} value={formData.customerName} >
-        <SelectTrigger>
-          <SelectValue placeholder="Select customer here" />
-        </SelectTrigger>
-        <SelectContent>
+       {(isDropdownVisible && filteredCustomers.length != 0) && (
+        <ul className=" overflow-y-auto h-[200px] p-2 border-2 mt-1 rounded-xl">
           {filteredCustomers.map((customer) => (
-            <SelectItem key={customer.id} value={customer.name}>
-              {customer.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+              <li
+                key={customer.id}
+                onClick={() => {handleSelectChange(customer.number); setIsDropdownVisible(false)}}
+                style={{ cursor: 'pointer', padding: '5px 0' }} 
+                className=" hover:bg-[#ff9e00] border rounded-sm border-transparent"
+              >
+                  {handleDisplay(customer)}
+              </li>
+            ))}
+        </ul>
+      )}
+      <Label htmlFor="customerName">Customer Name</Label>
+      <div style={{ position: 'relative' }} className=" ">
+      <input
+        type="text"
+        value={formData.customerName}
+        placeholder="Select customer here"
+        style={{ width: '600px', padding: '8px' }}
+        className=" border-2 rounded-xl"
+        disabled
+      />
+    </div>
     </div>
         <div className="space-y-2">
           <Label htmlFor="status">Order Status</Label>
