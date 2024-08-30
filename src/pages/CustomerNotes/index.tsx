@@ -33,6 +33,7 @@ export default function NoteManagement() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [Filtercustomers, setFilterCustomers] = useState<Customer[]>([]);
+  
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
@@ -46,6 +47,8 @@ export default function NoteManagement() {
   const [filterCustomerName, setFilterCustomerName] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const router = useRouter();
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -203,6 +206,8 @@ export default function NoteManagement() {
     setSelectedNote(null);
   };
   console.log("Notes Data:", notes);
+  // customers
+  console.log("Notes Customer Data:", customers);
   return (
     <Layout>
       <Card className="w-full  py-6">
@@ -212,29 +217,66 @@ export default function NoteManagement() {
           <header className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Customer Notes</h1>
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 mt-4 lg:mt-0">
-            <div className="relative w-full max-w-md">
-              <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  onChange={(e) => {
-                    handleInputChange(e);
-                    handleSelectChange(e.target.value);
-                  }}
-                  placeholder="Enter Customer Number"
-                  required
-                />
+            <div className="relative p-2 w-full max-w-md">
+                    <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      handleSelectChange(e.target.value);
+                      setIsDropdownVisible(true);
+                    }}
+                    placeholder="Enter Customer Number"
+                    required
+                    
+                  />
+                  {/* Show related phone numbers */}
+                  {(isDropdownVisible && customers.length != 0) && (
+                    <ul className="overflow-y-auto absolute h-[200px] p-2 border-2 mt-1 rounded-xl">
+                    {customers.map((customer) => (
+                      <li
+                        key={customer.id}
+                        onClick={() => { 
+                          setSelectedCustomer(customer.id); 
+                          setIsDropdownVisible(false);
+                        }}
+                        style={{ cursor: 'pointer', padding: '5px 0' }}
+                        className="hover:bg-[#ff9e00] border rounded-sm border-transparent"
+                      >
+                        {customer.phone}
+                      </li>
+                    ))}
+                  </ul>                  
+                  )}
                 </div>
               <div className="relative w-full max-w-md">
-                <select
-                  onChange={(e) => setSelectedCustomer(e.target.value)}
-                  className="pl-10 pr-4 py-2 rounded-md bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map(customer => (
-                    <option key={customer.id} value={customer.id}>{customer.name}</option>
-                  ))}
-                </select>
+              <Input
+  id="name"
+  name="name"
+  type="text"
+  placeholder="Customer Name"
+  required
+  disabled
+  value={
+    // Find the customer with the selected ID and get their name
+    Filtercustomers.find((customer) => customer.id === selectedCustomer)?.phone || ''
+  }
+/>
+              </div>
+              <div className="relative w-full max-w-md">
+              <Input
+  id="name"
+  name="name"
+  type="text"
+  placeholder="Customer Name"
+  required
+  disabled
+  value={
+    // Find the customer with the selected ID and get their name
+    Filtercustomers.find((customer) => customer.id === selectedCustomer)?.name || ''
+  }
+/>
               </div>
               <div className="relative w-full max-w-md">
                 <Input
