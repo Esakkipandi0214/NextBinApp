@@ -24,7 +24,7 @@ interface Note {
 }
 
 interface Customer {
-  phone: string | null ;
+  contactNumber: string | null ;
   id: string;
   name: string;
 }
@@ -66,7 +66,7 @@ export default function NoteManagement() {
       try {
         const customerCollection = collection(db, 'customers');
         const customerSnapshot = await getDocs(customerCollection);
-        const customerList = customerSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name,phone: doc.data().phone }));
+        const customerList = customerSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name,contactNumber: doc.data().contactNumber }));
         setFilterCustomers(customerList)
         // setCustomers(customerList);
       } catch (error) {
@@ -114,16 +114,16 @@ export default function NoteManagement() {
   }, [selectedCustomer, filterCustomerName, filterDate]);
 
   const handleSelectChange = (value: string) => {
-    const selectedCustomerByPhone = Filtercustomers.find((customer) => customer.phone === value);
+    const selectedCustomerBycontactNumber = Filtercustomers.find((customer) => customer.contactNumber === value);
 
-    const selectedCustomer =  selectedCustomerByPhone;
+    const selectedCustomer =  selectedCustomerBycontactNumber;
 
     if (selectedCustomer) {
       setCustomers((prevState) => ({
         ...prevState,
         customerId: selectedCustomer.id,
         customerName: selectedCustomer.name,
-        phone: selectedCustomer.phone,
+        contactNumber: selectedCustomer.contactNumber,
       }));
     }
   };
@@ -131,9 +131,9 @@ export default function NoteManagement() {
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name,value } = event.target;
 
-    if (name === 'phone') {
+    if (name === 'contactNumber') {
       const filtered = Filtercustomers && Filtercustomers.filter((customer) =>
-        customer?.phone?.includes(value)
+        customer?.contactNumber?.includes(value)
       );
       setCustomers(filtered);
     }
@@ -219,8 +219,8 @@ export default function NoteManagement() {
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 mt-4 lg:mt-0">
             <div className="relative p-2 w-full max-w-md">
                     <Input
-                    id="phone"
-                    name="phone"
+                    id="contactNumber"
+                    name="contactNumber"
                     type="tel"
                     onChange={(e) => {
                       handleInputChange(e);
@@ -231,7 +231,7 @@ export default function NoteManagement() {
                     required
                     
                   />
-                  {/* Show related phone numbers */}
+                  {/* Show related contactNumber numbers */}
                   {(isDropdownVisible && customers.length != 0) && (
                     <ul className="overflow-y-auto absolute h-[200px] p-2 border-2 mt-1 rounded-xl">
                     {customers.map((customer) => (
@@ -244,7 +244,7 @@ export default function NoteManagement() {
                         style={{ cursor: 'pointer', padding: '5px 0' }}
                         className="hover:bg-[#ff9e00] border rounded-sm border-transparent"
                       >
-                        {customer.phone}
+                        {customer.contactNumber}
                       </li>
                     ))}
                   </ul>                  
@@ -260,7 +260,7 @@ export default function NoteManagement() {
   disabled
   value={
     // Find the customer with the selected ID and get their name
-    Filtercustomers.find((customer) => customer.id === selectedCustomer)?.phone || ''
+    Filtercustomers.find((customer) => customer.id === selectedCustomer)?.contactNumber || ''
   }
 />
               </div>

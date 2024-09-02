@@ -9,7 +9,7 @@ interface HighPriorityProduct {
   name: string;
   daysSinceLastOrder: number;
   email: string;
-  phone: string;
+  contactNumber: string;
   lastOrderDate: string;
   priorityClass: string;
 }
@@ -71,7 +71,7 @@ const PriorityProducts: React.FC = () => {
             >
               <div className="flex-1 mb-2 md:mb-0">
                 <div className="font-medium text-lg">{product.name}</div>
-                <div className="text-sm text-gray-200">Phone: {product.phone}</div>
+                <div className="text-sm text-gray-200">contactNumber: {product.contactNumber}</div>
               </div>
               <div className="flex-1 text-right">
                 <div className="text-sm text-gray-300">Last Order: {new Date(product.lastOrderDate).toLocaleDateString()}</div>

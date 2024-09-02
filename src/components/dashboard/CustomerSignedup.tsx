@@ -9,7 +9,7 @@ interface Customer {
   id: string;
   firstName: string;
   lastName: string;
-  phone: string;
+  contactNumber: string;
   registration: string;
   created: string; // Treat as a string
 }
@@ -224,7 +224,7 @@ const CustomerActivity: React.FC = () => {
                 <TableHead style={{ color: "black" }}>Registration Number</TableHead>
                 <TableHead style={{ color: "black" }}>First Name</TableHead>
                 <TableHead style={{ color: "black" }}>Last Name</TableHead>
-                <TableHead style={{ color: "black" }}>Phone Number</TableHead>
+                <TableHead style={{ color: "black" }}>contact Number </TableHead>
                 <TableHead style={{ color: "black" }}>Signup Date</TableHead>
               </TableRow>
             </TableHeader>
@@ -234,7 +234,7 @@ const CustomerActivity: React.FC = () => {
                   <TableCell style={{ color: "black" }}>{customer.registration}</TableCell>
                   <TableCell style={{ color: "black" }}>{customer.firstName}</TableCell>
                   <TableCell style={{ color: "black" }}>{customer.lastName}</TableCell>
-                  <TableCell style={{ color: "black" }}>{customer.phone}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.contactNumber}</TableCell>
                   <TableCell style={{ color: "black" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}
@@ -282,7 +282,7 @@ const CustomerActivity: React.FC = () => {
                 <TableHead style={{ color: "black" }}>Registration Number</TableHead>
                 <TableHead style={{ color: "black" }}>First Name</TableHead>
                 <TableHead style={{ color: "black" }}>Last Name</TableHead>
-                <TableHead style={{ color: "black" }}>Phone Number</TableHead>
+                <TableHead style={{ color: "black" }}>contact Number </TableHead>
                 <TableHead style={{ color: "black" }}>Signup Date</TableHead>
               </TableRow>
             </TableHeader>
@@ -292,7 +292,7 @@ const CustomerActivity: React.FC = () => {
                   <TableCell style={{ color: "black" }}>{customer.registration}</TableCell>
                   <TableCell style={{ color: "black" }}>{customer.firstName}</TableCell>
                   <TableCell style={{ color: "black" }}>{customer.lastName}</TableCell>
-                  <TableCell style={{ color: "black" }}>{customer.phone}</TableCell>
+                  <TableCell style={{ color: "black" }}>{customer.contactNumber}</TableCell>
                   <TableCell style={{ color: "black" }}>{new Date(customer.created).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}

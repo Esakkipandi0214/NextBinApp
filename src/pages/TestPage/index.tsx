@@ -14,7 +14,7 @@ interface CustomerProps {
   firstName: string;
   lastName: string;
   joinDate: string;
-  phone: string;
+  contactNumber: string;
   address: string;
   totalOrders: number;
   totalSpent: number;
@@ -24,8 +24,8 @@ interface CustomerProps {
   lifetimeOrders: number;
   frequency: string; // Assuming frequency is a string like "20Days"
   orders: OrderProps[];
-  license: string;
-  postcode: string;
+  identityProof: string;
+  postCode: string;
 }
 
 interface OrderProps {
@@ -179,7 +179,7 @@ const CustomerList: React.FC = () => {
               customerId: customer.id,
               firstName: customer.firstName,
               lastName: customer.lastName,
-              phone: customer.phone,
+              contactNumber: customer.contactNumber,
               lastOrderDate: customer.lastOrderDate,
               daysSinceLastOrder: daysSinceLastOrder,
               frequencyDays: frequencyDays,
@@ -244,7 +244,7 @@ const CustomerList: React.FC = () => {
                 <h3 className="text-lg font-medium mb-2">{`${customer.firstName} ${customer.lastName}`}</h3>
                 <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>Email:</strong> {customer.email}</p>
-                  <p><strong>Phone:</strong> {customer.phone}</p>
+                  <p><strong>contactNumber:</strong> {customer.contactNumber}</p>
                 </div>
               </div>
             );

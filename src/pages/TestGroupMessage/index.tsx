@@ -14,7 +14,7 @@ interface CustomerProps {
   name: string;
   lastOrderDate: string;
   email: string;
-  phone: string;
+  contactNumber: string;
   orders?: OrderProps[];
 }
 
@@ -172,9 +172,9 @@ const CustomerList: React.FC = () => {
       const recipients = selectedCustomerList
         .map(customerId => {
           const customer = customers.find(c => c.customerId === customerId);
-          return customer ? customer.phone : undefined;
+          return customer ? customer.contactNumber : undefined;
         })
-        .filter((phone): phone is string => phone !== undefined);
+        .filter((contactNumber): contactNumber is string => contactNumber !== undefined);
 
       if (recipients.length > 0) {
         const response = await fetch(`${API_BASE_URL}/api/sendGroupaMessage`, {
@@ -203,22 +203,22 @@ const CustomerList: React.FC = () => {
     try {
       const selectedCustomerList = Array.from(selectedCustomers);
 
-      const phoneNumbers = selectedCustomerList
+      const contactNumber = selectedCustomerList
         .map(customerId => {
           const customer = customers.find(c => c.customerId === customerId);
-          return customer ? customer.phone : undefined;
+          return customer ? customer.contactNumber : undefined;
         })
-        .filter((phone): phone is string => phone !== undefined);
+        .filter((contactNumber): contactNumber is string => contactNumber !== undefined);
 
-      if (phoneNumbers.length === 0) {
-        setError('No customers selected or invalid phone numbers.');
+      if (contactNumber.length === 0) {
+        setError('No customers selected or invalid contactNumber numbers.');
         return;
       }
 
       const response = await fetch(`${API_BASE_URL}/api/groupCall`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toNumbers: phoneNumbers })
+        body: JSON.stringify({ toNumbers: contactNumber })
       });
 
       const result = await response.json();
@@ -245,22 +245,22 @@ const CustomerList: React.FC = () => {
 
       const recipients = selectedCustomerList
         .map(customerId => customers.find(c => c.customerId === customerId))
-        .filter(customer => customer && customer.phone) as { phone: string }[];
+        .filter(customer => customer && customer.contactNumber) as { contactNumber: string }[];
 
       if (recipients.length === 0) {
         setError('No valid customers found.');
         return;
       }
 
-      const phoneNumbers = recipients.map(customer =>
-        String(customer.phone).replace(/[^\d]/g, '')
+      const contactNumber = recipients.map(customer =>
+        String(customer.contactNumber).replace(/[^\d]/g, '')
       );
 
       const response = await fetch(`${API_BASE_URL}/api/groupWattsappMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          recipients: phoneNumbers,
+          recipients: contactNumber,
           message: messageBody
         }),
       });
@@ -399,7 +399,7 @@ const CustomerList: React.FC = () => {
     <th className="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold">Customer Name</th>
     <th className="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold">Last Order Date</th>
     <th className="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold">Email</th>
-    <th className="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold">Phone</th>
+    <th className="px-6 py-3 border-b border-gray-200 text-gray-800 text-left text-sm uppercase font-semibold">contactNumber</th>
   </tr>
 </thead>
           <tbody>
@@ -416,7 +416,7 @@ const CustomerList: React.FC = () => {
                 <td className="px-6 py-4 border-b border-gray-200 text-gray-800">{customer.name}</td>
                 <td className="px-6 py-4 border-b border-gray-200 text-gray-800">{customer.lastOrderDate}</td>
                 <td className="px-6 py-4 border-b border-gray-200 text-gray-800">{customer.email}</td>
-                <td className="px-6 py-4 border-b border-gray-200 text-gray-800">{customer.phone}</td>
+                <td className="px-6 py-4 border-b border-gray-200 text-gray-800">{customer.contactNumber}</td>
               </tr>
             ))}
           </tbody>

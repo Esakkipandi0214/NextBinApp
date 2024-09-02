@@ -32,9 +32,9 @@ interface Customer {
   name: string;
   number: string;
   email: string;
-  license: string;
-  registration: string;
-  company: string;
+  identityProof: string;
+  rego: string;
+  companyName: string;
 }
 
 interface CustomerWithMatchType extends Customer {
@@ -50,7 +50,7 @@ interface OrderItem {
 }
 
 interface FormData {
-  phone: string | number | readonly string[] | undefined;
+  contactNumber: string | number | readonly string[] | undefined;
   customerId: string;
   customerName: string;
   orderPayment: string;
@@ -73,7 +73,7 @@ export default function Component() {
     orderItems: [{ category: "", subCategory: "", weight: "", pricePerKg: 0 }],
     totalWeight:0,
     totalPrice: 0,
-    phone:''
+    contactNumber:''
   });
 
   const [totalWeight, setTotalWeight] = useState(0);
@@ -100,11 +100,11 @@ export default function Component() {
         const customers = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
-          number: doc.data().phone,
+          number: doc.data().contactNumber,
           email: doc.data().email,
-          license: doc.data().license,
-          registration: doc.data().registration,
-          company: doc.data().Company,
+          identityProof: doc.data().identityProof,
+          rego: doc.data().rego,
+          companyName: doc.data().companyName,
         })) as Customer[];
         setCustomerNames(customers);
       } catch (error) {
@@ -211,7 +211,7 @@ export default function Component() {
         orderItems: [{ category: "", subCategory: "", weight: "", pricePerKg: 0 }],
         totalWeight:0,
         totalPrice: 0,
-        phone:''
+        contactNumber:''
       });
 
       if (formData.customerId) {
@@ -224,16 +224,16 @@ export default function Component() {
 
   const handleSelectChange = (value: string) => {
     const selectedCustomerByName = customerNames.find((customer) => customer.name === value);
-    const selectedCustomerByPhone = customerNames.find((customer) => customer.number === value);
+    const selectedCustomerBycontactNumber = customerNames.find((customer) => customer.number === value);
 
-    const selectedCustomer = selectedCustomerByName || selectedCustomerByPhone;
+    const selectedCustomer = selectedCustomerByName || selectedCustomerBycontactNumber;
 
     if (selectedCustomer) {
       setFormData((prevState) => ({
         ...prevState,
         customerId: selectedCustomer.id,
         customerName: selectedCustomer.name,
-        phone: selectedCustomer.number,
+        contactNumber: selectedCustomer.number,
       }));
       setSelectedCustomerId(selectedCustomer.id); // Set the selected customer ID
     }
@@ -282,7 +282,7 @@ export default function Component() {
       [name]: value,
     }));
   
-    if (name === 'phone') {
+    if (name === 'contactNumber') {
       // Track the query name for filtering
       let queryName: string | null = null;
   
@@ -290,9 +290,9 @@ export default function Component() {
       const filtered = customerNames
         .map((customer) => {
           const customerNumber = customer.number || '';
-          const customerCompany = customer.company || '';
-          const customerRegistration = customer.registration || '';
-          const customerLicense = customer.license || '';
+          const customercompanyName = customer.companyName || '';
+          const customerrego = customer.rego || '';
+          const customeridentityProof = customer.identityProof || '';
           const customerEmail = customer.email || '';
   
           let matchType: string | null = null;
@@ -300,15 +300,15 @@ export default function Component() {
           if (customerNumber.includes(value)) {
             matchType = 'number';
             queryName = 'number'; // Update queryName if a match is found
-          } else if (customerCompany.toLowerCase().includes(value.toLowerCase())) {
-            matchType = 'company';
-            queryName = 'company'; // Update queryName if a match is found
-          } else if (customerRegistration.toLowerCase().includes(value.toLowerCase())) {
-            matchType = 'registration';
-            queryName = 'registration'; // Update queryName if a match is found
-          } else if (customerLicense.toLowerCase().includes(value.toLowerCase())) {
-            matchType = 'license';
-            queryName = 'license'; // Update queryName if a match is found
+          } else if (customercompanyName.toLowerCase().includes(value.toLowerCase())) {
+            matchType = 'companyName';
+            queryName = 'companyName'; // Update queryName if a match is found
+          } else if (customerrego.toLowerCase().includes(value.toLowerCase())) {
+            matchType = 'rego';
+            queryName = 'rego'; // Update queryName if a match is found
+          } else if (customeridentityProof.toLowerCase().includes(value.toLowerCase())) {
+            matchType = 'identityProof';
+            queryName = 'identityProof'; // Update queryName if a match is found
           } else if (customerEmail.toLowerCase().includes(value.toLowerCase())) {
             matchType = 'email';
             queryName = 'email'; // Update queryName if a match is found
@@ -408,7 +408,7 @@ export default function Component() {
       totalWeight:order.totalWeight,
       totalPrice: order.totalPrice,
       orderId: order.orderId,
-      phone:order.phone
+      contactNumber:order.contactNumber
     });
   };
 
@@ -506,10 +506,10 @@ console.log("Filter Key:",queryName)
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
       <Input
-        id="phone"
-        name="phone"
+        id="contactNumber"
+        name="contactNumber"
         type="text"
-        value={formData.phone}
+        value={formData.contactNumber}
         onChange={(e) => {
           handleInputChange(e);
           setIsDropdownVisible(true)
