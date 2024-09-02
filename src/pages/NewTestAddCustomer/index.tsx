@@ -43,8 +43,8 @@ interface CustomerDetailProps {
 const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer, onClose }) => {
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
-    <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
-     
+      <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
+
         <h2 className="text-2xl font-bold mb-4">Customer Detail</h2>
         <div className="space-y-4">
           <div><p><strong>First Name:</strong> {customer.firstName}</p></div>
@@ -90,11 +90,18 @@ const Component: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [regoFilter, setRegoFilter] = useState<string | null>(null);
   const [countryCode, setCountryCode] = useState<string | null>(null);
-  const [identityProof,setIdentityProof] =useState<string | null>(null);
+  const [identityProof, setIdentityProof] = useState<string | null>(null);
 
   const phoneFilter = countryCode && phoneNumber ? `${countryCode} ${phoneNumber}` : null;
   const router = useRouter();
 
+  const filteredData = phoneNumber
+    ? customerData.filter((eachCustomer) =>
+      eachCustomer.contactNumber?.toLowerCase().includes(phoneNumber.toLowerCase())
+    )
+    : customerData; // Show all data if phoneNumber is not provided
+
+  console.log("contact", customerData)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -166,7 +173,7 @@ const Component: React.FC = () => {
       address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
       postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement).value,
       frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
-       registration: registrationNumber,
+      registration: registrationNumber,
       rego: (event.currentTarget.elements.namedItem("rego") as HTMLInputElement).value,
       companyName: (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement).value,
       abn: (event.currentTarget.elements.namedItem("abn") as HTMLInputElement).value,
@@ -262,21 +269,21 @@ const Component: React.FC = () => {
       event.target.value = phoneNumber.padStart(8, '');
     }
   }
-  
+
   function handleidentityProofChange(event: React.ChangeEvent<HTMLInputElement>) {
     const identityProof = event.target.value;
     if (!identityProof) {
       alert("Please provide passport details if no driving identityProof is available.");
     }
   }
-  
+
   function handleBSBChange(event: React.ChangeEvent<HTMLInputElement>) {
     const bsb = event.target.value;
     if (bsb.length < 6) {
       event.target.value = bsb.padStart(6, '0');
     }
   }
-  
+
 
   const handleCancelEdit = () => {
     setEditingCustomer(null);
@@ -304,416 +311,416 @@ const Component: React.FC = () => {
           </div>
 
           {showCreateModal && (
-  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
-    <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
-      <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
-              <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" required />
+            <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
+              <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
+                <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
+                <form onSubmit={handleSubmit}>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
+                        <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" required />
+                      </div>
+                      <div>
+                        <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
+                        <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="countryCode">Country Code <span className="text-red-500">*</span></Label>
+                        <select id="countryCode" name="countryCode" className="block w-full border border-gray-300 rounded-md py-2 px-3" required>
+                          {countryCodes.map((country) => (
+                            <option key={country.code} value={country.code}>
+                              {country.name} ({country.code})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <Label htmlFor="contactNumber">Contact Number <span className="text-red-500">*</span></Label>
+                        <Input
+                          id="contactNumber"
+                          name="contactNumber"
+                          type="tel"
+                          placeholder="Enter phone number"
+                          required
+                          pattern="\d{10}"
+                          minLength={10}
+                          maxLength={10}
+                          title="Phone number must be exactly 10 digits"
+                          onChange={handlePhoneNumberChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="alternateContactNumber">Alternate Mobile Number</Label>
+                        <Input
+                          id="alternateContactNumber"
+                          name="alternateContactNumber"
+                          type="tel"
+                          placeholder="Enter alternate mobile number"
+                          pattern="\d{10}"
+                          minLength={10}
+                          maxLength={10}
+                          title="Phone number must be exactly 10 digits"
+                          onChange={handlePhoneNumberChange}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="abn">ABN <span className="text-red-500">*</span></Label>
+                        <Input id="abn" name="abn" type="text" placeholder="Enter ABN" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="factoryLocation">Factory Location <span className="text-red-500">*</span></Label>
+                        <Input id="factoryLocation" name="factoryLocation" type="text" placeholder="Enter factory location" required />
+                      </div>
+                      <div>
+                        <Label htmlFor="companyName">Company Name <span className="text-red-500">*</span></Label>
+                        <Input id="companyName" name="companyName" type="text" placeholder="Enter company name" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="rego">rego <span className="text-red-500">*</span></Label>
+                        <Input id="rego" name="rego" type="text" placeholder="Enter rego" />
+                      </div>
+                      <div>
+                        <Label htmlFor="identityProof">Identity Proof <span className="text-red-500">*</span></Label>
+                        <Input id="identityProof" name="identityProof" type="text" placeholder="Enter identity proof" onChange={handleidentityProofChange} required />
+                        {/* <small>(Authorized Personnel Only)If no driving license, provide passport details. Medicare, Aged care and any other secondary identity cards not accepted.</small> */}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="email">Email (Optional)</Label>
+                        <Input id="email" name="email" type="email" placeholder="Enter email address" />
+                      </div>
+                      <div>
+                        <Label htmlFor="address">Address: Door No & Street Name <span className="text-red-500">*</span></Label>
+                        <Input id="address" name="address" type="text" placeholder="Enter address" required />
+                        {/* <Input id="addressAdditional" name="addressAdditional" type="text" placeholder="Enter additional address information" /> */}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="suburb">Suburb <span className="text-red-500">*</span></Label>
+                        <Input id="suburb" name="suburb" type="text" placeholder="Enter suburb" required />
+                      </div>
+                      <div>
+                        <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
+                        <Input id="state" name="state" type="text" placeholder="Enter state" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
+                        <Input id="country" name="country" type="text" placeholder="Enter country" required />
+                      </div>
+                      <div>
+                        <Label htmlFor="postCode">Post Code <span className="text-red-500">*</span></Label>
+                        <Input id="postCode" name="postCode" type="text" placeholder="Enter post code" required pattern="\d{4}" minLength={4} maxLength={4} title="Post code must be exactly 4 digits" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="bsb">BSB <span className="text-red-500">*</span></Label>
+                        <Input id="bsb" name="bsb" type="text" placeholder="Enter BSB" required onChange={handleBSBChange} />
+                      </div>
+                      <div>
+                        <Label htmlFor="frequency">Frequency <span className="text-red-500">*</span></Label>
+                        <Input id="frequency" name="frequency" type="text" placeholder="Enter frequency" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="bankAccountName">Bank Account Name <span className="text-red-500">*</span></Label>
+                        <Input id="bankAccountName" name="bankAccountName" type="text" placeholder="Enter bank account name" required />
+                      </div>
+                      <div>
+                        <Label htmlFor="accountNumber">Account Number <span className="text-red-500">*</span></Label>
+                        <Input id="accountNumber" name="accountNumber" type="text" placeholder="Enter account number" required />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-4 mt-4">
+                    <Button type="submit" style={{ backgroundColor: "#00215E", color: "white" }}>
+                      Save
+                    </Button>
+                    <Button type="button" onClick={handleCancelCreate} className="bg-gray-300 text-black">
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
-              <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" required />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="countryCode">Country Code <span className="text-red-500">*</span></Label>
-              <select id="countryCode" name="countryCode" className="block w-full border border-gray-300 rounded-md py-2 px-3" required>
-                {countryCodes.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {country.name} ({country.code})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="contactNumber">Contact Number <span className="text-red-500">*</span></Label>
-              <Input
-                id="contactNumber"
-                name="contactNumber"
-                type="tel"
-                placeholder="Enter phone number"
-                required
-                pattern="\d{10}"
-                minLength={10}
-                maxLength={10}
-                title="Phone number must be exactly 10 digits"
-                onChange={handlePhoneNumberChange}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="alternateContactNumber">Alternate Mobile Number</Label>
-              <Input
-                id="alternateContactNumber"
-                name="alternateContactNumber"
-                type="tel"
-                placeholder="Enter alternate mobile number"
-                pattern="\d{10}"
-                minLength={10}
-                maxLength={10}
-                title="Phone number must be exactly 10 digits"
-                onChange={handlePhoneNumberChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="abn">ABN <span className="text-red-500">*</span></Label>
-              <Input id="abn" name="abn" type="text" placeholder="Enter ABN" required />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="factoryLocation">Factory Location <span className="text-red-500">*</span></Label>
-              <Input id="factoryLocation" name="factoryLocation" type="text" placeholder="Enter factory location" required />
-            </div>
-            <div>
-              <Label htmlFor="companyName">Company Name <span className="text-red-500">*</span></Label>
-              <Input id="companyName" name="companyName" type="text" placeholder="Enter company name" required />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="rego">rego <span className="text-red-500">*</span></Label>
-              <Input id="rego" name="rego" type="text" placeholder="Enter rego"  />
-            </div> 
-            <div>
-              <Label htmlFor="identityProof">Identity Proof <span className="text-red-500">*</span></Label>
-              <Input id="identityProof" name="identityProof" type="text" placeholder="Enter identity proof" onChange={handleidentityProofChange}required />
-              {/* <small>(Authorized Personnel Only)If no driving license, provide passport details. Medicare, Aged care and any other secondary identity cards not accepted.</small> */}
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="email">Email (Optional)</Label>
-              <Input id="email" name="email" type="email" placeholder="Enter email address" />
-            </div>
-            <div>
-              <Label htmlFor="address">Address: Door No & Street Name <span className="text-red-500">*</span></Label>
-              <Input id="address" name="address" type="text" placeholder="Enter address" required />
-              {/* <Input id="addressAdditional" name="addressAdditional" type="text" placeholder="Enter additional address information" /> */}
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="suburb">Suburb <span className="text-red-500">*</span></Label>
-              <Input id="suburb" name="suburb" type="text" placeholder="Enter suburb" required />
-            </div>
-            <div>
-              <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
-              <Input id="state" name="state" type="text" placeholder="Enter state" required />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
-              <Input id="country" name="country" type="text" placeholder="Enter country" required />
-            </div>
-            <div>
-              <Label htmlFor="postCode">Post Code <span className="text-red-500">*</span></Label>
-              <Input id="postCode" name="postCode" type="text" placeholder="Enter post code" required pattern="\d{4}" minLength={4} maxLength={4} title="Post code must be exactly 4 digits" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="bsb">BSB <span className="text-red-500">*</span></Label>
-              <Input id="bsb" name="bsb" type="text" placeholder="Enter BSB" required onChange={handleBSBChange} />
-            </div>
-            <div>
-              <Label htmlFor="frequency">Frequency <span className="text-red-500">*</span></Label>
-              <Input id="frequency" name="frequency" type="text" placeholder="Enter frequency" required />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="bankAccountName">Bank Account Name <span className="text-red-500">*</span></Label>
-              <Input id="bankAccountName" name="bankAccountName" type="text" placeholder="Enter bank account name" required />
-            </div>
-            <div>
-              <Label htmlFor="accountNumber">Account Number <span className="text-red-500">*</span></Label>
-              <Input id="accountNumber" name="accountNumber" type="text" placeholder="Enter account number" required />
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-end space-x-4 mt-4">
-          <Button type="submit" style={{ backgroundColor: "#00215E", color: "white" }}>
-            Save
-          </Button>
-          <Button type="button" onClick={handleCancelCreate} className="bg-gray-300 text-black">
-            Cancel
-          </Button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+          )}
 
 
 
 
 
-{showEditModal && editingCustomer && (
-  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
-    <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
-      <h2 className="text-2xl font-bold mb-4">Edit Customer</h2>
-      <form onSubmit={handleEditSubmit}>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                name="firstName"
-                type="text"
-                defaultValue={editingCustomer.firstName || ''}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                name="lastName"
-                type="text"
-                defaultValue={editingCustomer.lastName}
-                required
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="countryCode">Country Code</Label>
-              <select
-                id="countryCode"
-                name="countryCode"
-                className="block w-full border border-gray-300 rounded-md py-2 px-3"
-                defaultValue={editingCustomer.contactNumber}
-              >
-                {countryCodes.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {country.name} ({country.code})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="contactNumber">Contact Number</Label>
-              <Input
-                id="contactNumber"
-                name="contactNumber"
-                type="tel"
-                defaultValue={editingCustomer.contactNumber}
-                required
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-              <Label htmlFor="abn">ABN</Label>
-              <Input
-                id="abn"
-                name="abn"
-                type="text"
-                defaultValue={editingCustomer.abn}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="factoryLocation">Factory Location</Label>
-              <Input
-                id="factoryLocation"
-                name="factoryLocation"
-                type="text"
-                defaultValue={editingCustomer.factoryLocation}
-                required
-              />
-            </div>
-           
-           
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-           
-           
-           <div>
-             <Label htmlFor="companyName">Company Name</Label>
-             <Input
-               id="companyName"
-               name="companyName"
-               type="text"
-               defaultValue={editingCustomer.companyName}
-               required
-             />
-           </div>
-           <div>
-             <Label htmlFor="identityProof">Identity Proof</Label>
-             <Input
-               id="identityProof"
-               name="identityProof"
-               type="text"
-               defaultValue={editingCustomer.identityProof}
-               required
-             />
-           </div>
-         </div>
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="suburb">Rego</Label>
-              <Input
-                id="rego"
-                name="rego"
-                type="text"
-                defaultValue={editingCustomer.rego}
-                required
-              />
-            </div>  </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                defaultValue={editingCustomer.email}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                name="address"
-                type="text"
-                defaultValue={editingCustomer.address}
-                required
-              />
-            </div>
-            
-          </div>
+          {showEditModal && editingCustomer && (
+            <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
+              <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
+                <h2 className="text-2xl font-bold mb-4">Edit Customer</h2>
+                <form onSubmit={handleEditSubmit}>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          type="text"
+                          defaultValue={editingCustomer.firstName || ''}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          name="lastName"
+                          type="text"
+                          defaultValue={editingCustomer.lastName}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="countryCode">Country Code</Label>
+                        <select
+                          id="countryCode"
+                          name="countryCode"
+                          className="block w-full border border-gray-300 rounded-md py-2 px-3"
+                          defaultValue={editingCustomer.contactNumber}
+                        >
+                          {countryCodes.map((country) => (
+                            <option key={country.code} value={country.code}>
+                              {country.name} ({country.code})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <Label htmlFor="contactNumber">Contact Number</Label>
+                        <Input
+                          id="contactNumber"
+                          name="contactNumber"
+                          type="tel"
+                          defaultValue={editingCustomer.contactNumber}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="abn">ABN</Label>
+                        <Input
+                          id="abn"
+                          name="abn"
+                          type="text"
+                          defaultValue={editingCustomer.abn}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="factoryLocation">Factory Location</Label>
+                        <Input
+                          id="factoryLocation"
+                          name="factoryLocation"
+                          type="text"
+                          defaultValue={editingCustomer.factoryLocation}
+                          required
+                        />
+                      </div>
 
-          {/* New Fields Added */}
-         
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="suburb">Suburb</Label>
-              <Input
-                id="suburb"
-                name="suburb"
-                type="text"
-                defaultValue={editingCustomer.suburb}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="state">State</Label>
-              <Input
-                id="state"
-                name="state"
-                type="text"
-                defaultValue={editingCustomer.state}
-                required
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-              <Label htmlFor="postCode">Post Code</Label>
-              <Input
-                id="postCode"
-                name="postCode"
-                type="text"
-                defaultValue={editingCustomer.postCode}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="country">Country</Label>
-              <Input
-                id="country"
-                name="country"
-                type="text"
-                defaultValue={editingCustomer.country}
-                required
-              />
-            </div>
-           
-           
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="bsb">BSB</Label>
-              <Input
-                id="bsb"
-                name="bsb"
-                type="text"
-                defaultValue={editingCustomer.bsb}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="frequency">Frequency</Label>
-              <Input
-                id="frequency"
-                name="frequency"
-                type="text"
-                defaultValue={editingCustomer.frequency}
-                required
-              />
-            </div>
-            
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-              <Label htmlFor="bankAccountName">Bank Account Name</Label>
-              <Input
-                id="bankAccountName"
-                name="bankAccountName"
-                type="text"
-                defaultValue={editingCustomer.bankAccountName}
-                required
-              />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
+                      <div>
+                        <Label htmlFor="companyName">Company Name</Label>
+                        <Input
+                          id="companyName"
+                          name="companyName"
+                          type="text"
+                          defaultValue={editingCustomer.companyName}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="identityProof">Identity Proof</Label>
+                        <Input
+                          id="identityProof"
+                          name="identityProof"
+                          type="text"
+                          defaultValue={editingCustomer.identityProof}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="suburb">Rego</Label>
+                        <Input
+                          id="rego"
+                          name="rego"
+                          type="text"
+                          defaultValue={editingCustomer.rego}
+                          required
+                        />
+                      </div>  </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          defaultValue={editingCustomer.email}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="address">Address</Label>
+                        <Input
+                          id="address"
+                          name="address"
+                          type="text"
+                          defaultValue={editingCustomer.address}
+                          required
+                        />
+                      </div>
+
+                    </div>
+
+                    {/* New Fields Added */}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="suburb">Suburb</Label>
+                        <Input
+                          id="suburb"
+                          name="suburb"
+                          type="text"
+                          defaultValue={editingCustomer.suburb}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="state">State</Label>
+                        <Input
+                          id="state"
+                          name="state"
+                          type="text"
+                          defaultValue={editingCustomer.state}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="postCode">Post Code</Label>
+                        <Input
+                          id="postCode"
+                          name="postCode"
+                          type="text"
+                          defaultValue={editingCustomer.postCode}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="country">Country</Label>
+                        <Input
+                          id="country"
+                          name="country"
+                          type="text"
+                          defaultValue={editingCustomer.country}
+                          required
+                        />
+                      </div>
+
+
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="bsb">BSB</Label>
+                        <Input
+                          id="bsb"
+                          name="bsb"
+                          type="text"
+                          defaultValue={editingCustomer.bsb}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="frequency">Frequency</Label>
+                        <Input
+                          id="frequency"
+                          name="frequency"
+                          type="text"
+                          defaultValue={editingCustomer.frequency}
+                          required
+                        />
+                      </div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="bankAccountName">Bank Account Name</Label>
+                        <Input
+                          id="bankAccountName"
+                          name="bankAccountName"
+                          type="text"
+                          defaultValue={editingCustomer.bankAccountName}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="accountNumber">Account Number</Label>
+                        <Input
+                          id="accountNumber"
+                          name="accountNumber"
+                          type="text"
+                          defaultValue={editingCustomer.accountNumber}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-4 mt-4">
+                    <Button
+                      type="submit"
+                      style={{ backgroundColor: '#00215E', color: 'white' }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="bg-gray-300 text-black"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </div>
-          <div>
-              <Label htmlFor="accountNumber">Account Number</Label>
-              <Input
-                id="accountNumber"
-                name="accountNumber"
-                type="text"
-                defaultValue={editingCustomer.accountNumber}
-                required
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-end space-x-4 mt-4">
-          <Button
-            type="submit"
-            style={{ backgroundColor: '#00215E', color: 'white' }}
-          >
-            Save
-          </Button>
-          <Button
-            type="button"
-            onClick={handleCancelEdit}
-            className="bg-gray-300 text-black"
-          >
-            Cancel
-          </Button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+          )}
 
 
           {showCustomerDetail && selectedCustomer && (
             <CustomerDetail customer={selectedCustomer} onClose={() => setShowCustomerDetail(false)} />
           )}
-         <div className="overflow-y-auto max-w-full p-4 h-auto">
+          <div className="overflow-y-auto max-w-full p-4 h-auto">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
               <div>
                 <Label htmlFor="companyName">companyName</Label>
@@ -798,7 +805,7 @@ const Component: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {customerData.map((customer, index) => (
+                {filteredData.map((customer, index) => (
                   <tr key={index}>
                     <td className="py-2 px-4">{index + 1}</td>
                     <td className="py-2 px-4">{customer.firstName}</td>
