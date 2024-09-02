@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "@/firebase";
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc,limit,query,where } from "firebase/firestore";
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, limit, query, where } from "firebase/firestore";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,16 +14,25 @@ interface Customer {
   id: string;
   firstName: string;
   lastName: string;
-  phone: string;
-  license: string;
-  dob: string;
+  contactNumber: string;
+  identityProof: string;
+  // dob: string;
   email: string;
   address: string;
-  postcode: string;
+  postCode: string;
   frequency: string;
+  rego: string;
   registration: string;
   created: string;
-  Company:string;
+  companyName: string;
+  abn: string;
+  factoryLocation: string;
+  suburb: string;
+  state: string;
+  country: string;
+  bankAccountName: string;
+  bsb: string;
+  accountNumber: string;
 }
 
 interface CustomerDetailProps {
@@ -33,21 +42,30 @@ interface CustomerDetailProps {
 
 const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer, onClose }) => {
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
+    <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
+     
         <h2 className="text-2xl font-bold mb-4">Customer Detail</h2>
         <div className="space-y-4">
           <div><p><strong>First Name:</strong> {customer.firstName}</p></div>
           <div><p><strong>Last Name:</strong> {customer.lastName}</p></div>
-          <div><p><strong>Phone:</strong> {customer.phone}</p></div>
+          <div><p><strong>Contact Number:</strong> {customer.contactNumber}</p></div>
           <div><p><strong>Email:</strong> {customer.email}</p></div>
-          <div><p><strong>Company:</strong> {customer.Company}</p></div>
-          <div><p><strong>License:</strong> {customer.license}</p></div>
-          <div><p><strong>Date of Birth:</strong> {customer.dob}</p></div>
+          <div><p><strong>Company Name:</strong> {customer.companyName}</p></div>
+          <div><p><strong>Identity Proof:</strong> {customer.identityProof}</p></div>
           <div><p><strong>Address:</strong> {customer.address}</p></div>
-          <div><p><strong>Postcode:</strong> {customer.postcode}</p></div>
+          <div><p><strong>Post Code:</strong> {customer.postCode}</p></div>
           <div><p><strong>Frequency:</strong> {customer.frequency}</p></div>
-          <div><p><strong>Registration:</strong> {customer.registration}</p></div>
+          {/* <div><p><strong>Registration :</strong> {customer.registration}</p></div> */}
+          <div><p><strong>Rego Vechile:</strong> {customer.rego}</p></div>
+          <div><p><strong>ABN:</strong> {customer.abn}</p></div>
+          <div><p><strong>Factory Location:</strong> {customer.factoryLocation}</p></div>
+          <div><p><strong>Suburb:</strong> {customer.suburb}</p></div>
+          <div><p><strong>State:</strong> {customer.state}</p></div>
+          <div><p><strong>Country:</strong> {customer.country}</p></div>
+          <div><p><strong>Bank Account Number:</strong> {customer.bankAccountName}</p></div>
+          <div><p><strong>BSB:</strong> {customer.bsb}</p></div>
+          <div><p><strong>Account Number:</strong> {customer.accountNumber}</p></div>
           <div><p><strong>Created:</strong> {new Date(customer.created).toLocaleDateString()}</p></div>
         </div>
         <div className="flex justify-end mt-4">
@@ -68,15 +86,16 @@ const Component: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showCustomerDetail, setShowCustomerDetail] = useState(false);
   const [companyFilter, setCompanyFilter] = useState<string | null>(null);
-  const [registrationFilter, setRegistrationFilter] = useState<string | null>(null);
+  // const [registrationFilter, setRegistrationFilter] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-    const [licenseFilter, setLicenseFilter] = useState<string | null>(null);
+  const [regoFilter, setRegoFilter] = useState<string | null>(null);
   const [countryCode, setCountryCode] = useState<string | null>(null);
+  const [identityProof,setIdentityProof] =useState<string | null>(null);
 
   const phoneFilter = countryCode && phoneNumber ? `${countryCode} ${phoneNumber}` : null;
   const router = useRouter();
 
-  
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -95,27 +114,27 @@ const Component: React.FC = () => {
     const constraints = [];
 
     if (companyFilter) {
-      constraints.push(where("Company", "==", companyFilter));
+      constraints.push(where("companyName", "==", companyFilter));
     }
-    if (registrationFilter) {
-      constraints.push(where("registration", "==", registrationFilter));
+    if (regoFilter) {
+      constraints.push(where("rego", "==", regoFilter));
     }
     if (phoneFilter) {
-      constraints.push(where("phone", "==", phoneFilter));
+      constraints.push(where("contactNumber", "==", phoneFilter));
     }
-    if (licenseFilter) {
-      constraints.push(where("license", "==", licenseFilter));
+    if (identityProof) {
+      constraints.push(where("identityProof", "==", identityProof));
     }
 
     // constraints.push(limit(constraints.length === 0 ? 8 : 7));
-    
+
     const q = query(collection(db, "customers"), ...constraints);
 
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Customer[];
 
-    const sortedData = data.sort((a, b) => parseInt(a.registration) - parseInt(b.registration));
-    
+    const sortedData = data.sort((a, b) => parseInt(a.rego) - parseInt(b.rego));
+
     setCustomerData(sortedData);
   };
   const handleFilterSubmit = () => {
@@ -123,40 +142,48 @@ const Component: React.FC = () => {
   };
   const handleFilterReset = () => {
     setCountryCode(null);
-    setLicenseFilter(null);
+    setRegoFilter(null);
     setPhoneNumber(null);
-    setRegistrationFilter(null);
-    setCompanyFilter(null); 
-    if(companyFilter == null && licenseFilter == null && phoneFilter == null && registrationFilter == null && countryCode == null){
-    fetchData();
+    setIdentityProof(null);
+    setCompanyFilter(null);
+    if (companyFilter == null && regoFilter == null && phoneFilter == null && identityProof == null && countryCode == null) {
+      fetchData();
     }
   };
-  
 
 
-const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  const registrationNumber = `${customerData.length + 1}`;
 
-  await addDoc(collection(db, "customers"), {
-    firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
-    lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
-    name: `${(event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value} ${(event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value}`, // Combine first and last name,
-    phone: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("phone") as HTMLInputElement).value}`,
-    license: (event.currentTarget.elements.namedItem("license") as HTMLInputElement).value,
-    dob: (event.currentTarget.elements.namedItem("dob") as HTMLInputElement).value,
-    address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
-    postcode: (event.currentTarget.elements.namedItem("postcode") as HTMLInputElement).value,
-    frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
-    registration: registrationNumber,
-    Company: (event.currentTarget.elements.namedItem("company") as HTMLInputElement)?.value || '',
-    created: new Date().toISOString(),
-    email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value, // Add this line
-  });
-  alert("Customer created successfully!");
-  fetchData();
-  setShowCreateModal(false);
-};
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const registrationNumber = `${customerData.length + 1}`;
+
+    await addDoc(collection(db, "customers"), {
+      firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
+      lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
+      name: `${(event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value}${(event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value}`,
+      contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement).value}`,
+      identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement).value,
+      address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
+      postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement).value,
+      frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
+       registration: registrationNumber,
+      rego: (event.currentTarget.elements.namedItem("rego") as HTMLInputElement).value,
+      companyName: (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement).value,
+      abn: (event.currentTarget.elements.namedItem("abn") as HTMLInputElement).value,
+      factoryLocation: (event.currentTarget.elements.namedItem("factoryLocation") as HTMLInputElement).value,
+      suburb: (event.currentTarget.elements.namedItem("suburb") as HTMLInputElement).value,
+      state: (event.currentTarget.elements.namedItem("state") as HTMLInputElement).value,
+      country: (event.currentTarget.elements.namedItem("country") as HTMLInputElement).value,
+      bankAccountName: (event.currentTarget.elements.namedItem("bankAccountName") as HTMLInputElement).value,
+      bsb: (event.currentTarget.elements.namedItem("bsb") as HTMLInputElement).value,
+      accountNumber: (event.currentTarget.elements.namedItem("accountNumber") as HTMLInputElement).value,
+      created: new Date().toISOString(),
+      email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value,
+    });
+    alert("Customer created successfully!");
+    fetchData();
+    setShowCreateModal(false);
+  };
 
   const handleEditClick = (customer: Customer) => {
     setEditingCustomer(customer);
@@ -173,33 +200,82 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!editingCustomer) return;
-  
-    // Collect updated values
-    const updatedData: Partial<Customer> = {
-      firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement)?.value || '',
-      lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement)?.value || '',
-      phone: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement)?.value || ''} ${(event.currentTarget.elements.namedItem("phone") as HTMLInputElement)?.value || ''}`,
-      license: (event.currentTarget.elements.namedItem("license") as HTMLInputElement)?.value || '',
-      dob: (event.currentTarget.elements.namedItem("dob") as HTMLInputElement)?.value || '',
-      address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement)?.value || '',
-      postcode: (event.currentTarget.elements.namedItem("postcode") as HTMLInputElement)?.value || '',
-      frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement)?.value || '',
-      email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement)?.value || '', // Add this line
-      Company: (event.currentTarget.elements.namedItem("company") as HTMLInputElement)?.value || ''
-    };
-  
-    try {
-      await updateDoc(doc(db, "customers", editingCustomer.id), updatedData);
+    if (editingCustomer) {
+      await updateDoc(doc(db, "customers", editingCustomer.id), {
+        firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
+        lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
+        contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement).value}`,
+        identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement).value,
+        address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
+        postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement).value,
+        frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
+        companyName: (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement).value,
+        rego: (event.currentTarget.elements.namedItem("rego") as HTMLInputElement).value,
+        abn: (event.currentTarget.elements.namedItem("abn") as HTMLInputElement).value,
+        factoryLocation: (event.currentTarget.elements.namedItem("factoryLocation") as HTMLInputElement).value,
+        suburb: (event.currentTarget.elements.namedItem("suburb") as HTMLInputElement).value,
+        state: (event.currentTarget.elements.namedItem("state") as HTMLInputElement).value,
+        country: (event.currentTarget.elements.namedItem("country") as HTMLInputElement).value,
+        bankAccountName: (event.currentTarget.elements.namedItem("bankAccountName") as HTMLInputElement).value,
+        bsb: (event.currentTarget.elements.namedItem("bsb") as HTMLInputElement).value,
+        accountNumber: (event.currentTarget.elements.namedItem("accountNumber") as HTMLInputElement).value,
+        email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value,
+      });
       alert("Customer updated successfully!");
-      setShowEditModal(false);
       fetchData();
-    } catch (error) {
-      console.error("Error updating customer:", error);
-      alert("Failed to update customer.");
+      setShowEditModal(false);
+      setEditingCustomer(null);
     }
   };
+  // const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   if (!editingCustomer) return;
+
+  //   // Collect updated values
+  //   const updatedData: Partial<Customer> = {
+  //     firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement)?.value || '',
+  //     lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement)?.value || '',
+  //     contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement)?.value || ''} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement)?.value || ''}`,
+  //     identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement)?.value || '',
+  //     dob: (event.currentTarget.elements.namedItem("dob") as HTMLInputElement)?.value || '',
+  //     address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement)?.value || '',
+  //     postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement)?.value || '',
+  //     frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement)?.value || '',
+  //     email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement)?.value || '', // Add this line
+  //     companyName: (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement)?.value || ''
+  //   };
+
+  //   try {
+  //     await updateDoc(doc(db, "customers", editingCustomer.id), updatedData);
+  //     alert("Customer updated successfully!");
+  //     setShowEditModal(false);
+  //     fetchData();
+  //   } catch (error) {
+  //     console.error("Error updating customer:", error);
+  //     alert("Failed to update customer.");
+  //   }
+  // };
+  // JavaScript functions to handle specific conditions
+  function handlePhoneNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const phoneNumber = event.target.value;
+    if (phoneNumber.length <= 8) {
+      event.target.value = phoneNumber.padStart(8, '');
+    }
+  }
   
+  function handleidentityProofChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const identityProof = event.target.value;
+    if (!identityProof) {
+      alert("Please provide passport details if no driving identityProof is available.");
+    }
+  }
+  
+  function handleBSBChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const bsb = event.target.value;
+    if (bsb.length < 6) {
+      event.target.value = bsb.padStart(6, '0');
+    }
+  }
   
 
   const handleCancelEdit = () => {
@@ -213,384 +289,540 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
   const countryCodes = [
     { code: "+61", name: "Australia" },
-    { code: "+91", name: "Australia" }
+    // { code: "+91", name: "Australia" }
     // Add more country codes as needed
   ];
 
   return (
     <Layout>
-       <Card className="w-full  py-6">
-      <div className="max-w-7xl mx-auto md:p-10 p-4">
-        <div className="flex justify-end mb-4">
-          <Button onClick={() => setShowCreateModal(true)} style={{ backgroundColor: "#00215E", color: "white" }}>
-            Add Customer
+      <Card className="w-full  py-6">
+        <div className="max-w-7xl mx-auto md:p-10 p-4">
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => setShowCreateModal(true)} style={{ backgroundColor: "#00215E", color: "white" }}>
+              Add Customer
+            </Button>
+          </div>
+
+          {showCreateModal && (
+  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
+    <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
+      <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
+              <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" required />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
+              <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" required />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="countryCode">Country Code <span className="text-red-500">*</span></Label>
+              <select id="countryCode" name="countryCode" className="block w-full border border-gray-300 rounded-md py-2 px-3" required>
+                {countryCodes.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="contactNumber">Contact Number <span className="text-red-500">*</span></Label>
+              <Input
+                id="contactNumber"
+                name="contactNumber"
+                type="tel"
+                placeholder="Enter phone number"
+                required
+                pattern="\d{10}"
+                minLength={10}
+                maxLength={10}
+                title="Phone number must be exactly 10 digits"
+                onChange={handlePhoneNumberChange}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="alternateContactNumber">Alternate Mobile Number</Label>
+              <Input
+                id="alternateContactNumber"
+                name="alternateContactNumber"
+                type="tel"
+                placeholder="Enter alternate mobile number"
+                pattern="\d{10}"
+                minLength={10}
+                maxLength={10}
+                title="Phone number must be exactly 10 digits"
+                onChange={handlePhoneNumberChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="abn">ABN <span className="text-red-500">*</span></Label>
+              <Input id="abn" name="abn" type="text" placeholder="Enter ABN" required />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="factoryLocation">Factory Location <span className="text-red-500">*</span></Label>
+              <Input id="factoryLocation" name="factoryLocation" type="text" placeholder="Enter factory location" required />
+            </div>
+            <div>
+              <Label htmlFor="companyName">Company Name <span className="text-red-500">*</span></Label>
+              <Input id="companyName" name="companyName" type="text" placeholder="Enter company name" required />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="rego">rego <span className="text-red-500">*</span></Label>
+              <Input id="rego" name="rego" type="text" placeholder="Enter rego"  />
+            </div> 
+            <div>
+              <Label htmlFor="identityProof">Identity Proof <span className="text-red-500">*</span></Label>
+              <Input id="identityProof" name="identityProof" type="text" placeholder="Enter identity proof" onChange={handleidentityProofChange}required />
+              {/* <small>(Authorized Personnel Only)If no driving license, provide passport details. Medicare, Aged care and any other secondary identity cards not accepted.</small> */}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="email">Email (Optional)</Label>
+              <Input id="email" name="email" type="email" placeholder="Enter email address" />
+            </div>
+            <div>
+              <Label htmlFor="address">Address: Door No & Street Name <span className="text-red-500">*</span></Label>
+              <Input id="address" name="address" type="text" placeholder="Enter address" required />
+              {/* <Input id="addressAdditional" name="addressAdditional" type="text" placeholder="Enter additional address information" /> */}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="suburb">Suburb <span className="text-red-500">*</span></Label>
+              <Input id="suburb" name="suburb" type="text" placeholder="Enter suburb" required />
+            </div>
+            <div>
+              <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
+              <Input id="state" name="state" type="text" placeholder="Enter state" required />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
+              <Input id="country" name="country" type="text" placeholder="Enter country" required />
+            </div>
+            <div>
+              <Label htmlFor="postCode">Post Code <span className="text-red-500">*</span></Label>
+              <Input id="postCode" name="postCode" type="text" placeholder="Enter post code" required pattern="\d{4}" minLength={4} maxLength={4} title="Post code must be exactly 4 digits" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="bsb">BSB <span className="text-red-500">*</span></Label>
+              <Input id="bsb" name="bsb" type="text" placeholder="Enter BSB" required onChange={handleBSBChange} />
+            </div>
+            <div>
+              <Label htmlFor="frequency">Frequency <span className="text-red-500">*</span></Label>
+              <Input id="frequency" name="frequency" type="text" placeholder="Enter frequency" required />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="bankAccountName">Bank Account Name <span className="text-red-500">*</span></Label>
+              <Input id="bankAccountName" name="bankAccountName" type="text" placeholder="Enter bank account name" required />
+            </div>
+            <div>
+              <Label htmlFor="accountNumber">Account Number <span className="text-red-500">*</span></Label>
+              <Input id="accountNumber" name="accountNumber" type="text" placeholder="Enter account number" required />
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end space-x-4 mt-4">
+          <Button type="submit" style={{ backgroundColor: "#00215E", color: "white" }}>
+            Save
+          </Button>
+          <Button type="button" onClick={handleCancelCreate} className="bg-gray-300 text-black">
+            Cancel
           </Button>
         </div>
+      </form>
+    </div>
+  </div>
+)}
 
-        {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4 overflow-y-auto">
-        <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-          <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" required />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" required />
-                </div>
+
+
+
+
+{showEditModal && editingCustomer && (
+  <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
+    <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
+      <h2 className="text-2xl font-bold mb-4">Edit Customer</h2>
+      <form onSubmit={handleEditSubmit}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                name="firstName"
+                type="text"
+                defaultValue={editingCustomer.firstName || ''}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                type="text"
+                defaultValue={editingCustomer.lastName}
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="countryCode">Country Code</Label>
+              <select
+                id="countryCode"
+                name="countryCode"
+                className="block w-full border border-gray-300 rounded-md py-2 px-3"
+                defaultValue={editingCustomer.contactNumber}
+              >
+                {countryCodes.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name} ({country.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="contactNumber">Contact Number</Label>
+              <Input
+                id="contactNumber"
+                name="contactNumber"
+                type="tel"
+                defaultValue={editingCustomer.contactNumber}
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+              <Label htmlFor="abn">ABN</Label>
+              <Input
+                id="abn"
+                name="abn"
+                type="text"
+                defaultValue={editingCustomer.abn}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="factoryLocation">Factory Location</Label>
+              <Input
+                id="factoryLocation"
+                name="factoryLocation"
+                type="text"
+                defaultValue={editingCustomer.factoryLocation}
+                required
+              />
+            </div>
+           
+           
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+           
+           
+           <div>
+             <Label htmlFor="companyName">Company Name</Label>
+             <Input
+               id="companyName"
+               name="companyName"
+               type="text"
+               defaultValue={editingCustomer.companyName}
+               required
+             />
+           </div>
+           <div>
+             <Label htmlFor="identityProof">Identity Proof</Label>
+             <Input
+               id="identityProof"
+               name="identityProof"
+               type="text"
+               defaultValue={editingCustomer.identityProof}
+               required
+             />
+           </div>
+         </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="suburb">Rego</Label>
+              <Input
+                id="rego"
+                name="rego"
+                type="text"
+                defaultValue={editingCustomer.rego}
+                required
+              />
+            </div>  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue={editingCustomer.email}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                name="address"
+                type="text"
+                defaultValue={editingCustomer.address}
+                required
+              />
+            </div>
+            
+          </div>
+
+          {/* New Fields Added */}
+         
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="suburb">Suburb</Label>
+              <Input
+                id="suburb"
+                name="suburb"
+                type="text"
+                defaultValue={editingCustomer.suburb}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="state">State</Label>
+              <Input
+                id="state"
+                name="state"
+                type="text"
+                defaultValue={editingCustomer.state}
+                required
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+              <Label htmlFor="postCode">Post Code</Label>
+              <Input
+                id="postCode"
+                name="postCode"
+                type="text"
+                defaultValue={editingCustomer.postCode}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="country">Country</Label>
+              <Input
+                id="country"
+                name="country"
+                type="text"
+                defaultValue={editingCustomer.country}
+                required
+              />
+            </div>
+           
+           
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="bsb">BSB</Label>
+              <Input
+                id="bsb"
+                name="bsb"
+                type="text"
+                defaultValue={editingCustomer.bsb}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="frequency">Frequency</Label>
+              <Input
+                id="frequency"
+                name="frequency"
+                type="text"
+                defaultValue={editingCustomer.frequency}
+                required
+              />
+            </div>
+            
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+              <Label htmlFor="bankAccountName">Bank Account Name</Label>
+              <Input
+                id="bankAccountName"
+                name="bankAccountName"
+                type="text"
+                defaultValue={editingCustomer.bankAccountName}
+                required
+              />
+            </div>
+          <div>
+              <Label htmlFor="accountNumber">Account Number</Label>
+              <Input
+                id="accountNumber"
+                name="accountNumber"
+                type="text"
+                defaultValue={editingCustomer.accountNumber}
+                required
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end space-x-4 mt-4">
+          <Button
+            type="submit"
+            style={{ backgroundColor: '#00215E', color: 'white' }}
+          >
+            Save
+          </Button>
+          <Button
+            type="button"
+            onClick={handleCancelEdit}
+            className="bg-gray-300 text-black"
+          >
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+
+          {showCustomerDetail && selectedCustomer && (
+            <CustomerDetail customer={selectedCustomer} onClose={() => setShowCustomerDetail(false)} />
+          )}
+         <div className="overflow-y-auto max-w-full p-4 h-auto">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+              <div>
+                <Label htmlFor="companyName">companyName</Label>
+                <Input
+                  id="companyName"
+                  name="companyName"
+                  type="text"
+                  value={companyFilter || ''}
+                  onChange={(e) => setCompanyFilter(e.target.value || null)}
+                />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="countryCode">Country Code</Label>
-                  <select id="countryCode" name="countryCode" className="block w-full border border-gray-300 rounded-md py-2 px-3">
-                    {countryCodes.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name} ({country.code})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-  <Label htmlFor="phone">Phone</Label>
-  <Input
-    id="phone"
-    name="phone"
-    type="tel"
-    placeholder="Enter phone number"
-    required
-    pattern="\d{10}"
-    minLength={10}
-    maxLength={10}
-    title="Phone number must be exactly 10 digits"
-  />
-</div>
+              <div>
+                <Label htmlFor="rego">rego</Label>
+                <Input
+                  id="rego"
+                  name="rego"
+                  type="text"
+                  value={regoFilter || ''}
+                  onChange={(e) => setRegoFilter(e.target.value || null)}
+                />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="company">Company</Label>
-                  <Input id="company" name="company" type="text" placeholder="Enter company" required />
-                </div>
-                <div>
-                  <Label htmlFor="license">License</Label>
-                  <Input id="license" name="license" type="text" placeholder="Enter license" required />
-                </div>
+              <div>
+                <Label htmlFor="countryCode">Country Code</Label>
+                <select
+                  id="countryCode"
+                  name="countryCode"
+                  className="block w-full border border-gray-300 rounded-md py-2 px-3"
+                  value={countryCode || ''}
+                  onChange={(e) => setCountryCode(e.target.value || null)}
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.name} ({country.code})
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="dob">Date of Birth</Label>
-                  <Input id="dob" name="dob" type="date" placeholder="Enter date of birth" required />
-                </div>
+              <div>
+                <Label htmlFor="contactNumber">contactNumber</Label>
+                <Input
+                  id="contactNumber"
+                  name="contactNumber"
+                  type="text"
+                  value={phoneNumber || ''}
+                  placeholder="e.g., 8925722979"
+                  pattern="\d{10}"
+                  minLength={10}
+                  maxLength={10}
+                  title="contactNumber  must be exactly 10 digits"
+                  onChange={(e) => setPhoneNumber(e.target.value || null)}
+                />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="Enter email address" required />
-                </div>
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" name="address" type="text" placeholder="Enter address" required />
-                </div>
+              <div>
+                <Label htmlFor="identityProof">identityProof</Label>
+                <Input
+                  id="identityProof"
+                  name="identityProof"
+                  type="text"
+                  value={identityProof || ''}
+                  onChange={(e) => setIdentityProof(e.target.value || null)}
+                />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="postcode">Postcode</Label>
-                  <Input id="postcode" name="postcode" type="text" placeholder="Enter postcode" required pattern="\d{4}"
-    minLength={4}
-    maxLength={4}
-    title="Postcode must be exactly 4 digits" />
+              <div className="grid float-start grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex justify-end my-4">
+                  <Button onClick={handleFilterReset}>Reset Filters</Button>
                 </div>
-                <div>
-                  <Label htmlFor="frequency">Frequency</Label>
-                  <Input id="frequency" name="frequency" type="text" placeholder="Enter frequency" required />
+                <div className="flex justify-end my-4">
+                  <Button onClick={handleFilterSubmit}>Apply Filters</Button>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end space-x-4 mt-4">
-              <Button type="submit" style={{ backgroundColor: "#00215E", color: "white" }}>
-                Save
-              </Button>
-              <Button type="button" onClick={handleCancelCreate} className="bg-gray-300 text-black">
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-      
-        )}
-
-        {showEditModal && editingCustomer && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
-            <h2 className="text-2xl font-bold mb-4">Edit Customer</h2>
-            <form onSubmit={handleEditSubmit}>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      defaultValue={editingCustomer.firstName || ''}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      type="text"
-                      defaultValue={editingCustomer.lastName}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="countryCode">Country Code</Label>
-                    <select
-                      id="countryCode"
-                      name="countryCode"
-                      className="block w-full border border-gray-300 rounded-md py-2 px-3"
-                      defaultValue={editingCustomer.phone.split(' ')[0]}
-                    >
-                      {countryCodes.map((country) => (
-                        <option key={country.code} value={country.code}>
-                          {country.name} ({country.code})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      defaultValue={editingCustomer.phone.split(' ')[1]}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="license">License</Label>
-                    <Input
-                      id="license"
-                      name="license"
-                      type="text"
-                      defaultValue={editingCustomer.license}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="company">Company</Label>
-                    <Input
-                      id="company"
-                      name="company"
-                      type="text"
-                      defaultValue={editingCustomer.Company}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="dob">Date of Birth</Label>
-                    <Input
-                      id="dob"
-                      name="dob"
-                      type="date"
-                      defaultValue={editingCustomer.dob}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      defaultValue={editingCustomer.email}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      name="address"
-                      type="text"
-                      defaultValue={editingCustomer.address}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="postcode">Postcode</Label>
-                    <Input
-                      id="postcode"
-                      name="postcode"
-                      type="text"
-                      defaultValue={editingCustomer.postcode}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="frequency">Frequency</Label>
-                    <Input
-                      id="frequency"
-                      name="frequency"
-                      type="text"
-                      defaultValue={editingCustomer.frequency}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end space-x-4 mt-4">
-                <Button
-                  type="submit"
-                  style={{ backgroundColor: '#00215E', color: 'white' }}
-                >
-                  Save
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  className="bg-gray-300 text-black"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4">S.No</th>
+                  <th className="py-2 px-4">First Name</th>
+                  <th className="py-2 px-4">Last Name</th>
+                  <th className="py-2 px-4">contactNumber</th>
+                  <th className="py-2 px-4">identityProof</th>
+                  <th className="py-2 px-4">postCode</th>
+                  <th className="py-2 px-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {customerData.map((customer, index) => (
+                  <tr key={index}>
+                    <td className="py-2 px-4">{index + 1}</td>
+                    <td className="py-2 px-4">{customer.firstName}</td>
+                    <td className="py-2 px-4">{customer.lastName}</td>
+                    <td className="py-2 px-4">{customer.contactNumber}</td>
+                    <td className="py-2 px-4">{customer.identityProof}</td>
+                    <td className="py-2 px-4">{customer.postCode}</td>
+                    <td className="py-2 px-4 flex space-x-2">
+                      <Button size="sm" onClick={() => { setSelectedCustomer(customer); setShowCustomerDetail(true); }}>
+                        View
+                      </Button>
+                      <Button size="sm" onClick={() => handleEditClick(customer)}>
+                        Edit
+                      </Button>
+                      <Button size="sm" onClick={() => handleDeleteClick(customer.id)}>
+                        Delete
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-        
-        )}
-
-        {showCustomerDetail && selectedCustomer && (
-          <CustomerDetail customer={selectedCustomer} onClose={() => setShowCustomerDetail(false)} />
-        )}
- <div className="overflow-x-auto">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div>
-            <Label htmlFor="company">Company</Label>
-            <Input
-              id="company"
-              name="company"
-              type="text"
-              value={companyFilter || ''}
-              onChange={(e) => setCompanyFilter(e.target.value || null)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="registration">Registration</Label>
-            <Input
-              id="registration"
-              name="registration"
-              type="text"
-              value={registrationFilter || ''}
-              onChange={(e) => setRegistrationFilter(e.target.value || null)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="countryCode">Country Code</Label>
-            <select
-              id="countryCode"
-              name="countryCode"
-              className="block w-full border border-gray-300 rounded-md py-2 px-3"
-              value={countryCode || ''}
-              onChange={(e) => setCountryCode(e.target.value || null)}
-            >
-              {countryCodes.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.name} ({country.code})
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              name="phone"
-              type="text"
-              value={phoneNumber || ''}
-              placeholder="e.g., 8925722979"
-              pattern="\d{10}"
-              minLength={10}
-              maxLength={10}
-              title="Phone number must be exactly 10 digits"
-              onChange={(e) => setPhoneNumber(e.target.value || null)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="license">License</Label>
-            <Input
-              id="license"
-              name="license"
-              type="text"
-              value={licenseFilter || ''}
-              onChange={(e) => setLicenseFilter(e.target.value || null)}
-            />
-          </div>
-           <div className="grid float-start grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex justify-end my-4">
-          <Button onClick={handleFilterReset}>Reset Filters</Button>
-        </div>
-        <div className="flex justify-end my-4">
-          <Button onClick={handleFilterSubmit}>Apply Filters</Button>
-        </div>
-        </div>
-        </div>
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
-            <tr>
-              <th className="py-2 px-4">S.No</th>
-              <th className="py-2 px-4">First Name</th>
-              <th className="py-2 px-4">Last Name</th>
-              <th className="py-2 px-4">Phone</th>
-              <th className="py-2 px-4">License</th>
-              <th className="py-2 px-4">Postcode</th>
-              <th className="py-2 px-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {customerData.map((customer, index) => (
-              <tr key={index}>
-                <td className="py-2 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{customer.firstName}</td>
-                <td className="py-2 px-4">{customer.lastName}</td>
-                <td className="py-2 px-4">{customer.phone}</td>
-                <td className="py-2 px-4">{customer.license}</td>
-                <td className="py-2 px-4">{customer.postcode}</td>
-                <td className="py-2 px-4 flex space-x-2">
-                  <Button size="sm" onClick={() => { setSelectedCustomer(customer); setShowCustomerDetail(true); }}>
-                    View
-                  </Button>
-                  <Button size="sm" onClick={() => handleEditClick(customer)}>
-                    Edit
-                  </Button>
-                  <Button size="sm" onClick={() => handleDeleteClick(customer.id)}>
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      </div>
       </Card>
     </Layout>
   );
