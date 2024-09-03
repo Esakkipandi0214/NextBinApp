@@ -3,7 +3,7 @@ import { db } from '@/firebase'; // Adjust the import path as necessary
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 type GuestCustomer = {
-  id: string; // Add an id field to track document ID
+  id: string;
   name: string;
   contactNumber: string;
   companyName: string;
@@ -17,21 +17,24 @@ const GuestCustomerTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filterTerm, setFilterTerm] = useState<string>('');
+  const [msgModal, setMsgModal] = useState<boolean>(false);
+  const [confirmMsg, setConfirmMsg] = useState<boolean | null>(null); // Using boolean or null for clear states
+  const [deleteId, setDeleteId] = useState<string | null>(null); // Store ID to be deleted
 
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'GuestCustomers'));
-        const fetchedCustomers: GuestCustomer[] = querySnapshot.docs.map(doc => {
+        const fetchedCustomers: GuestCustomer[] = querySnapshot.docs.map((doc) => {
           const data = doc.data();
           return {
-            id: doc.id, // Retrieve and store document ID
+            id: doc.id,
             ...data,
-            createdAt: data.createdAt.toDate().toISOString() // Convert Firestore timestamp to ISO string
+            createdAt: data.createdAt.toDate().toISOString(), // Ensure Firestore timestamp conversion
           } as GuestCustomer;
         });
         setCustomers(fetchedCustomers);
-        setFilteredCustomers(fetchedCustomers); // Initialize with all customers
+        setFilteredCustomers(fetchedCustomers);
       } catch (err) {
         console.error('Error fetching customers:', err);
         setError('Failed to fetch customer data.');
@@ -45,11 +48,12 @@ const GuestCustomerTable: React.FC = () => {
 
   useEffect(() => {
     if (filterTerm) {
-      const filtered = customers.filter(customer =>
-        customer.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
-        customer.contactNumber.toLowerCase().includes(filterTerm.toLowerCase()) ||
-        customer.companyName.toLowerCase().includes(filterTerm.toLowerCase()) ||
-        new Date(customer.createdAt).toLocaleDateString().includes(filterTerm)
+      const filtered = customers.filter(
+        (customer) =>
+          customer.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
+          customer.contactNumber.toLowerCase().includes(filterTerm.toLowerCase()) ||
+          customer.companyName.toLowerCase().includes(filterTerm.toLowerCase()) ||
+          new Date(customer.createdAt).toLocaleDateString().includes(filterTerm)
       );
       setFilteredCustomers(filtered);
     } else {
@@ -57,22 +61,28 @@ const GuestCustomerTable: React.FC = () => {
     }
   }, [filterTerm, customers]);
 
+  useEffect(() => {
+    if (confirmMsg === true && deleteId) {
+      handleDelete(deleteId);
+      setConfirmMsg(null);
+      setDeleteId(null);
+    }
+  }, [confirmMsg, deleteId]);
+
   const handleDelete = async (id: string) => {
     try {
-      // Create a reference to the document to be deleted
       const docRef = doc(db, 'GuestCustomers', id);
-      
-      // Delete the document
       await deleteDoc(docRef);
-
-      // Update state to remove deleted customer
-      setCustomers(customers.filter(customer => customer.id !== id));
-      setFilteredCustomers(filteredCustomers.filter(customer => customer.id !== id));
-
-      
+      setCustomers((prev) => prev.filter((customer) => customer.id !== id));
+      setFilteredCustomers((prev) => prev.filter((customer) => customer.id !== id));
     } catch (err) {
       console.error('Error deleting customer:', err);
     }
+  };
+
+  const handleDeleteRoute = (id: string) => {
+    setDeleteId(id); // Set the ID of the customer to be deleted
+    setMsgModal(true); // Show confirmation modal
   };
 
   if (loading) {
@@ -102,27 +112,27 @@ const GuestCustomerTable: React.FC = () => {
             <th className="border border-gray-300 px-4 py-2 text-left">Company Name</th>
             <th className="border border-gray-300 px-4 py-2 text-left">Notes</th>
             <th className="border border-gray-300 px-4 py-2 text-left">Created At</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Actions</th> {/* Add Actions column */}
+            <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredCustomers.length > 0 ? (
             filteredCustomers.map((customer, index) => (
               <tr
-                key={customer.id} // Use document ID as key
-                className={`${
-                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                } hover:bg-gray-100`}
+                key={customer.id}
+                className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100`}
               >
                 <td className="border border-gray-300 px-4 py-2">{customer.name}</td>
                 <td className="border border-gray-300 px-4 py-2">{customer.contactNumber}</td>
                 <td className="border border-gray-300 px-4 py-2">{customer.companyName}</td>
                 <td className="border border-gray-300 px-4 py-2">{customer.notes}</td>
-                <td className="border border-gray-300 px-4 py-2">{new Date(customer.createdAt).toLocaleDateString()}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {new Date(customer.createdAt).toLocaleDateString()}
+                </td>
                 <td className="border border-gray-300 px-4 py-2">
                   <button
-                    onClick={() => handleDelete(customer.id)}
-                    className=" text-white hover:bg-red-500 p-1 text-sm border border-white rounded-md bg-violet-500"
+                    onClick={() => handleDeleteRoute(customer.id)}
+                    className="text-white hover:bg-red-500 p-1 text-sm border border-white rounded-md bg-violet-500"
                   >
                     Delete
                   </button>
@@ -131,13 +141,46 @@ const GuestCustomerTable: React.FC = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={6} className="border border-gray-300 px-4 py-2 text-center text-gray-500">
+              <td
+                colSpan={6}
+                className="border border-gray-300 px-4 py-2 text-center text-gray-500"
+              >
                 No data found
               </td>
             </tr>
           )}
         </tbody>
       </table>
+      {msgModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-lg z-50">
+          <div className="relative w-full border-2 border-green-400 max-w-lg p-6 bg-green-500/15 rounded-lg shadow-lg">
+            <h1 className="text-black">Message</h1>
+            <p className="text-white text-lg font-medium py-3">
+              Are you sure you want to delete this guest customer?
+            </p>
+            <div className="flex px-20 gap-x-24 py-3">
+              <button
+                onClick={() => {
+                  setConfirmMsg(true);
+                  setMsgModal(false);
+                }}
+                className="bg-red-500 hover:bg-red-500/70 text-white w-16 rounded-xl border"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => {
+                  setConfirmMsg(false);
+                  setMsgModal(false);
+                }}
+                className="p-1 bg-violet-700 text-white hover:bg-violet-700/70 w-16 rounded-xl border"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
