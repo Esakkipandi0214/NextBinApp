@@ -23,7 +23,7 @@ interface OrderItem {
   category: string;
   subCategory: string;
   weight: string;
-  pricePerKg: number; // Ensure this is a number
+  pricePerKg: number;
 }
 
 interface FormData {
@@ -96,6 +96,27 @@ const OrderDetailModal = ({ order, onClose }: { order: FormData | null; onClose:
   );
 };
 
+const ConfirmDeleteModal = ({ order, onConfirm, onCancel }: { order: FormData | null; onConfirm: () => void; onCancel: () => void; }) => {
+  if (!order) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-60">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-800">Confirm Deletion</h2>
+        <p className="mb-4 text-gray-700">Are you sure you want to delete the order for {order.customerName}?</p>
+        <div className="flex justify-end space-x-4">
+          <Button onClick={onConfirm} variant="destructive" className="bg-red-600 text-white hover:bg-red-700">
+            Confirm
+          </Button>
+          <Button onClick={onCancel} variant="secondary" className="bg-gray-500 text-white hover:bg-gray-600">
+            Cancel
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function OrdersHistory() {
   const [orders, setOrders] = useState<FormData[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<FormData[]>([]);
@@ -105,6 +126,7 @@ export default function OrdersHistory() {
   const [filterDate, setFilterDate] = useState<string | null>(null);
   const [filterWeek, setFilterWeek] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<FormData | null>(null);
+  const [confirmDeleteOrder, setConfirmDeleteOrder] = useState<FormData | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -188,101 +210,130 @@ export default function OrdersHistory() {
     filterOrders();
   }, [customerName, filterMonth, filterYear, filterDate, filterWeek, orders]);
 
-  const deleteOrder = async (orderId: string) => {
+  const handleDeleteOrder = async (orderId: string) => {
     try {
       await deleteDoc(doc(db, "orders", orderId));
-      console.log("Document successfully deleted");
-
-      setOrders((prevOrders) => prevOrders.filter((o) => o.orderId !== orderId));
+      setOrders((prevOrders) => prevOrders.filter((order) => order.orderId !== orderId));
+      setFilteredOrders((prevOrders) => prevOrders.filter((order) => order.orderId !== orderId));
     } catch (error) {
-      console.error("Error deleting document: ", error);
+      console.error("Error deleting order: ", error);
+    } finally {
+      setConfirmDeleteOrder(null);
     }
-  };
-
-  const handleCloseModal = () => {
-    setSelectedOrder(null);
   };
 
   return (
     <Layout>
-      <Card>
-        <CardHeader>
-          <CardTitle>Order History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
-            <input
-              type="text"
-              placeholder="Filter by customer name"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="border p-2 rounded mb-2 md:mb-0 flex-1"
-            />
-            <input
-              type="month"
-              value={filterMonth && filterYear ? `${filterYear}-${String(monthNames.indexOf(filterMonth) + 1).padStart(2, '0')}` : ''}
-              onChange={(e) => {
-                const [year, month] = e.target.value.split("-");
-                setFilterYear(year);
-                setFilterMonth(monthNames[parseInt(month) - 1]);
-              }}
-              className="border p-2 rounded mb-2 md:mb-0 flex-1"
-            />
-            <input
-              type="date"
-              value={filterDate || ''}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="border p-2 rounded mb-2 md:mb-0 flex-1"
-            />
-            <input
-              type="week"
-              value={filterWeek || ''}
-              onChange={(e) => setFilterWeek(e.target.value)}
-              className="border p-2 rounded mb-2 md:mb-0 flex-1"
-            />
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-300 divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Customer Name</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Order Payment</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Status</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Total Price</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Order Date</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white">
-                {filteredOrders.length > 0 ? (
-                  filteredOrders.map((order) => (
+      <div className="container mx-auto p-6">
+        <div className="mb-4">
+          <input
+            type="text"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            placeholder="Search by customer name"
+            className="px-4 py-2 border rounded"
+          />
+          <select
+            value={filterMonth || ""}
+            onChange={(e) => setFilterMonth(e.target.value)}
+            className="px-4 py-2 border rounded ml-4"
+          >
+            <option value="">All Months</option>
+            {monthNames.map((month, index) => (
+              <option key={month} value={month}>
+                {month}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            value={filterYear || ""}
+            onChange={(e) => setFilterYear(e.target.value)}
+            placeholder="Year"
+            className="px-4 py-2 border rounded ml-4"
+          />
+          <input
+            type="date"
+            value={filterDate || ""}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="px-4 py-2 border rounded ml-4"
+          />
+          <input
+            type="week"
+            value={filterWeek || ""}
+            onChange={(e) => setFilterWeek(e.target.value)}
+            className="px-4 py-2 border rounded ml-4"
+          />
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Order History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white border border-gray-300 divide-y divide-gray-200">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">Customer Name</th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">Status</th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">Total Price</th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">Order Date</th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  {filteredOrders.map((order) => (
                     <tr key={order.orderId} className="border-b border-gray-200">
                       <td className="px-4 py-2 text-gray-900">{order.customerName}</td>
-                      <td className="px-4 py-2 text-gray-900">{order.orderPayment}</td>
                       <td className="px-4 py-2 text-gray-900">{order.status}</td>
-                      <td className="px-4 py-2 text-gray-900"> AU$ {order.totalPrice.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-gray-900">${order.totalPrice.toFixed(2)}</td>
                       <td className="px-4 py-2 text-gray-900">{order.orderDate ? formatDate(order.orderDate) : "N/A"}</td>
-                      <td className="px-4 py-2">
-                        <Button onClick={() => setSelectedOrder(order)} variant="outline" className="mr-2">View</Button>
-                        <Button onClick={() => deleteOrder(order.orderId || '')} variant="destructive">Delete</Button>
+                      <td className="px-4 py-2 text-gray-900">
+                        <Button
+                          onClick={() => setSelectedOrder(order)}
+                          variant="secondary"
+                          className="bg-blue-600 text-white hover:bg-blue-700"
+                        >
+                          View
+                        </Button>
+                        <Button
+                          onClick={() => setConfirmDeleteOrder(order)}
+                          variant="destructive"
+                          className="bg-red-600 text-white hover:bg-red-700 ml-2"
+                        >
+                          Delete
+                        </Button>
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-2 text-center text-gray-500">No orders found</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-        <CardFooter>
-          {selectedOrder && (
-            <OrderDetailModal order={selectedOrder} onClose={handleCloseModal} />
-          )}
-        </CardFooter>
-      </Card>
+                  ))}
+                  {filteredOrders.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-2 text-center text-gray-500">No orders available</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+        {selectedOrder && (
+          <OrderDetailModal
+            order={selectedOrder}
+            onClose={() => setSelectedOrder(null)}
+          />
+        )}
+        {confirmDeleteOrder && (
+          <ConfirmDeleteModal
+            order={confirmDeleteOrder}
+            onConfirm={() => {
+              if (confirmDeleteOrder.orderId) {
+                handleDeleteOrder(confirmDeleteOrder.orderId);
+              }
+            }}
+            onCancel={() => setConfirmDeleteOrder(null)}
+          />
+        )}
+      </div>
     </Layout>
   );
 }
