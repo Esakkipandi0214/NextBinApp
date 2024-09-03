@@ -538,13 +538,13 @@ console.log("Filter Key:",queryName)
         type="text"
         value={formData.customerName}
         placeholder="Select customer here"
-        style={{ width: '600px', padding: '8px' }}
-        className=" border-2 rounded-xl"
+        style={{ width: '550px', padding: '8px' }}
+        className=" border-2 rounded-l"
         disabled
       />
     </div>
     </div>
-        <div className="space-y-2">
+        <div className="space-y-2 mt-10">
           <Label htmlFor="status">Order Status</Label>
           <Select onValueChange={handleOrderStatusChange} value={formData.status}>
             <SelectTrigger>
