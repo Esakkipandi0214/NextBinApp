@@ -19,7 +19,9 @@ const Sidebar: React.FC = () => {
     { href: '/TestOderManagement', icon: <HistoryIcon className="h-5 w-5" />, label: 'Orders History' },
     { href: '/CustomerNotes', icon: <CalendarIcon  className="h-5 w-5" />, label: 'Notes' }, // Unique icon
     { href: '/TestCategoryUpdate', icon: <TagIcon className="h-5 w-5" />, label: 'Add Material' }, // Unique icon
-    { href: '/TestInventory', icon: <ArchiveIcon className="h-5 w-5" />, label: 'Inventory' } // Unique icon
+    { href: '/TestInventory', icon: <ArchiveIcon className="h-5 w-5" />, label: 'Inventory' }, // Unique icon
+    { href: '/AddGuest', icon: <UserIcon className="h-5 w-5" />, label: 'Guests' },
+
   ];
   
 
