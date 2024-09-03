@@ -53,7 +53,7 @@ const calculateAggregates = (items: OrderItem[]) => {
       category,
       subCategory,
       totalWeight,
-      avgPricePerKg: totalPrice / count,
+      avgPricePerKg: totalPrice / totalWeight,
     };
   });
 };
