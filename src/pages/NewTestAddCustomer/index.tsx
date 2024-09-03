@@ -8,8 +8,18 @@ import Layout from "@/components/layout";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { useRouter } from 'next/router';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/firebase';
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
+import { auth } from '@/firebase';
 interface Customer {
   id: string;
   firstName: string;
@@ -42,7 +52,7 @@ interface CustomerDetailProps {
 
 const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer, onClose }) => {
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
+   <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
       <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
 
         <h2 className="text-2xl font-bold mb-4">Customer Detail</h2>
@@ -91,10 +101,12 @@ const Component: React.FC = () => {
   const [regoFilter, setRegoFilter] = useState<string | null>(null);
   const [countryCode, setCountryCode] = useState<string | null>(null);
   const [identityProof, setIdentityProof] = useState<string | null>(null);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] =  useState<Customer | null>(null);
+  
+  
   const phoneFilter = countryCode && phoneNumber ? `${countryCode} ${phoneNumber}` : null;
   const router = useRouter();
-
   const filteredData = phoneNumber
     ? customerData.filter((eachCustomer) =>
       eachCustomer.contactNumber?.toLowerCase().includes(phoneNumber.toLowerCase())
@@ -124,10 +136,10 @@ const Component: React.FC = () => {
       constraints.push(where("companyName", "==", companyFilter));
     }
     if (regoFilter) {
-      constraints.push(where("rego", "==", regoFilter));
+      constraints.push(where("rego", "array-contains", regoFilter));
     }
     if (phoneFilter) {
-      constraints.push(where("contactNumber", "==", phoneFilter));
+      constraints.push(where("contactNumbers", "array-contains", phoneFilter));
     }
     if (identityProof) {
       constraints.push(where("identityProof", "==", identityProof));
@@ -164,17 +176,40 @@ const Component: React.FC = () => {
     event.preventDefault();
     const registrationNumber = `${customerData.length + 1}`;
 
+    const rego1 = (event.currentTarget.elements.namedItem("rego1") as HTMLInputElement).value;
+    const rego2 = (event.currentTarget.elements.namedItem("rego2") as HTMLInputElement).value;
+    const rego3 = (event.currentTarget.elements.namedItem("rego3") as HTMLInputElement).value;
+    
+    // Concatenate the rego values with a slash separator
+    const regoArray = [rego1, rego2, rego3].filter(Boolean);
+    
+    const countryCode = (event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value;
+  const Number = (event.currentTarget.elements.namedItem("Number") as HTMLInputElement).value;
+  const alternateNumber = (event.currentTarget.elements.namedItem("alternateNumber") as HTMLInputElement).value;
+
+  // Concatenate the country code with the contact numbers
+  const primaryContactNumber = `${countryCode} ${Number}`;
+  const alternateContactNumber = alternateNumber ? `${countryCode} ${alternateNumber}` : '';
+
+  // Create an array of contact numbers, excluding empty strings
+  const contactNumberArray = [primaryContactNumber, alternateContactNumber].filter(Boolean);
+
+  
+    // Now you can store this concatenated string in your data
+    
     await addDoc(collection(db, "customers"), {
       firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
       lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
       name: `${(event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value}${(event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value}`,
-      contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement).value}`,
+      // contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement).value}`,
+      contactNumber:contactNumberArray,
       identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement).value,
       address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
       postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement).value,
       frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
       registration: registrationNumber,
-      rego: (event.currentTarget.elements.namedItem("rego") as HTMLInputElement).value,
+      // rego: (event.currentTarget.elements.namedItem("rego") as HTMLInputElement).value,
+      rego: regoArray,
       companyName: (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement).value,
       abn: (event.currentTarget.elements.namedItem("abn") as HTMLInputElement).value,
       factoryLocation: (event.currentTarget.elements.namedItem("factoryLocation") as HTMLInputElement).value,
@@ -187,7 +222,8 @@ const Component: React.FC = () => {
       created: new Date().toISOString(),
       email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value,
     });
-    alert("Customer created successfully!");
+    // alert("Customer created successfully!");
+    toast.success("Customer created successfully!")
     fetchData();
     setShowCreateModal(false);
   };
@@ -197,14 +233,22 @@ const Component: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleDeleteClick = async (customerId: string) => {
-    if (window.confirm("Are you sure you want to delete this customer?")) {
-      await deleteDoc(doc(db, "customers", customerId));
-      alert("Customer deleted successfully!");
+  const handleDeleteClick = async (customer:Customer) => {
+    console.log("Ffff",customer)
+    setCustomerToDelete(customer);
+    setShowDeleteModal(true);
+  };
+  const confirmDelete = async () => {
+    if (customerToDelete) {
+      await deleteDoc(doc(db, "customers", customerToDelete.id));
+      toast.success("Customer deleted successfully!");
       fetchData();
+      setShowDeleteModal(false);
     }
   };
-
+  
+  
+    
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (editingCustomer) {
@@ -228,52 +272,38 @@ const Component: React.FC = () => {
         accountNumber: (event.currentTarget.elements.namedItem("accountNumber") as HTMLInputElement).value,
         email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value,
       });
-      alert("Customer updated successfully!");
+      // alert("Customer updated successfully!");
+      toast.success("Customer updated successfully!")
       fetchData();
       setShowEditModal(false);
       setEditingCustomer(null);
     }
   };
-  // const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   if (!editingCustomer) return;
-
-  //   // Collect updated values
-  //   const updatedData: Partial<Customer> = {
-  //     firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement)?.value || '',
-  //     lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement)?.value || '',
-  //     contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement)?.value || ''} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement)?.value || ''}`,
-  //     identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement)?.value || '',
-  //     dob: (event.currentTarget.elements.namedItem("dob") as HTMLInputElement)?.value || '',
-  //     address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement)?.value || '',
-  //     postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement)?.value || '',
-  //     frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement)?.value || '',
-  //     email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement)?.value || '', // Add this line
-  //     companyName: (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement)?.value || ''
-  //   };
-
-  //   try {
-  //     await updateDoc(doc(db, "customers", editingCustomer.id), updatedData);
-  //     alert("Customer updated successfully!");
-  //     setShowEditModal(false);
-  //     fetchData();
-  //   } catch (error) {
-  //     console.error("Error updating customer:", error);
-  //     alert("Failed to update customer.");
-  //   }
-  // };
+  
   // JavaScript functions to handle specific conditions
-  function handlePhoneNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const phoneNumber = event.target.value;
-    if (phoneNumber.length <= 8) {
-      event.target.value = phoneNumber.padStart(8, '');
-    }
-  }
+  // function handlePhoneNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
+  //   const phoneNumber = event.target.value;
+  //   if (phoneNumber.length <= 8) {
+  //     event.target.value = phoneNumber.padStart(8, '');
+  //   }
+  // }
+  const handlePhoneNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const countryCode = (document.getElementById("countryCode") as HTMLSelectElement).value;
+    const Number = event.target.value;
+  
+    // Concatenate country code with the contact number
+    const contactNumber = `${countryCode} ${Number}`;
+  
+    console.log("Full Phone Number:", contactNumber);
+    // Now you can store fullPhoneNumber or use it as needed
+  };
 
   function handleidentityProofChange(event: React.ChangeEvent<HTMLInputElement>) {
     const identityProof = event.target.value;
     if (!identityProof) {
-      alert("Please provide passport details if no driving identityProof is available.");
+      // alert("Please provide passport details if no driving identityProof is available.");
+      toast.error("Please provide passport details if no driving identityProof is available.")
+
     }
   }
 
@@ -302,6 +332,7 @@ const Component: React.FC = () => {
 
   return (
     <Layout>
+         <Toaster/>
       <Card className="w-full  py-6">
         <div className="max-w-7xl mx-auto md:p-10 p-4">
           <div className="flex justify-end mb-4">
@@ -340,8 +371,8 @@ const Component: React.FC = () => {
                       <div>
                         <Label htmlFor="contactNumber">Contact Number <span className="text-red-500">*</span></Label>
                         <Input
-                          id="contactNumber"
-                          name="contactNumber"
+                          id="primarycontactNumber"
+                          name="primarycontactNumber"
                           type="tel"
                           placeholder="Enter phone number"
                           required
@@ -355,7 +386,7 @@ const Component: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="alternateContactNumber">Alternate Mobile Number</Label>
+                        <Label htmlFor="contactNumber">Alternate Mobile Number</Label>
                         <Input
                           id="alternateContactNumber"
                           name="alternateContactNumber"
@@ -386,7 +417,21 @@ const Component: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="rego">rego <span className="text-red-500">*</span></Label>
-                        <Input id="rego" name="rego" type="text" placeholder="Enter rego" />
+                        <Input id="rego1" name="rego1" type="text" placeholder="Enter rego vechile 1" />
+
+                      </div>
+                      <div>
+                        <Label htmlFor="rego">rego (Optional)</Label>
+                        <Input id="rego2" name="rego2" type="text" placeholder="Enter rego vechile 2" />
+
+                      </div>
+                    </div>
+            
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="rego">rego (Optional)</Label>
+                        <Input id="rego3" name="rego3" type="text" placeholder="Enter rego vechile 3" />
+
                       </div>
                       <div>
                         <Label htmlFor="identityProof">Identity Proof <span className="text-red-500">*</span></Label>
@@ -477,7 +522,7 @@ const Component: React.FC = () => {
                           name="firstName"
                           type="text"
                           defaultValue={editingCustomer.firstName || ''}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -487,7 +532,7 @@ const Component: React.FC = () => {
                           name="lastName"
                           type="text"
                           defaultValue={editingCustomer.lastName}
-                          required
+                          // required
                         />
                       </div>
                     </div>
@@ -514,7 +559,7 @@ const Component: React.FC = () => {
                           name="contactNumber"
                           type="tel"
                           defaultValue={editingCustomer.contactNumber}
-                          required
+                          // required
                         />
                       </div>
                     </div>
@@ -526,7 +571,7 @@ const Component: React.FC = () => {
                           name="abn"
                           type="text"
                           defaultValue={editingCustomer.abn}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -536,7 +581,7 @@ const Component: React.FC = () => {
                           name="factoryLocation"
                           type="text"
                           defaultValue={editingCustomer.factoryLocation}
-                          required
+                          // required
                         />
                       </div>
 
@@ -552,7 +597,7 @@ const Component: React.FC = () => {
                           name="companyName"
                           type="text"
                           defaultValue={editingCustomer.companyName}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -562,7 +607,7 @@ const Component: React.FC = () => {
                           name="identityProof"
                           type="text"
                           defaultValue={editingCustomer.identityProof}
-                          required
+                          // required
                         />
                       </div>
                     </div>
@@ -574,9 +619,10 @@ const Component: React.FC = () => {
                           name="rego"
                           type="text"
                           defaultValue={editingCustomer.rego}
-                          required
+                          // required
                         />
-                      </div>  </div>
+                      </div> 
+                       </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="email">Email</Label>
@@ -585,7 +631,7 @@ const Component: React.FC = () => {
                           name="email"
                           type="email"
                           defaultValue={editingCustomer.email}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -595,7 +641,7 @@ const Component: React.FC = () => {
                           name="address"
                           type="text"
                           defaultValue={editingCustomer.address}
-                          required
+                          // required
                         />
                       </div>
 
@@ -611,7 +657,7 @@ const Component: React.FC = () => {
                           name="suburb"
                           type="text"
                           defaultValue={editingCustomer.suburb}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -621,7 +667,7 @@ const Component: React.FC = () => {
                           name="state"
                           type="text"
                           defaultValue={editingCustomer.state}
-                          required
+                          // required
                         />
                       </div>
                     </div>
@@ -633,7 +679,7 @@ const Component: React.FC = () => {
                           name="postCode"
                           type="text"
                           defaultValue={editingCustomer.postCode}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -643,7 +689,7 @@ const Component: React.FC = () => {
                           name="country"
                           type="text"
                           defaultValue={editingCustomer.country}
-                          required
+                          // required
                         />
                       </div>
 
@@ -657,7 +703,7 @@ const Component: React.FC = () => {
                           name="bsb"
                           type="text"
                           defaultValue={editingCustomer.bsb}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -667,7 +713,7 @@ const Component: React.FC = () => {
                           name="frequency"
                           type="text"
                           defaultValue={editingCustomer.frequency}
-                          required
+                          // required
                         />
                       </div>
 
@@ -681,7 +727,7 @@ const Component: React.FC = () => {
                           name="bankAccountName"
                           type="text"
                           defaultValue={editingCustomer.bankAccountName}
-                          required
+                          // required
                         />
                       </div>
                       <div>
@@ -691,7 +737,7 @@ const Component: React.FC = () => {
                           name="accountNumber"
                           type="text"
                           defaultValue={editingCustomer.accountNumber}
-                          required
+                          // required
                         />
                       </div>
                     </div>
@@ -820,9 +866,10 @@ const Component: React.FC = () => {
                       <Button size="sm" onClick={() => handleEditClick(customer)}>
                         Edit
                       </Button>
-                      <Button size="sm" onClick={() => handleDeleteClick(customer.id)}>
-                        Delete
-                      </Button>
+                      <Button size="sm" onClick={() => handleDeleteClick(customer)}>
+  Delete
+</Button>
+
                     </td>
                   </tr>
                 ))}
@@ -830,6 +877,32 @@ const Component: React.FC = () => {
             </table>
           </div>
         </div>
+       <Dialog open={showDeleteModal}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete your account
+            and remove your data from our servers.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end space-x-2">
+          <button onClick={() => setShowDeleteModal(false)} className="bg-gray-300 text-black px-4 py-2 rounded">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              // Handle the delete action here
+              confirmDelete();
+            }}
+            className="bg-red-600 text-white px-4 py-2 rounded"
+          >
+            Confirm
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
       </Card>
     </Layout>
   );
