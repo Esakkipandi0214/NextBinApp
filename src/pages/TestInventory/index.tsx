@@ -32,31 +32,65 @@ interface FormData {
 
 const formatDate = (date: string) => new Date(date).toLocaleDateString();
 
+// const calculateAggregates = (items: OrderItem[]) => {
+//   const aggregates: { [key: string]: { totalWeight: number, totalPrice: number, count: number } } = {};
+
+//   items.forEach(item => {
+//     const key = `${item.category}-${item.subCategory}`;
+
+//     if (!aggregates[key]) {
+//       aggregates[key] = { totalWeight: 0, totalPrice: 0, count: 0 };
+//     }
+
+//     aggregates[key].totalWeight += parseFloat(item.weight);
+//     aggregates[key].totalPrice += item.pricePerKg;
+//     aggregates[key].count += 1;
+//   });
+
+//   return Object.entries(aggregates).map(([key, { totalWeight, totalPrice, count }]) => {
+//     const [category, subCategory] = key.split("-");
+//     return {
+//       category,
+//       subCategory,
+//       totalWeight,
+//       avgPricePerKg: totalPrice / totalWeight,
+//     };
+//   });
+// };
 const calculateAggregates = (items: OrderItem[]) => {
-  const aggregates: { [key: string]: { totalWeight: number, totalPrice: number, count: number } } = {};
+  const aggregates: { [key: string]: { totalWeight: number, totalPriceWeighted: number, count: number } } = {};
 
   items.forEach(item => {
     const key = `${item.category}-${item.subCategory}`;
 
     if (!aggregates[key]) {
-      aggregates[key] = { totalWeight: 0, totalPrice: 0, count: 0 };
+      aggregates[key] = { totalWeight: 0, totalPriceWeighted: 0, count: 0 };
     }
 
-    aggregates[key].totalWeight += parseFloat(item.weight);
-    aggregates[key].totalPrice += item.pricePerKg;
+    // Parse the weight to ensure it's a number
+    const weight = parseFloat(item.weight);
+    
+    // Update the total weight and the weighted total price
+    aggregates[key].totalWeight += weight;
+    aggregates[key].totalPriceWeighted += item.pricePerKg * weight;
     aggregates[key].count += 1;
   });
 
-  return Object.entries(aggregates).map(([key, { totalWeight, totalPrice, count }]) => {
+  return Object.entries(aggregates).map(([key, { totalWeight, totalPriceWeighted, count }]) => {
     const [category, subCategory] = key.split("-");
+    
+    // Calculate the weighted average price per kg
+    const avgPricePerKg = totalWeight ? totalPriceWeighted / totalWeight : 0;
+
     return {
       category,
       subCategory,
       totalWeight,
-      avgPricePerKg: totalPrice / totalWeight,
+      avgPricePerKg,
     };
   });
 };
+
 
 export default function OrdersHistory() {
   const [orders, setOrders] = useState<FormData[]>([]);
@@ -188,8 +222,8 @@ export default function OrdersHistory() {
             <table className="min-w-full bg-white border border-gray-300 divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Category</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-700">Subcategory</th>
+                  {/* <th className="px-4 py-2 text-left font-medium text-gray-700">Category</th> */}
+                  <th className="px-4 py-2 text-left font-medium text-gray-700">Goods</th>
                   <th className="px-4 py-2 text-left font-medium text-gray-700">Total Weight</th>
                   <th className="px-4 py-2 text-left font-medium text-gray-700">Average Price per Kg</th>
                 </tr>
@@ -197,7 +231,7 @@ export default function OrdersHistory() {
               <tbody className="bg-white">
                 {aggregatedOrders.length ? aggregatedOrders.map((item, index) => (
                   <tr key={index} className="border-b border-gray-200">
-                    <td className="px-4 py-2 text-gray-900">{item.category}</td>
+                    {/* <td className="px-4 py-2 text-gray-900">{item.category}</td> */}
                     <td className="px-4 py-2 text-gray-900">{item.subCategory}</td>
                     <td className="px-4 py-2 text-gray-900">{item.totalWeight.toFixed(2)}</td>
                     <td className="px-4 py-2 text-gray-900">${item.avgPricePerKg.toFixed(2)}</td>
