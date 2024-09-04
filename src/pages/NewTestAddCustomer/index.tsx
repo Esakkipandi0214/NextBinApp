@@ -28,6 +28,7 @@ interface Customer {
   contactNumber: string;
   identityProof: string;
   // dob: string;
+  role: string;
   email: string;
   address: string;
   postCode: string;
@@ -135,6 +136,9 @@ const Component: React.FC = () => {
   const fetchData = async () => {
     const constraints = [];
 
+    // Always filter by role
+    constraints.push(where("role", "==", "customer"));
+  
     if (companyFilter) {
       constraints.push(where("companyName", "==", companyFilter));
     }
@@ -150,7 +154,7 @@ const Component: React.FC = () => {
 
     // constraints.push(limit(constraints.length === 0 ? 8 : 7));
 
-    const q = query(collection(db, "customers"), ...constraints);
+    const q = query(collection(db, "users"), ...constraints);
 
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Customer[];
@@ -185,26 +189,29 @@ const Component: React.FC = () => {
 
     // Concatenate the rego values with a slash separator
     const regoArray = [rego1, rego2, rego3].filter(Boolean);
-
+    // Safely get elements by name and check if they exist before accessing their values
     const countryCode = (event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value;
-    const Number = (event.currentTarget.elements.namedItem("Number") as HTMLInputElement).value;
-    const alternateNumber = (event.currentTarget.elements.namedItem("alternateNumber") as HTMLInputElement).value;
-
+    const primaryContactNumber = (event.currentTarget.elements.namedItem("primaryContactNumber") as HTMLInputElement).value;
+    const alternateContactNumber = (event.currentTarget.elements.namedItem("alternateContactNumber") as HTMLInputElement).value;
+  
     // Concatenate the country code with the contact numbers
-    const primaryContactNumber = `${countryCode} ${Number}`;
-    const alternateContactNumber = alternateNumber ? `${countryCode} ${alternateNumber}` : '';
-
+    const primaryContactNumberFormatted = `${countryCode} ${primaryContactNumber}`;
+    const alternateContactNumberFormatted = alternateContactNumber ? `${countryCode} ${alternateContactNumber}` : '';
+  
     // Create an array of contact numbers, excluding empty strings
-    const contactNumberArray = [primaryContactNumber, alternateContactNumber].filter(Boolean);
+    const contactNumberArray = [primaryContactNumberFormatted, alternateContactNumberFormatted].filter(Boolean);
 
+    // Reset the form fields after submission
+    // event.currentTarget.reset();
 
     // Now you can store this concatenated string in your data
 
-    await addDoc(collection(db, "customers"), {
+    await addDoc(collection(db, "users"), {
       firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
       lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
       name: `${(event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value}${(event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value}`,
       // contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement).value}`,
+      role: 'customer',
       contactNumber: contactNumberArray,
       identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement).value,
       address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
@@ -243,7 +250,7 @@ const Component: React.FC = () => {
   };
   const confirmDelete = async () => {
     if (customerToDelete) {
-      await deleteDoc(doc(db, "customers", customerToDelete.id));
+      await deleteDoc(doc(db, "users", customerToDelete.id));
       toast.success("Customer deleted successfully!");
       fetchData();
       setShowDeleteModal(false);
@@ -255,7 +262,7 @@ const Component: React.FC = () => {
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (editingCustomer) {
-      await updateDoc(doc(db, "customers", editingCustomer.id), {
+      await updateDoc(doc(db, "users", editingCustomer.id), {
         firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
         lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
         contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement).value}`,
@@ -283,13 +290,7 @@ const Component: React.FC = () => {
     }
   };
 
-  // JavaScript functions to handle specific conditions
-  // function handlePhoneNumberChange(event: React.ChangeEvent<HTMLInputElement>) {
-  //   const phoneNumber = event.target.value;
-  //   if (phoneNumber.length <= 8) {
-  //     event.target.value = phoneNumber.padStart(8, '');
-  //   }
-  // }
+
   const handlePhoneNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const countryCode = (document.getElementById("countryCode") as HTMLSelectElement).value;
     const Number = event.target.value;
@@ -340,112 +341,19 @@ const Component: React.FC = () => {
       <Toaster />
       <Card className="w-full flex py-6">
         <div className=" max-w-7xl mx-auto md:p-10 p-4">
-        
-       
+
+
           <div className="flex justify-end gap-2 mb-4">
-          <div>
-            <Button onClick={() => setShowEmployeeModal(true)} style={{ backgroundColor: "#00215E", color: "white" }}>
+            <div>
+              <Button onClick={() => setShowEmployeeModal(true)} style={{ backgroundColor: "#00215E", color: "white" }}>
                 Add Employee
-            </Button>
-            <AddEmployee showEmployeeModal={showEmployeeModal} setShowEmployeeModal={setShowEmployeeModal} />
-        </div>
+              </Button>
+              <AddEmployee showEmployeeModal={showEmployeeModal} setShowEmployeeModal={setShowEmployeeModal} />
+            </div>
             <Button onClick={() => setShowCreateModal(true)} style={{ backgroundColor: "#00215E", color: "white" }}>
               Add Customer
             </Button>
           </div>
-
-          {/* {showEmployeeModal && (
-            <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
-              <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
-                <h2 className="text-2xl font-bold mb-4">Create New Employee</h2>
-                <form onSubmit={handleSubmit}>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
-                        <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" required />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
-                        <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" required />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="countryCode">Country Code <span className="text-red-500">*</span></Label>
-                        <select id="countryCode" name="countryCode" className="block w-full border border-gray-300 rounded-md py-2 px-3" required>
-                          {countryCodes.map((country) => (
-                            <option key={country.code} value={country.code}>
-                              {country.name} ({country.code})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <Label htmlFor="contactNumber">Contact Number <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="primarycontactNumber"
-                          name="primarycontactNumber"
-                          type="tel"
-                          placeholder="Enter phone number"
-                          required
-                          pattern="\d{10}"
-                          minLength={10}
-                          maxLength={10}
-                          title="Phone number must be exactly 10 digits"
-                          onChange={handlePhoneNumberChange}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="contactNumber">Alternate Mobile Number</Label>
-                        <Input
-                          id="alternateContactNumber"
-                          name="alternateContactNumber"
-                          type="tel"
-                          placeholder="Enter alternate mobile number"
-                          pattern="\d{10}"
-                          minLength={10}
-                          maxLength={10}
-                          title="Phone number must be exactly 10 digits"
-                          onChange={handlePhoneNumberChange}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="factoryLocation">Factory Location <span className="text-red-500">*</span></Label>
-                        <Input id="factoryLocation" name="factoryLocation" type="text" placeholder="Enter factory location" required />
-                      </div>
-                     
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     
-                      <div>
-                        <Label htmlFor="email">Email (Optional)</Label>
-                        <Input id="email" name="email" type="email" placeholder="Enter email address" />
-                      </div>
-                      <div>
-                        <Label htmlFor="password">PassWord <span className="text-red-500">*</span></Label>
-                        <Input id="password" name="password" type="text" placeholder="Enter password" required />
-                      </div>
-                      
-                    </div>
-                   
-                   
-                    </div>
-                  <div className="flex justify-end space-x-4 mt-4">
-                    <Button type="submit" style={{ backgroundColor: "#00215E", color: "white" }}>
-                      Save
-                    </Button>
-                    <Button type="button" onClick={handleCancelCreate} className="bg-gray-300 text-black">
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )} */}
-
           {showCreateModal && (
             <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
               <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
@@ -474,10 +382,10 @@ const Component: React.FC = () => {
                         </select>
                       </div>
                       <div>
-                        <Label htmlFor="contactNumber">Contact Number <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="primaryContactNumber">Contact Number <span className="text-red-500">*</span></Label>
                         <Input
-                          id="primarycontactNumber"
-                          name="primarycontactNumber"
+                          id="primaryContactNumber"
+                          name="primaryContactNumber"
                           type="tel"
                           placeholder="Enter phone number"
                           required
@@ -491,7 +399,7 @@ const Component: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="contactNumber">Alternate Mobile Number</Label>
+                        <Label htmlFor="alternateContactNumber">Alternate Mobile Number</Label>
                         <Input
                           id="alternateContactNumber"
                           name="alternateContactNumber"
@@ -920,7 +828,7 @@ const Component: React.FC = () => {
                   pattern="\d{10}"
                   minLength={10}
                   maxLength={10}
-                  title="contactNumber  must be exactly 10 digits"
+                  title="contactNumber must be exactly 10 digits"
                   onChange={(e) => setPhoneNumber(e.target.value || null)}
                 />
               </div>
