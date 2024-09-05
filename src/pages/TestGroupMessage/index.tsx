@@ -41,11 +41,19 @@ const weightCategories = [
 ];
 
 const materials = [
-  'Aluminum',
+  'Aluminium',
+  'Batteries',
+  'Catalytic converters',
+  'Stainless',
   'Copper',
   'Compressor',
-  'Stainless',
-  'Batteries'
+  'Brass',
+  'Electric motors',
+  'Steel',
+  'Starter motors',
+  'Lead',
+
+ 
   // Add more materials as needed
 ];
 

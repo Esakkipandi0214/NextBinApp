@@ -224,7 +224,7 @@ const OrderDetails: React.FC<{ order: OrderProps }> = ({ order }) => {
     <div className="grid gap-2 text-sm">
       <p><span className="font-semibold">Order ID:</span> {order.id}</p>
       <p><span className="font-semibold">Date:</span> {order.orderDate}</p>
-      <p><span className="font-semibold">Payment:</span> {order.orderPayment}</p>
+      <p><span className="font-semibold">Payment:</span> AU$  {order.orderPayment}</p>
       <p><span className="font-semibold">Status:</span> {order.status}</p>
       {order.orderItems.map((item, index) => (
         <div key={index}>
@@ -260,7 +260,7 @@ const OrderDetailsTable: React.FC<{ orders: OrderProps[] }> = ({ orders }) => {
             <tr key={index}>
               <td className="border border-gray-300 px-4 py-2">{index+1}</td>
               <td className="border border-gray-300 px-4 py-2">{order.orderDate}</td>
-              <td className="border border-gray-300 px-4 py-2">{order.orderPayment}</td>
+              <td className="border border-gray-300 px-4 py-2">AU$ {order.orderPayment}</td>
               <td className="border border-gray-300 px-4 py-2">{order.status}</td>
               <td className="border border-gray-300 px-4 py-2">
                 {order.orderItems.map((item, index) => (
@@ -301,7 +301,7 @@ const OrderHistoryTable: React.FC<{ orders: OrderProps[], handleEditClick: handl
             <tr key={index}>
               <td className="border border-gray-300 px-4 py-2">{index+1}</td>
               <td className="border border-gray-300 px-4 py-2">{order.orderDate}</td>
-              <td className="border border-gray-300 px-4 py-2">{order.orderPayment}</td>
+              <td className="border border-gray-300 px-4 py-2">AU$ {order.orderPayment}</td>
               <td className="border border-gray-300 px-4 py-2">{order.status}</td>
               <td className="border border-gray-300 px-4 py-2">
                 <button onClick={() => handleEditClick(order)} className="text-blue-600 hover:underline">Edit</button>

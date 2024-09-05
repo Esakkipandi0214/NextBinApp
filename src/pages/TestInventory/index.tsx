@@ -108,7 +108,7 @@ export default function OrdersHistory() {
             <div className=" grid w-full justify-end pr-2">
               <tr className=" bg-slate-500/30 border rounded-xl">
                 <td className="px-4 py-2 text-right font-medium text-gray-700" colSpan={3}>Total Inventory Price:</td>
-                <td className="px-4 py-2 text-left font-medium text-gray-900 ">${totalSum.toFixed(2)}</td>
+                <td className="px-4 py-2 text-left font-medium text-gray-900 ">AU$ {totalSum.toFixed(2)}</td>
               </tr>
             </div>
           </div>
@@ -130,8 +130,8 @@ export default function OrdersHistory() {
                       <tr key={subCategoryIndex} className="border-b border-gray-200">
                         <td className="px-4 py-2 text-gray-900">{subCategoryItem.subCategory}</td>
                         <td className="px-4 py-2 text-gray-900">{subCategoryItem.totalWeight.toFixed(2)}</td>
-                        <td className="px-4 py-2 text-gray-900">${subCategoryItem.avgPricePerKg.toFixed(2)}</td>
-                        <td className="px-4 py-2 text-gray-900">${subCategoryItem.totalPrice.toFixed(2)}</td>
+                        <td className="px-4 py-2 text-gray-900">AU$ {subCategoryItem.avgPricePerKg.toFixed(2)}</td>
+                        <td className="px-4 py-2 text-gray-900">AU$ {subCategoryItem.totalPrice.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -139,7 +139,7 @@ export default function OrdersHistory() {
                     <tr className="bg-blue-500/50">
                       <td className="px-4 py-2 text-right font-medium text-gray-700" colSpan={3}>Total {category.category} Price:</td>
                       <td className="px-4 py-2 text-left font-medium text-gray-900">
-                        ${category.subCategories.reduce((sum: any, sub: { totalPrice: any; }) => sum + sub.totalPrice, 0).toFixed(2)}
+                      AU$ {category.subCategories.reduce((sum: any, sub: { totalPrice: any; }) => sum + sub.totalPrice, 0).toFixed(2)}
                       </td>
                     </tr>
                   </tfoot>

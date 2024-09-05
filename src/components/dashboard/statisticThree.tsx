@@ -102,7 +102,7 @@ const AnalyticsDashboard: React.FC = () => {
             <Tooltip contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', color: '#ffffff' }} />
             <Legend />
             <Area type="monotone" dataKey="count" stroke="#4caf50" fill="#4caf50" name="Count" />
-            <Area type="monotone" dataKey="gain" stroke="#2196f3" fill="#2196f3" name="Gain" />
+            <Area type="monotone" dataKey="gain" stroke="#2196f3" fill="#2196f3" name="Gain AU$ " />
             <Area type="monotone" dataKey="weight" stroke="#ff9800" fill="#ff9800" name="Weight" />
           </AreaChart>
         </ResponsiveContainer>

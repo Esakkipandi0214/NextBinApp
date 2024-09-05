@@ -54,7 +54,7 @@ const OrderDetailModal = ({ order, onClose }: { order: FormData | null; onClose:
         <div className="mb-6 space-y-2">
           <p><strong className="font-medium text-gray-700">Customer Name:</strong> <span className="text-gray-900">{order.customerName}</span></p>
           <p><strong className="font-medium text-gray-700">Status:</strong> <span className="text-gray-900">{order.status}</span></p>
-          <p><strong className="font-medium text-gray-700">Total Price:</strong> <span className="text-gray-900">${order.totalPrice.toFixed(2)}</span></p>
+          <p><strong className="font-medium text-gray-700">Total Price:</strong> <span className="text-gray-900">AU$ {order.totalPrice.toFixed(2)}</span></p>
           <p><strong className="font-medium text-gray-700">Date:</strong> <span className="text-gray-900">{order.orderDate ? formatDate(order.orderDate) : "N/A"}</span></p>
           <p><strong className="font-medium text-gray-700">Time:</strong> <span className="text-gray-900">{order.orderTime || "N/A"}</span></p>
         </div>
@@ -75,7 +75,7 @@ const OrderDetailModal = ({ order, onClose }: { order: FormData | null; onClose:
                   <td className="px-4 py-2 text-gray-900">{item.category}</td>
                   <td className="px-4 py-2 text-gray-900">{item.subCategory}</td>
                   <td className="px-4 py-2 text-gray-900">{item.weight}</td>
-                  <td className="px-4 py-2 text-gray-900">${Number(item.pricePerKg).toFixed(2)}</td>
+                  <td className="px-4 py-2 text-gray-900">AU$ {Number(item.pricePerKg).toFixed(2)}</td>
                 </tr>
               ))}
               {order.orderItems.length === 0 && (
@@ -286,7 +286,7 @@ export default function OrdersHistory() {
                     <tr key={order.orderId} className="border-b border-gray-200">
                       <td className="px-4 py-2 text-gray-900">{order.customerName}</td>
                       <td className="px-4 py-2 text-gray-900">{order.status}</td>
-                      <td className="px-4 py-2 text-gray-900">${order.totalPrice.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-gray-900">AU$ {order.totalPrice.toFixed(2)}</td>
                       <td className="px-4 py-2 text-gray-900">{order.orderDate ? formatDate(order.orderDate) : "N/A"}</td>
                       <td className="px-4 py-2 text-gray-900">
                         <Button
