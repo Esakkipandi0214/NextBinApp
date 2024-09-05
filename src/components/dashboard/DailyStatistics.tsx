@@ -20,9 +20,10 @@ const DailyStatistics: React.FC = () => {
         const endOfDay = new Date(today.setUTCHours(23, 59, 59, 999));
         const formattedEndOfDay = endOfDay.toISOString();
 
-        const customersRef = collection(db, 'customers');
+        const customersRef = collection(db, 'users');
         const todayQuery = query(
           customersRef,
+          where('role', '==', 'customer'),  
           where('created', '>=', formattedStartOfDay),
           where('created', '<=', formattedEndOfDay)
         );

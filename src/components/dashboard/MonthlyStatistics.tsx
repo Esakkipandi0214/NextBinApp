@@ -24,9 +24,10 @@ const MonthlyStatistics: React.FC = () => {
 
         console.log("Fetching customers from:", formattedStartOfMonth, "to:", formattedEndOfMonth);
 
-        const customersRef = collection(db, 'customers');
+        const customersRef = collection(db, 'users');
         const monthQuery = query(
           customersRef,
+          where('role', '==', 'customer'),  
           where('created', '>=', formattedStartOfMonth),
           where('created', '<=', formattedEndOfMonth)
         );
