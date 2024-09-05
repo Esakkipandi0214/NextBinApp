@@ -24,9 +24,10 @@ const WeeklyStatistics: React.FC = () => {
         endOfWeek.setUTCHours(23, 59, 59, 999);
         const formattedEndOfWeek = endOfWeek.toISOString();
 
-        const customersRef = collection(db, 'customers');
+        const customersRef = collection(db, 'users');
         const weekQuery = query(
           customersRef,
+          where('role', '==', 'customer'),  
           where('created', '>=', formattedStartOfWeek),
           where('created', '<=', formattedEndOfWeek)
         );
