@@ -89,8 +89,8 @@ const DailyProductInOut: React.FC = () => {
                 <TableCell style={{ color: "black" }}>{data.date}</TableCell>
                 <TableCell style={{ color: "black" }}>{data.customer}</TableCell>
                 <TableCell style={{ color: "black" }}>{data.orderItems.join(', ')}</TableCell>
-                <TableCell style={{ color: "black" }}>{data.materialWeight}</TableCell>
-                <TableCell style={{ color: "black" }}>{data.price}</TableCell>
+                <TableCell style={{ color: "black" }}>{data.materialWeight}Kg</TableCell>
+                <TableCell style={{ color: "black" }}>AU$ {data.price}</TableCell>
               </TableRow>
             ))}
           </TableBody>

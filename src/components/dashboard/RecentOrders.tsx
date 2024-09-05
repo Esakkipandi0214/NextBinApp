@@ -38,7 +38,7 @@ const RecentOrders: React.FC = () => {
 
       for (const doc of ordersSnapshot.docs) {
         const data = doc.data() as Omit<Order, 'id'>;
-        const totalWeight = data.orderItems.reduce((acc, item) => acc + item.weight, 0);
+        const totalWeight = data.totalWeight;
         const categories = data.orderItems.map(item => item.category);
         
         const order = {
@@ -162,10 +162,10 @@ const RecentOrders: React.FC = () => {
                 <TableCell style={{ color: "black" }}>{indexOfFirstOrder + index + 1}</TableCell>
                 <TableCell style={{ color: "black" }}>{order.orderDate}</TableCell>
                 <TableCell style={{ color: "black" }}>{order.customerName}</TableCell>
-                <TableCell style={{ color: "black" }}>{order.orderPayment}</TableCell>
+                <TableCell style={{ color: "black" }}>AU$ {order.orderPayment}</TableCell>
                 <TableCell style={{ color: "black" }}>{order.orderTime}</TableCell>
                 <TableCell style={{ color: "black" }}>{order.categories?.join(', ')}</TableCell>
-                <TableCell style={{ color: "black" }}>{order.totalWeight}</TableCell>
+                <TableCell style={{ color: "black" }}>{order.totalWeight}Kg</TableCell>
                 <TableCell>
                   <Badge color={getStatusBadgeColor(order.status)}>
                     {order.status}

@@ -109,7 +109,7 @@ const AnalyticsDashboard: React.FC = () => {
               <Bar key={key} dataKey={key} fill="#4caf50" name={key.replace('Count', '') + ' Count'} />
             ))}
             {Object.keys(data[0] || {}).filter(key => key.endsWith('Gain')).map((key) => (
-              <Bar key={key} dataKey={key} fill="#2196f3" name={key.replace('Gain', '') + ' Gain'} />
+              <Bar key={key} dataKey={key} fill="#2196f3" name={key.replace('Gain', '') + ' Gain AU$ '} />
             ))}
             {Object.keys(data[0] || {}).filter(key => key.endsWith('Weight')).map((key) => (
               <Bar key={key} dataKey={key} fill="#ff9800" name={key.replace('Weight', '') + ' Weight'} />
