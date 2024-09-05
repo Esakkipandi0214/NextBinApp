@@ -21,6 +21,7 @@ import {
 
 import { auth } from '@/firebase';
 import AddEmployee from "@/components/addemployee/addemployee";
+
 interface Customer {
   id: string;
   firstName: string;
@@ -182,45 +183,53 @@ const Component: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const registrationNumber = `${customerData.length + 1}`;
-
+  
     const rego1 = (event.currentTarget.elements.namedItem("rego1") as HTMLInputElement).value;
     const rego2 = (event.currentTarget.elements.namedItem("rego2") as HTMLInputElement).value;
     const rego3 = (event.currentTarget.elements.namedItem("rego3") as HTMLInputElement).value;
-
-    // Concatenate the rego values with a slash separator
     const regoArray = [rego1, rego2, rego3].filter(Boolean);
-    // Safely get elements by name and check if they exist before accessing their values
+  
     const countryCode = (event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value;
     const primaryContactNumber = (event.currentTarget.elements.namedItem("primaryContactNumber") as HTMLInputElement).value;
     const alternateContactNumber = (event.currentTarget.elements.namedItem("alternateContactNumber") as HTMLInputElement).value;
-  
-    // Concatenate the country code with the contact numbers
     const primaryContactNumberFormatted = `${countryCode} ${primaryContactNumber}`;
     const alternateContactNumberFormatted = alternateContactNumber ? `${countryCode} ${alternateContactNumber}` : '';
-  
-    // Create an array of contact numbers, excluding empty strings
     const contactNumberArray = [primaryContactNumberFormatted, alternateContactNumberFormatted].filter(Boolean);
-
-    // Reset the form fields after submission
-    // event.currentTarget.reset();
-
-    // Now you can store this concatenated string in your data
-
+  
+    // Get the form values for firstName, lastName, and companyName
+    const firstName = (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value;
+    const lastName = (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value;
+    const companyName = (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement).value;
+  
+    // Check if at least one of firstName, lastName, or companyName is filled
+    if (!firstName && !lastName && !companyName) {
+      toast.error("Please fill in at least one of First Name, Last Name, or Company Name.");
+      return;
+    }
+    if (firstName && !lastName) {
+      toast.error("Last Name is required if First Name is provided.");
+      return;
+    }
+  
+    if (lastName && !firstName) {
+      toast.error("First Name is required if Last Name is provided.");
+      return;
+    }
+  
+    // Continue to add the data to Firestore
     await addDoc(collection(db, "users"), {
-      firstName: (event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value,
-      lastName: (event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value,
-      name: `${(event.currentTarget.elements.namedItem("firstName") as HTMLInputElement).value}${(event.currentTarget.elements.namedItem("lastName") as HTMLInputElement).value}`,
-      // contactNumber: `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("contactNumber") as HTMLInputElement).value}`,
-      role: 'customer',
+      firstName,
+      lastName,
+      name: `${firstName} ${lastName}`,
       contactNumber: contactNumberArray,
+      role: 'customer',
       identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement).value,
       address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
       postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement).value,
       frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
       registration: registrationNumber,
-      // rego: (event.currentTarget.elements.namedItem("rego") as HTMLInputElement).value,
       rego: regoArray,
-      companyName: (event.currentTarget.elements.namedItem("companyName") as HTMLInputElement).value,
+      companyName,
       abn: (event.currentTarget.elements.namedItem("abn") as HTMLInputElement).value,
       factoryLocation: (event.currentTarget.elements.namedItem("factoryLocation") as HTMLInputElement).value,
       suburb: (event.currentTarget.elements.namedItem("suburb") as HTMLInputElement).value,
@@ -232,11 +241,12 @@ const Component: React.FC = () => {
       created: new Date().toISOString(),
       email: (event.currentTarget.elements.namedItem("email") as HTMLInputElement).value,
     });
-    // alert("Customer created successfully!");
-    toast.success("Customer created successfully!")
+  
+    toast.success("Customer created successfully!");
     fetchData();
     setShowCreateModal(false);
   };
+  
 
   const handleEditClick = (customer: Customer) => {
     setEditingCustomer(customer);
@@ -360,16 +370,17 @@ const Component: React.FC = () => {
                 <h2 className="text-2xl font-bold mb-4">Create New Customer</h2>
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name <span className="text-red-500">*</span></Label>
-                        <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" required />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName">Last Name <span className="text-red-500">*</span></Label>
-                        <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" required />
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">First Name</Label>
+              <Input id="firstName" name="firstName" type="text" placeholder="Enter first name" />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input id="lastName" name="lastName" type="text" placeholder="Enter last name" />
+            </div>
+           
+          </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="countryCode">Country Code <span className="text-red-500">*</span></Label>
@@ -413,18 +424,18 @@ const Component: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="abn">ABN <span className="text-red-500">*</span></Label>
-                        <Input id="abn" name="abn" type="text" placeholder="Enter ABN" required />
+                        <Label htmlFor="abn">ABN </Label>
+                        <Input id="abn" name="abn" type="text" placeholder="Enter ABN"  />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="factoryLocation">Factory Location <span className="text-red-500">*</span></Label>
-                        <Input id="factoryLocation" name="factoryLocation" type="text" placeholder="Enter factory location" required />
+                        <Label htmlFor="factoryLocation">Factory Location </Label>
+                        <Input id="factoryLocation" name="factoryLocation" type="text" placeholder="Enter factory location" />
                       </div>
                       <div>
-                        <Label htmlFor="companyName">Company Name <span className="text-red-500">*</span></Label>
-                        <Input id="companyName" name="companyName" type="text" placeholder="Enter company name" required />
+                        <Label htmlFor="companyName">Company Name </Label>
+                        <Input id="companyName" name="companyName" type="text" placeholder="Enter company name" />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -465,42 +476,42 @@ const Component: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="suburb">Suburb <span className="text-red-500">*</span></Label>
-                        <Input id="suburb" name="suburb" type="text" placeholder="Enter suburb" required />
+                        <Label htmlFor="suburb">Suburb </Label>
+                        <Input id="suburb" name="suburb" type="text" placeholder="Enter suburb"  />
                       </div>
                       <div>
-                        <Label htmlFor="state">State <span className="text-red-500">*</span></Label>
-                        <Input id="state" name="state" type="text" placeholder="Enter state" required />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="country">Country <span className="text-red-500">*</span></Label>
-                        <Input id="country" name="country" type="text" placeholder="Enter country" required />
-                      </div>
-                      <div>
-                        <Label htmlFor="postCode">Post Code <span className="text-red-500">*</span></Label>
-                        <Input id="postCode" name="postCode" type="text" placeholder="Enter post code" required pattern="\d{4}" minLength={4} maxLength={4} title="Post code must be exactly 4 digits" />
+                        <Label htmlFor="state">State </Label>
+                        <Input id="state" name="state" type="text" placeholder="Enter state"  />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="bsb">BSB <span className="text-red-500">*</span></Label>
-                        <Input id="bsb" name="bsb" type="text" placeholder="Enter BSB" required onChange={handleBSBChange} />
+                        <Label htmlFor="country">Country </Label>
+                        <Input id="country" name="country" type="text" placeholder="Enter country"  />
                       </div>
                       <div>
-                        <Label htmlFor="frequency">Frequency <span className="text-red-500">*</span></Label>
-                        <Input id="frequency" name="frequency" type="text" placeholder="Enter frequency" required />
+                        <Label htmlFor="postCode">Post Code </Label>
+                        <Input id="postCode" name="postCode" type="text" placeholder="Enter post code"  pattern="\d{4}" minLength={4} maxLength={4} title="Post code must be exactly 4 digits" />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="bankAccountName">Bank Account Name <span className="text-red-500">*</span></Label>
-                        <Input id="bankAccountName" name="bankAccountName" type="text" placeholder="Enter bank account name" required />
+                        <Label htmlFor="bsb">BSB </Label>
+                        <Input id="bsb" name="bsb" type="text" placeholder="Enter BSB"  onChange={handleBSBChange} />
                       </div>
                       <div>
-                        <Label htmlFor="accountNumber">Account Number <span className="text-red-500">*</span></Label>
-                        <Input id="accountNumber" name="accountNumber" type="text" placeholder="Enter account number" required />
+                        <Label htmlFor="frequency">Frequency </Label>
+                        <Input id="frequency" name="frequency" type="text" placeholder="Enter frequency"  />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="bankAccountName">Bank Account Name </Label>
+                        <Input id="bankAccountName" name="bankAccountName" type="text" placeholder="Enter bank account name"  />
+                      </div>
+                      <div>
+                        <Label htmlFor="accountNumber">Account Number </Label>
+                        <Input id="accountNumber" name="accountNumber" type="text" placeholder="Enter account number"  />
                       </div>
                     </div>
                   </div>
