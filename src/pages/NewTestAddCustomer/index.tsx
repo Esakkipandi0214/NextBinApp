@@ -109,11 +109,11 @@ const Component: React.FC = () => {
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
 
-  const phoneFilter = countryCode && phoneNumber ? `${countryCode} ${phoneNumber}` : null;
+  const phoneFilter = countryCode && phoneNumber ? `${countryCode}${phoneNumber}` : null;
   const router = useRouter();
   const filteredData = phoneNumber
     ? customerData.filter((eachCustomer) =>
-      eachCustomer.contactNumber?.toLowerCase().includes(phoneNumber.toLowerCase())
+      eachCustomer.contactNumber?.includes(phoneNumber.toLowerCase())
     )
     : customerData; // Show all data if phoneNumber is not provided
 

@@ -97,7 +97,7 @@ const Component: React.FC = () => {
 
   const fetchCustomerData = async () => {
     if (!customerId || typeof customerId !== 'string') return; // Ensure customerId is valid
-    const customerDocRef = doc(db, 'customers', customerId);
+    const customerDocRef = doc(db, 'users', customerId);
     const customerDoc = await getDoc(customerDocRef);
     const customerData = customerDoc.data() as CustomerProps;
 
