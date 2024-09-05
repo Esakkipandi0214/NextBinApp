@@ -46,10 +46,12 @@ const CustomerList: React.FC = () => {
 
   useEffect(() => {
     const fetchCustomers = async () => {
+      
       try {
-        const customersCollection = collection(db, 'customers');
-        const querySnapshot = await getDocs(customersCollection);
-
+        const customersCollection = collection(db, 'users');
+        const customersQuery = query(customersCollection, where('role', '==', 'customer'));
+          const querySnapshot = await getDocs(customersQuery);
+          
         const customerDataPromises = querySnapshot.docs.map(async doc => {
           const data = doc.data() as CustomerProps;
           const customerId = doc.id;

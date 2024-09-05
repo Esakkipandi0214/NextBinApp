@@ -96,8 +96,10 @@ export default function Component() {
   useEffect(() => {
     const fetchCustomerNames = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "customers"));
-        const customers = querySnapshot.docs.map((doc) => ({
+        const usersCollection = collection(db, "users");
+        const customersQuery = query(usersCollection, where("role", "==", "customer"));
+        const querySnapshot = await getDocs(customersQuery);
+                const customers = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
           number: doc.data().contactNumber,
@@ -300,10 +302,10 @@ export default function Component() {
           if (customerNumber.includes(value)) {
             matchType = 'number';
             queryName = 'number'; // Update queryName if a match is found
-          } else if (customercompanyName.toLowerCase().includes(value.toLowerCase())) {
+          } else if (customercompanyName.includes(value.toLowerCase())) {
             matchType = 'companyName';
             queryName = 'companyName'; // Update queryName if a match is found
-          } else if (customerrego.toLowerCase().includes(value.toLowerCase())) {
+          } else if (customerrego.includes(value.toLowerCase())) {
             matchType = 'rego';
             queryName = 'rego'; // Update queryName if a match is found
           } else if (customeridentityProof.toLowerCase().includes(value.toLowerCase())) {
@@ -470,7 +472,7 @@ export default function Component() {
   
         // Update the customer's frequency (Choose either mean or median)
         // Uncomment the line below to use the mean frequency
-        await updateDoc(doc(db, 'customers', customerId), { frequency: meanFrequency });
+        await updateDoc(doc(db, 'users', customerId), { frequency: meanFrequency });
   
         // Uncomment the line below to use the median frequency
         // await updateDoc(doc(db, 'customers', customerId), { frequency: medianFrequency });

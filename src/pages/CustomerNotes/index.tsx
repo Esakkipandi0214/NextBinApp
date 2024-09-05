@@ -64,9 +64,10 @@ export default function NoteManagement() {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const customerCollection = collection(db, 'customers');
-        const customerSnapshot = await getDocs(customerCollection);
-        const customerList = customerSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name,contactNumber: doc.data().contactNumber }));
+        const usersCollection = collection(db, "users");
+        const customersQuery = query(usersCollection, where("role", "==", "customer"));
+        const querySnapshot = await getDocs(customersQuery);
+        const customerList = querySnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name,contactNumber: doc.data().contactNumber }));
         setFilterCustomers(customerList)
         // setCustomers(customerList);
       } catch (error) {

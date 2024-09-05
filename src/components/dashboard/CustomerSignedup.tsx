@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../firebase'; // Adjust path if necessary
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs ,query, where } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
@@ -54,8 +54,9 @@ const CustomerActivity: React.FC = () => {
   const fetchData = async () => {
     const oneYearAgoDate = getOneYearAgoDate();
     const periodStartDate = getStartOfPeriod(period);
-    const customersRef = collection(db, 'customers');
-    const querySnapshot = await getDocs(customersRef);
+    const usersCollection = collection(db, "users");
+        const customersQuery = query(usersCollection, where("role", "==", "customer"));
+        const querySnapshot = await getDocs(customersQuery);
   
     const activeCustomerData: Customer[] = [];
     const inactiveCustomerData: Customer[] = [];

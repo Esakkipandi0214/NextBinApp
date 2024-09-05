@@ -119,9 +119,10 @@ const CustomerList: React.FC = () => {
 
   const fetchCustomersAndOrders = async () => {
     try {
-      const customersCollection = collection(db, 'customers');
-      const customersSnapshot = await getDocs(customersCollection);
-      const customerData = await Promise.all(customersSnapshot.docs.map(async (doc) => {
+      const usersCollection = collection(db, "users");
+        const customersQuery = query(usersCollection, where("role", "==", "customer"));
+        const querySnapshot = await getDocs(customersQuery);
+      const customerData = await Promise.all(querySnapshot.docs.map(async (doc) => {
         const data = doc.data() as CustomerProps;
         data.customerId = doc.id;
         data.orders = [];
