@@ -14,7 +14,7 @@ interface AddEmployeeProps {
 
 const AddEmployee: React.FC<AddEmployeeProps> = ({ showEmployeeModal, setShowEmployeeModal }) => {
     const handleCancelCreate = () => {
-        setShowEmployeeModal(false);    
+        setShowEmployeeModal(false);
     };
 
     const countryCodes = [{ code: "+61", name: "Australia" }];
@@ -39,12 +39,13 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ showEmployeeModal, setShowEmp
         const contactNumber = `${(event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value} ${(event.currentTarget.elements.namedItem("primarycontactNumber") as HTMLInputElement).value}`;
         const factoryLocation = (event.currentTarget.elements.namedItem("factoryLocation") as HTMLInputElement).value;
         const address = (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value;
+        const role = (event.currentTarget.elements.namedItem("role") as HTMLSelectElement).value;  // Get the selected role
 
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            await addDoc(collection(db, "employee"), {
+            await addDoc(collection(db, "users"), {
                 firstName,
                 lastName,
                 name: `${firstName} ${lastName}`,
@@ -54,6 +55,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ showEmployeeModal, setShowEmp
                 address,
                 email,
                 uid: user.uid,
+                role  // Store the selected role in Firestore
             });
 
             toast.success("Employee created successfully!");
@@ -65,7 +67,7 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ showEmployeeModal, setShowEmp
     };
 
     return (
-        <div> 
+        <div>
             {showEmployeeModal && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center p-2">
                     <div className="bg-white rounded-lg p-4 w-full max-w-lg max-h-screen overflow-auto">
@@ -122,11 +124,21 @@ const AddEmployee: React.FC<AddEmployeeProps> = ({ showEmployeeModal, setShowEmp
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
-                                        <Input id="email" name="email" type="email" placeholder="Enter email address" required/>
+                                        <Input id="email" name="email" type="email" placeholder="Enter email address" required />
                                     </div>
                                     <div>
                                         <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
                                         <Input id="password" name="password" type="text" placeholder="Enter password" required />
+                                    </div>
+                                </div>
+                                {/* Role selection */}
+                                <div className="grid grid-cols-1">
+                                    <div>
+                                        <Label htmlFor="role">Role <span className="text-red-500">*</span></Label>
+                                        <select id="role" name="role" className="block w-full border border-gray-300 rounded-md py-2 px-3" required>
+                                            <option value="admin">Admin</option>
+                                            <option value="manager">Employee</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
