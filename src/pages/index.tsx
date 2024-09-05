@@ -161,7 +161,7 @@ const Component: React.FC<ComponentProps> = () => {
             >
               {isLogin ? "Login" : "Sign Up"}
             </Button>
-            <p className="text-center text-sm text-muted">
+            {/* <p className="text-center text-sm text-muted">
               {isLogin ? (
                 <>
                   Don&apos;t have an account?{" "}
@@ -183,7 +183,7 @@ const Component: React.FC<ComponentProps> = () => {
                   </span>
                 </>
               )}
-            </p>
+            </p> */}
           </CardFooter>
         </Card>
       </div>
