@@ -137,7 +137,7 @@ export default function OrdersHistory() {
                   </tbody>
                   <tfoot className="bg-gray-100">
                     <tr className="bg-blue-500/50">
-                      <td className="px-4 py-2 text-right font-medium text-gray-700" colSpan={3}>Total for {category.category}:</td>
+                      <td className="px-4 py-2 text-right font-medium text-gray-700" colSpan={3}>Total {category.category} Price:</td>
                       <td className="px-4 py-2 text-left font-medium text-gray-900">
                         ${category.subCategories.reduce((sum: any, sub: { totalPrice: any; }) => sum + sub.totalPrice, 0).toFixed(2)}
                       </td>
