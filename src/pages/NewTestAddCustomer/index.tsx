@@ -148,9 +148,9 @@ const Component: React.FC = () => {
       constraints.push(where("contactNumbers", "array-contains", phoneFilter));
     }
   
-    if (identityProof) {
-      constraints.push(where("identityProof", "array-contains", identityProof));  // Direct filter if identityProof is a string
-    }
+    // if (identityProof) {
+    //   constraints.push(where("identityProof", "array-contains", identityProof));  // Direct filter if identityProof is a string
+    // }
   
     // Fetch the data from Firestore
     const q = query(collection(db, "users"), ...constraints);

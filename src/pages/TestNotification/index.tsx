@@ -146,11 +146,11 @@ const CustomerList: React.FC = () => {
 
   return (
     <Layout>
-        <Card className="w-full h-screen py-6">
+        <Card className="w-full h-full py-6">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl font-bold mb-6">Customer List</h1>
+        <h1 className="text-2xl font-bold mb-6 text-red-500 bg-yellow-500/15 border rounded-lg p-5">Freqeuncy Customers Notification</h1>
         <div className="grid gap-6">
-          {customers.map((customer) => (
+          {customers.length > 0 ? customers.map((customer) => (
             <CustomerCard
               key={customer.customerId}
               customer={customer}
@@ -158,7 +158,11 @@ const CustomerList: React.FC = () => {
               handleCallCustomer={handleCallCustomer}
               handleSendWhatsAppMessage={handleSendWhatsAppMessage}
             />
-          ))}
+          )):
+          <div className=' bg-green-500/15 w-full grid justify-start pl-3 border rounded-lg items-center h-20'>
+            <h1 className=' text-lg font-medium text-green-500'>Customers above frequency Not Present</h1>
+          </div>
+          }
         </div>
       </div>
       </Card>
