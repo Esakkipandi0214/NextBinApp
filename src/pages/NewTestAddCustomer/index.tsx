@@ -136,34 +136,41 @@ const Component: React.FC = () => {
 
   const fetchData = async () => {
     const constraints = [];
-
+  
     // Always filter by role
     constraints.push(where("role", "==", "customer"));
   
     if (companyFilter) {
       constraints.push(where("companyName", "==", companyFilter));
     }
-    if (regoFilter) {
-      constraints.push(where("rego", "array-contains", regoFilter));
-    }
+  
     if (phoneFilter) {
       constraints.push(where("contactNumbers", "array-contains", phoneFilter));
     }
+  
     if (identityProof) {
-      constraints.push(where("identityProof", "==", identityProof));
+      constraints.push(where("identityProof", "array-contains", identityProof));  // Direct filter if identityProof is a string
     }
-
-    // constraints.push(limit(constraints.length === 0 ? 8 : 7));
-
+  
+    // Fetch the data from Firestore
     const q = query(collection(db, "users"), ...constraints);
-
     const querySnapshot = await getDocs(q);
-    const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Customer[];
-
+    let data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Customer[];
+  
+    // Manual filtering for rego (if it's stored as a concatenated string)
+    if (regoFilter) {
+      data = data.filter((customer) => customer.rego.includes(regoFilter));
+    }
+    if (identityProof) {
+      data = data.filter((customer) => customer.identityProof.includes(identityProof));
+    }
+  
+    // Sort by rego (if rego is a string, use localeCompare for correct sorting)
     const sortedData = data.sort((a, b) => parseInt(a.rego) - parseInt(b.rego));
-
+  
     setCustomerData(sortedData);
   };
+  
   const handleFilterSubmit = () => {
     fetchData();
   };
@@ -183,11 +190,20 @@ const Component: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const registrationNumber = `${customerData.length + 1}`;
-  
+    
+    const license = (event.currentTarget.elements.namedItem("license") as HTMLInputElement).value;
+    const passport = (event.currentTarget.elements.namedItem("passport") as HTMLInputElement).value;
+    const identityProofArray=[license,passport].filter(Boolean);
+   
+    // if (!license && !passport ) {
+    //   toast.error("Please fill in at least one of license, or passport.");
+    //   return;
+    // }
+    
     const rego1 = (event.currentTarget.elements.namedItem("rego1") as HTMLInputElement).value;
     const rego2 = (event.currentTarget.elements.namedItem("rego2") as HTMLInputElement).value;
     const rego3 = (event.currentTarget.elements.namedItem("rego3") as HTMLInputElement).value;
-    const regoArray = [rego1, rego2, rego3].filter(Boolean);
+    const regoArray = [rego1, rego2, rego3].filter(Boolean).join(",");
   
     const countryCode = (event.currentTarget.elements.namedItem("countryCode") as HTMLSelectElement).value;
     const primaryContactNumber = (event.currentTarget.elements.namedItem("primaryContactNumber") as HTMLInputElement).value;
@@ -223,8 +239,8 @@ const Component: React.FC = () => {
       name: `${firstName} ${lastName}`,
       contactNumber: contactNumberArray,
       role: 'customer',
-      identityProof: (event.currentTarget.elements.namedItem("identityProof") as HTMLInputElement).value,
-      address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
+      identityProof: identityProofArray,
+       address: (event.currentTarget.elements.namedItem("address") as HTMLInputElement).value,
       postCode: (event.currentTarget.elements.namedItem("postCode") as HTMLInputElement).value,
       frequency: (event.currentTarget.elements.namedItem("frequency") as HTMLInputElement).value,
       registration: registrationNumber,
@@ -400,10 +416,10 @@ const Component: React.FC = () => {
                           type="tel"
                           placeholder="Enter phone number"
                           required
-                          pattern="\d{10}"
-                          minLength={10}
-                          maxLength={10}
-                          title="Phone number must be exactly 10 digits"
+                          pattern="\d{9}"
+                          minLength={9}
+                          maxLength={9}
+                          title="Phone number must be exactly 9 digits"
                           onChange={handlePhoneNumberChange}
                         />
                       </div>
@@ -416,10 +432,10 @@ const Component: React.FC = () => {
                           name="alternateContactNumber"
                           type="tel"
                           placeholder="Enter alternate mobile number"
-                          pattern="\d{10}"
-                          minLength={10}
-                          maxLength={10}
-                          title="Phone number must be exactly 10 digits"
+                          pattern="\d{9}"
+                          minLength={9}
+                          maxLength={9}
+                          title="Phone number must be exactly 9 digits"
                           onChange={handlePhoneNumberChange}
                         />
                       </div>
@@ -449,17 +465,22 @@ const Component: React.FC = () => {
                         <Input id="rego2" name="rego2" type="text" placeholder="Enter rego vechile 2" />
 
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="rego">rego (Optional)</Label>
                         <Input id="rego3" name="rego3" type="text" placeholder="Enter rego vechile 3" />
 
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="identityProof">Identity Proof <span className="text-red-500">*</span></Label>
-                        <Input id="identityProof" name="identityProof" type="text" placeholder="Enter identity proof" onChange={handleidentityProofChange} required />
+                        <Label htmlFor="license">Identity Proof</Label>
+                        <Input id="license" name="license" type="text" placeholder="Enter license "onChange={handleidentityProofChange}  />
+
+                      </div>
+                      <div>
+                        <Label htmlFor="passport">Identity Proof </Label>
+                        <Input id="passport" name="passport" type="text" placeholder="Enter passport" onChange={handleidentityProofChange}  />
                         {/* <small>(Authorized Personnel Only)If no driving license, provide passport details. Medicare, Aged care and any other secondary identity cards not accepted.</small> */}
                       </div>
                     </div>
@@ -836,10 +857,10 @@ const Component: React.FC = () => {
                   type="text"
                   value={phoneNumber || ''}
                   placeholder="e.g., 8925722979"
-                  pattern="\d{10}"
-                  minLength={10}
-                  maxLength={10}
-                  title="contactNumber must be exactly 10 digits"
+                  pattern="\d{9}"
+                  minLength={9}
+                  maxLength={9}
+                  title="contactNumber must be exactly 9 digits"
                   onChange={(e) => setPhoneNumber(e.target.value || null)}
                 />
               </div>
