@@ -302,13 +302,13 @@ export default function Component() {
           if (customerNumber.includes(value)) {
             matchType = 'number';
             queryName = 'number'; // Update queryName if a match is found
-          } else if (customercompanyName.includes(value.toLowerCase())) {
+          } else if (customercompanyName.toLowerCase().includes(value.toLowerCase())) {
             matchType = 'companyName';
             queryName = 'companyName'; // Update queryName if a match is found
-          } else if (customerrego.includes(value.toLowerCase())) {
+          } else if (typeof customerrego === 'string' && customerrego.split(',').some(rego => rego.trim().toLowerCase() === value.toLowerCase())) {
             matchType = 'rego';
             queryName = 'rego'; // Update queryName if a match is found
-          } else if (customeridentityProof.toLowerCase().includes(value.toLowerCase())) {
+          } else if (typeof customeridentityProof === 'string' && customeridentityProof.toLowerCase().includes(value.toLowerCase())) {
             matchType = 'identityProof';
             queryName = 'identityProof'; // Update queryName if a match is found
           } else if (customerEmail.toLowerCase().includes(value.toLowerCase())) {
