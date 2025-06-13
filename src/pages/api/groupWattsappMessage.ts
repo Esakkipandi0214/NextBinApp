@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Send message to all recipients
-    const results = await sendGroupWhatsAppMessage(recipients, message, true); // Pass the entire recipients array
+    const results = await sendGroupWhatsAppMessage(recipients, message ); // Pass the entire recipients array
 
     // Response object
     const successfulResults = results.filter((result: any) => result.success);
