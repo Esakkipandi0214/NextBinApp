@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const result = await sendWhatsAppMessage(to, message, true); // Use client2 for WhatsApp
+    const result = await sendWhatsAppMessage(to, message); // Use client2 for WhatsApp
     return res.status(200).json(result);
   } catch (error: any) {
     console.error('Error sending WhatsApp message:', error);
